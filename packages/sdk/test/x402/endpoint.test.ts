@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { prepareEndpointRequest } from "../../src/x402/endpoint.js";
-import { toEndpointResult } from "../../src/x402/result.js";
+import {
+  endpointErrorResult,
+  toEndpointResult,
+} from "../../src/x402/result.js";
 import type { EndpointConfig } from "../../src/x402/types.js";
 
 describe("prepareEndpointRequest", () => {
@@ -266,6 +269,28 @@ describe("toEndpointResult", () => {
       ok: true,
       status: 200,
       paymentResponse: null,
+    });
+  });
+});
+
+describe("endpointErrorResult", () => {
+  it("uses default metadata and stringifies non-Error values", () => {
+    expect(endpointErrorResult("offline")).toEqual({
+      kind: "error",
+      paid: false,
+      ok: false,
+      status: 0,
+      body: {
+        error: "offline",
+      },
+      paymentResponse: null,
+      metadata: {
+        url: "",
+        method: "",
+        status: 0,
+        statusText: "",
+        headers: {},
+      },
     });
   });
 });
