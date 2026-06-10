@@ -105,6 +105,11 @@ export interface X402ToolExecutionContext<INPUT> {
   input: INPUT;
 }
 
+export type X402ToolResultMapper<INPUT, OUTPUT, OPTIONS> = (
+  context: X402ToolExecutionContext<INPUT>,
+  options: OPTIONS,
+) => OUTPUT | PromiseLike<OUTPUT>;
+
 export interface X402ToolExecutionOptions {
   toolCallId: string;
   messages: unknown[];
@@ -168,8 +173,5 @@ export type X402ToolConfig<INPUT, OUTPUT = EndpointResult> = Omit<
     | undefined;
   maxAmount?: bigint | undefined;
   throwOnError?: boolean | undefined;
-  execute?: (
-    context: X402ToolExecutionContext<INPUT>,
-    options: X402ToolExecutionOptions,
-  ) => OUTPUT | PromiseLike<OUTPUT>;
+  execute?: X402ToolResultMapper<INPUT, OUTPUT, X402ToolExecutionOptions>;
 };

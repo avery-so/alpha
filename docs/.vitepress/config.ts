@@ -92,6 +92,7 @@ const rootSidebar = [
     items: [
       { text: "Concepts", link: "/guide/concepts" },
       { text: "Getting Started", link: "/guide/getting-started" },
+      { text: "Mastra", link: "/guide/mastra" },
       { text: "Next.js App Router", link: "/guide/nextjs-app-router" },
       { text: "Wallets and Networks", link: "/guide/wallets-and-networks" },
       { text: "Error Handling", link: "/guide/error-handling" },
@@ -119,6 +120,7 @@ const zhSidebar = [
     items: [
       { text: "核心概念", link: "/zh/guide/concepts" },
       { text: "快速开始", link: "/zh/guide/getting-started" },
+      { text: "Mastra", link: "/zh/guide/mastra" },
       { text: "Next.js App Router", link: "/zh/guide/nextjs-app-router" },
       { text: "钱包与网络", link: "/zh/guide/wallets-and-networks" },
       { text: "错误处理", link: "/zh/guide/error-handling" },

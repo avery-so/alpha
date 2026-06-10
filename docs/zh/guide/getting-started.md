@@ -136,6 +136,10 @@ const response = await generateText({
 结构见 [构建 x402 AI 工具](/zh/tutorial/x402-ai-tool)。完整 streaming chat 示例见
 [Next.js App Router 快速开始](/zh/guide/nextjs-app-router)。
 
+Mastra agent 请使用 `x402MastraTool()`，而不是 `x402tool()`，这样 Mastra 可以识别
+tool object 并应用自己的 tool execution、approval 和 transform pipeline。见
+[Mastra 集成](/zh/guide/mastra)。
+
 ## 直接调用付费端点
 
 当应用自己控制请求，并希望根据 `EndpointResult.kind` 分支处理时，使用

@@ -21,6 +21,7 @@ import {
   X402Networks,
   X402PaymentError,
   resolveX402Network,
+  x402MastraTool,
   x402tool,
 } from "@averyso/alpha";
 ```
@@ -325,6 +326,109 @@ interface X402ToolExecutionOptions {
 ```
 
 These options are passed through from the AI SDK tool execution context.
+
+## `x402MastraTool(config)`
+
+Creates a Mastra `createTool()`-compatible tool backed by an x402 endpoint.
+Use this helper for Mastra agents. Use `x402tool()` for Vercel AI SDK `ToolSet`
+integrations.
+
+```ts
+import { z } from "zod";
+import { X402Client, X402Networks, x402MastraTool } from "@averyso/alpha";
+
+const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+});
+
+const paidWeather = x402MastraTool({
+  id: "paid-weather",
+  client,
+  description: "Get current weather for a city from a paid x402 endpoint.",
+  inputSchema: z.object({
+    city: z.string(),
+  }),
+  endpoint: "https://api.example.com/weather",
+  maxAmount: 50_000n,
+  execute: ({ endpoint }) => ({
+    ok: endpoint.ok,
+    weather: endpoint.ok ? endpoint.body : null,
+  }),
+});
+```
+
+`x402MastraTool()` does not import `@mastra/core` at runtime and does not add
+Mastra as a dependency of Avery SDK. Your application installs and runs Mastra;
+the helper returns a structurally compatible Mastra tool object with Mastra's
+tool marker.
+
+### `X402MastraToolConfig`
+
+```ts
+type X402MastraToolConfig<
+  INPUT,
+  OUTPUT = EndpointResult,
+  ID extends string = string,
+> = {
+  id: ID;
+  description: string;
+  inputSchema: unknown;
+  outputSchema?: unknown;
+  client: X402Client;
+  endpoint: EndpointInput | ((input: INPUT) => EndpointInput);
+  request?: (
+    input: INPUT,
+  ) =>
+    | EndpointRequestInit
+    | EndpointConfig
+    | undefined
+    | PromiseLike<EndpointRequestInit | EndpointConfig | undefined>;
+  maxAmount?: bigint;
+  throwOnError?: boolean;
+  execute?: (
+    context: { endpoint: EndpointResult; input: INPUT },
+    options: X402MastraToolExecutionContext,
+  ) => OUTPUT | PromiseLike<OUTPUT>;
+};
+```
+
+The config also accepts Mastra tool fields including `requireApproval`,
+`strict`, `providerOptions`, `toModelOutput`, `transform`, `inputExamples`,
+`mcp`, `mcpMetadata`, `requestContextSchema`, `suspendSchema`, and
+`resumeSchema`.
+
+The endpoint, request override, automatic input mapping, `maxAmount`, and
+`throwOnError` behavior matches `x402tool()`. Without `execute`, the tool
+returns `EndpointResult`. With `execute`, return a smaller model-friendly shape
+instead of exposing the full payment and HTTP result to the model.
+
+### `X402MastraToolExecutionContext`
+
+```ts
+interface X402MastraToolExecutionContext {
+  abortSignal?: AbortSignal;
+  toolCallId?: string;
+  messages?: unknown[];
+  requestContext?: unknown;
+  workspace?: unknown;
+  [key: string]: unknown;
+}
+```
+
+Mastra passes this context to the tool. Avery SDK uses `abortSignal` for the
+underlying x402 HTTP request and passes the whole object to your `execute`
+mapper.
+
+When registering tools with a Mastra `Agent`, Mastra stream `toolName` values
+come from the object key, not the tool `id`:
+
+```ts
+tools: {
+  paidWeather, // toolName: "paidWeather"
+  [paidWeather.id]: paidWeather, // toolName: "paid-weather"
+}
+```
 
 ## Endpoint Types
 

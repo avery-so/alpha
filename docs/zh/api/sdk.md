@@ -18,6 +18,7 @@ import {
   X402Networks,
   X402PaymentError,
   resolveX402Network,
+  x402MastraTool,
   x402tool,
 } from "@averyso/alpha";
 ```
@@ -307,6 +308,105 @@ interface X402ToolExecutionOptions {
 ```
 
 这些选项来自 AI SDK tool 执行上下文，会透传给 tool。
+
+## `x402MastraTool(config)`
+
+创建一个兼容 Mastra `createTool()` 的 tool，底层调用 x402 端点。Mastra agent 使用
+这个 helper；Vercel AI SDK `ToolSet` 集成继续使用 `x402tool()`。
+
+```ts
+import { z } from "zod";
+import { X402Client, X402Networks, x402MastraTool } from "@averyso/alpha";
+
+const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+});
+
+const paidWeather = x402MastraTool({
+  id: "paid-weather",
+  client,
+  description: "Get current weather for a city from a paid x402 endpoint.",
+  inputSchema: z.object({
+    city: z.string(),
+  }),
+  endpoint: "https://api.example.com/weather",
+  maxAmount: 50_000n,
+  execute: ({ endpoint }) => ({
+    ok: endpoint.ok,
+    weather: endpoint.ok ? endpoint.body : null,
+  }),
+});
+```
+
+`x402MastraTool()` 不会在运行时 import `@mastra/core`，也不会把 Mastra 加成
+Avery SDK 的依赖。你的应用负责安装并运行 Mastra；helper 返回结构兼容的 Mastra
+tool object，并设置 Mastra tool marker。
+
+### `X402MastraToolConfig`
+
+```ts
+type X402MastraToolConfig<
+  INPUT,
+  OUTPUT = EndpointResult,
+  ID extends string = string,
+> = {
+  id: ID;
+  description: string;
+  inputSchema: unknown;
+  outputSchema?: unknown;
+  client: X402Client;
+  endpoint: EndpointInput | ((input: INPUT) => EndpointInput);
+  request?: (
+    input: INPUT,
+  ) =>
+    | EndpointRequestInit
+    | EndpointConfig
+    | undefined
+    | PromiseLike<EndpointRequestInit | EndpointConfig | undefined>;
+  maxAmount?: bigint;
+  throwOnError?: boolean;
+  execute?: (
+    context: { endpoint: EndpointResult; input: INPUT },
+    options: X402MastraToolExecutionContext,
+  ) => OUTPUT | PromiseLike<OUTPUT>;
+};
+```
+
+配置还接受 Mastra tool 字段，包括 `requireApproval`、`strict`、`providerOptions`、
+`toModelOutput`、`transform`、`inputExamples`、`mcp`、`mcpMetadata`、
+`requestContextSchema`、`suspendSchema` 和 `resumeSchema`。
+
+`endpoint`、request override、自动 input mapping、`maxAmount` 和 `throwOnError`
+行为与 `x402tool()` 一致。没有 `execute` 时，tool 返回 `EndpointResult`。提供
+`execute` 时，建议返回更小、适合模型消费的结构，不要把完整 payment 和 HTTP 结果
+暴露给模型。
+
+### `X402MastraToolExecutionContext`
+
+```ts
+interface X402MastraToolExecutionContext {
+  abortSignal?: AbortSignal;
+  toolCallId?: string;
+  messages?: unknown[];
+  requestContext?: unknown;
+  workspace?: unknown;
+  [key: string]: unknown;
+}
+```
+
+Mastra 会把这个 context 传给 tool。Avery SDK 使用其中的 `abortSignal` 控制底层
+x402 HTTP 请求，并把整个对象透传给你的 `execute` mapper。
+
+在 Mastra `Agent` 中注册 tools 时，Mastra stream 的 `toolName` 来自 object key，
+不是 tool 的 `id`：
+
+```ts
+tools: {
+  paidWeather, // toolName: "paidWeather"
+  [paidWeather.id]: paidWeather, // toolName: "paid-weather"
+}
+```
 
 ## Endpoint 类型
 

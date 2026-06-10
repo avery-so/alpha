@@ -150,6 +150,10 @@ The `model` value comes from your AI SDK model provider. See
 overrides, and model-friendly output shaping. For a full streaming chat example,
 see [Next.js App Router Quickstart](/guide/nextjs-app-router).
 
+For Mastra agents, use `x402MastraTool()` instead of `x402tool()` so Mastra can
+recognize the tool object and apply its tool execution, approval, and transform
+pipeline. See [Mastra Integration](/guide/mastra).
+
 ## Call a Paid Endpoint Directly
 
 Use `client.call()` when your application directly controls the request and

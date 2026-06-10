@@ -10,6 +10,7 @@ requests.
 Product pillars:
 
 - Agent-native tools for the Vercel AI SDK with `x402tool()`.
+- Mastra-compatible tools with `x402MastraTool()`.
 - Pay-per-request x402 HTTP access with `X402Client`.
 - Payment exposure control with `maxAmount`.
 - Server-side private key, RPC URL, and signing boundaries.
@@ -85,6 +86,53 @@ x402tool({
   inputSchema: jsonSchema({ type: "object" }),
 });
 ```
+
+## Mastra Tools
+
+Use `x402MastraTool()` when a Mastra agent should call a paid x402 endpoint.
+The helper returns a Mastra `createTool()`-compatible object without importing
+`@mastra/core` at runtime.
+
+Install Mastra and your schema library in the application that owns the agent
+runtime, for example `pnpm add @mastra/core zod`.
+
+```ts
+import { z } from "zod";
+import { X402Client, X402Networks, x402MastraTool } from "@averyso/alpha";
+
+const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+  maxAmount: 100_000n,
+});
+
+export const paidWeatherTool = x402MastraTool({
+  id: "paid-weather",
+  client: x402,
+  description: "Get current weather for a city from a paid x402 endpoint.",
+  inputSchema: z.object({
+    city: z.string(),
+  }),
+  endpoint: "https://api.example.com/weather",
+  maxAmount: 50_000n,
+  execute: ({ endpoint }) => ({
+    ok: endpoint.ok,
+    weather: endpoint.ok ? endpoint.body : null,
+  }),
+});
+```
+
+Register it on a Mastra agent with the `tools` property:
+
+```ts
+tools: {
+  paidWeather: paidWeatherTool,
+}
+```
+
+Mastra stream `toolName` values come from the object key, not the tool `id`.
+`x402MastraTool()` passes Mastra fields such as `requireApproval`,
+`toModelOutput`, `transform`, and `mcp` through to Mastra.
 
 ## Direct x402 Calls
 
@@ -195,5 +243,5 @@ request, and expose the settlement response in
 ## CommonJS
 
 ```js
-const { X402Client, x402tool } = require("@averyso/alpha");
+const { X402Client, x402MastraTool, x402tool } = require("@averyso/alpha");
 ```
