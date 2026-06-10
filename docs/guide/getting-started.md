@@ -38,6 +38,10 @@ endpoint. Provider-side settlement may happen locally or through the provider's
 facilitator, but Avery SDK does not configure that path. You do not need an
 Avery account, Avery API key, Avery-hosted service, or registration.
 
+If you are using an AI coding agent to integrate Avery SDK, install and invoke
+the [`avery-developer` skill](/guide/avery-developer-skill) for focused x402
+agent payment guidance.
+
 ## Imports
 
 ESM:

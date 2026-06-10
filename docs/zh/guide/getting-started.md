@@ -32,6 +32,10 @@ pnpm add @averyso/alpha
 结算可能在本地完成，也可能通过 provider 的 facilitator 完成，但 Avery SDK 不配置
 这条路径。你不需要 Avery 账号、Avery API key、Avery 托管服务或注册。
 
+如果你使用 AI coding agent 接入 Avery SDK，可以安装并调用
+[`avery-developer` skill](/zh/guide/avery-developer-skill)，获取针对 x402 agent
+payment 开发的辅助指导。
+
 ## 导入
 
 ESM:
