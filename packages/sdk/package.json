@@ -1,6 +1,6 @@
 {
   "name": "@averyso/alpha",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Node-only TypeScript SDK for Alpha.",
   "license": "ISC",
   "type": "module",
