@@ -28,6 +28,12 @@ pnpm docs:build
 checks, type checking, SDK coverage tests with 90% thresholds, package builds,
 and the SDK package dry run.
 
+Development uses Node 24 (see `.nvmrc`); the minimum supported runtime is Node
+20.19.0 (see the `engines` field). CI runs the quality gate against both.
+
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org)
+and are enforced by a `commit-msg` hook (commitlint).
+
 ## Packages
 
 - `packages/sdk`: Node-only TypeScript SDK.
