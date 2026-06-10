@@ -12,7 +12,7 @@ For symptom-based fixes, see [Troubleshooting](/guide/troubleshooting).
 |---|---|---|---|---|---|
 | `success` | Payment settled and the paid response was returned. | Normal paid access. | Show the paid result. | Record the endpoint, status, and redacted payment response if needed for audit. | No retry needed. |
 | `payment_required` | The endpoint required payment, but Avery SDK did not complete a compatible payment. | Network mismatch, amount over `maxAmount`, unsupported or incompatible requirements, insufficient balance, wrong asset. | Ask the user to adjust payment setup or try a lower-cost request. | Inspect endpoint requirements, configured network, asset, wallet balance, and cap. | Do not retry with the same configuration. |
-| `settle_failed` | The endpoint responded after payment handling, but settlement was reported as failed. | Facilitator or chain settlement failure, expired payment, provider issue, endpoint settlement rejection. | Tell the user the payment could not be confirmed and to retry later or contact support. | Log `paymentResponse`, endpoint, status, and a request id if available. Check provider state before replaying. | Only for idempotent requests and only when provider state is clear. |
+| `settle_failed` | The endpoint responded after payment handling, but settlement was reported as failed. | Provider-side settlement path failure, including local settlement or the provider's facilitator; expired payment; provider issue; endpoint settlement rejection. | Tell the user the payment could not be confirmed and to retry later or contact support. | Log `paymentResponse`, endpoint, status, and a request id if available. Check provider state before replaying. | Only for idempotent requests and only when provider state is clear. |
 | `error` | The request, SDK, signing, fetch, RPC, endpoint, or x402 flow failed outside a normal endpoint result path. | Invalid config, signing failure, fetch failure, RPC error, endpoint 5xx, malformed x402 response. | Show a generic failure message with a support reference. | Use `X402PaymentError.status`, `details.cause`, `result.metadata`, and server logs. | Retry only transient network, RPC, rate-limit, or 5xx failures. |
 | `passthrough` | The endpoint returned a non-`402` response, so Avery SDK did not pay. | Free endpoint, wrong URL, test environment without x402, middleware order issue, provider configuration issue. | Show the response if free access is expected. | If payment was expected, verify URL, environment, middleware order, and provider config. | No payment retry; fix routing or configuration first. |
 
@@ -38,8 +38,13 @@ produce the same result. For field checks by symptom, see
 ## `settle_failed`
 
 Do not treat `settle_failed` as successful access. Also do not assume it proves
-that no funds moved. Settlement status depends on the provider, facilitator,
-network, and payment response.
+that no funds moved. Settlement status depends on the provider-side settlement
+path, including local settlement or the provider's facilitator, as well as the
+network and payment response.
+
+On the buyer side, you can check the configured network, required asset,
+`maxAmount`, wallet balance, and RPC URL. You cannot switch the provider's
+facilitator through Avery SDK; the provider controls that settlement path.
 
 For user-facing flows, report that payment confirmation failed and ask the user
 to try again later or contact the provider. For developer logs, capture:
@@ -70,7 +75,7 @@ Runtime failures may be retryable with backoff:
 - Temporary fetch failures.
 - RPC timeouts or rate limits.
 - Endpoint 5xx responses.
-- Temporary facilitator errors.
+- Temporary provider-side settlement errors.
 
 With `throwOnError: true`, failed paid endpoint results throw
 `X402PaymentError`. The thrown error includes `status` and optional `details`.
@@ -88,7 +93,8 @@ If you expected a paid x402 flow, check:
 - Whether you are calling the test or production environment you intended.
 - Whether x402 middleware is installed before the route handler that returns
   content.
-- Whether the provider or facilitator is enabled for that endpoint.
+- If you operate the endpoint, whether provider-side settlement is enabled for
+  that route, either locally or through the provider's facilitator.
 - Whether another auth layer returned a response before x402 ran.
 
 ## `throwOnError`

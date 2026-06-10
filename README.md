@@ -20,8 +20,9 @@ pnpm add @averyso/alpha
 No Avery account is required for payment features. The package is installed
 from npm as `@averyso/alpha`, but runtime payment execution uses local x402
 signing with your configured wallet/private key, RPC URL, and target x402
-endpoint or facilitator flow. You do not need an Avery account, Avery API key,
-Avery-hosted service, or registration.
+endpoint. Provider-side settlement may happen locally or through the provider's
+facilitator, but Avery SDK does not configure that path. You do not need an
+Avery account, Avery API key, Avery-hosted service, or registration.
 
 ## Agent Payment Quick Start
 

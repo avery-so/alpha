@@ -9,8 +9,9 @@ All public SDK APIs are exported from `@averyso/alpha`. Do not import from
 No Avery account is required for payment features. The package is installed and
 imported as `@averyso/alpha`, but runtime payment execution uses local x402
 signing with your configured wallet/private key, RPC URL, and target x402
-endpoint or facilitator flow. You do not need an Avery account, Avery API key,
-Avery-hosted service, or registration.
+endpoint. Provider-side settlement may happen locally or through the provider's
+facilitator, but Avery SDK does not configure that path. You do not need an
+Avery account, Avery API key, Avery-hosted service, or registration.
 
 ```ts
 import {
@@ -69,6 +70,11 @@ interface X402ClientOptions {
 - `maxAmount`: Default per-payment cap. Defaults to `100000n`. It is the
   fallback cap when a direct call or tool does not provide a more specific cap.
 - `rpcUrl`: Optional RPC URL passed to the payment scheme.
+
+There is intentionally no `facilitator` option. `X402ClientOptions` configures
+the buyer-side wallet, network, cap, fetch, logging, and RPC behavior. The
+resource server controls its accepted assets, payment scheme, pricing, and
+provider-side settlement path.
 
 The `maxAmount` value is an atomic-unit cap, not a decimal string or a
 user/session/day budget. For budget ledger patterns, see

@@ -11,6 +11,16 @@ Avery SDK 帮助 agent 和应用调用受 x402 保护的 HTTP 端点，而不需
 
 **端点请求** 是 agent tool 或应用想发出的 HTTP 请求。
 
+**Client / buyer** 是发起请求、接收 `402 Payment Required`、签名支付凭证并带支付
+重试的应用或服务端 agent tool。Avery SDK 运行在这个角色中。
+
+**Resource server / provider** 是受 x402 保护的端点。它声明价格和可接受的支付要求，
+验证支付、结算支付，并返回受保护资源。
+
+**Facilitator** 是 resource server 可选使用的 provider-side 服务，用于验证 payment
+payload 并执行链上结算。它属于 provider 的结算路径，不是 Avery SDK 的 client
+配置项。
+
 **支付要求** 是受 x402 保护的端点返回 `402 Payment Required` 时附带的支付选项。
 
 **配置网络** 是 `X402Client` 上选择的网络，例如内置 `X402Networks` 条目，或受支持
@@ -28,11 +38,27 @@ Avery SDK 帮助 agent 和应用调用受 x402 保护的 HTTP 端点，而不需
 2. 端点返回 `402 Payment Required`，并附带支付要求。
 3. SDK 过滤支付要求，并选择一个与配置网络和本次有效 `maxAmount` 兼容的要求。
 4. SDK 在服务端签名支付凭证，并带着支付信息重试请求。
-5. 端点验证并结算支付，然后返回付费响应，或报告结算失败。
+5. 端点在本地或通过它配置的 facilitator 验证并结算支付，然后返回付费响应，或报告
+   结算失败。
 6. SDK 返回 `EndpointResult`，让应用根据结果处理后续逻辑。
 
 如果端点第一次返回的是普通的非 `402` 响应，SDK 不会付款，而是以 passthrough
 结果返回该响应。
+
+SDK 接收端点返回的最终 `PAYMENT-RESPONSE`。它不会选择或配置 provider 的结算服务。
+
+## Avery SDK 配置什么
+
+Avery SDK 配置 x402 调用的 buyer side：
+
+- 用于签名支付凭证的钱包或私钥。
+- Payment scheme 使用的网络和可选 RPC URL。
+- client、direct call 或 tool 层级的 `maxAmount` 支付上限。
+- 自定义 `fetch`、logger 和 log level。
+
+Avery SDK 不配置 provider 的 facilitator、可接受资产、payment scheme、端点定价或
+resource-server middleware。`X402ClientOptions` 中有意没有 `facilitator` 选项，因为
+Avery SDK 面向 buyer-side 调用。
 
 ## 支付选择
 

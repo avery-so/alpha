@@ -67,7 +67,9 @@ Inspect:
 - Wallet address on the configured network.
 - Required asset and amount from the endpoint payment requirements.
 - Recent paid attempts and budget reservations.
-- RPC or facilitator errors in server logs.
+- RPC errors in buyer-side server logs. If you operate the endpoint, also check
+  provider-side settlement logs, including local settlement or the provider's
+  facilitator.
 
 Fix:
 
@@ -138,7 +140,8 @@ Keep RPC URLs with API keys out of logs. See
 Likely causes:
 
 - Payment was not attempted because requirements were incompatible.
-- Payment header was rejected by the provider or facilitator.
+- Payment header was rejected by the provider-side settlement path, including
+  local settlement or the provider's facilitator.
 - Endpoint requires a different network, asset, method, path, or host.
 - Endpoint middleware or route configuration is wrong.
 - The request was sent from a browser or proxy path that bypassed the server
@@ -149,7 +152,9 @@ Inspect:
 - `EndpointResult.kind`, `status`, `metadata.url`, and `metadata.method`.
 - Whether `result.paymentResponse` exists.
 - Endpoint host/path/method after all request mapping.
-- Provider logs for the same request id.
+- If you operate the endpoint, provider and facilitator logs for the same
+  request id. If you are only the buyer, contact the provider with your request
+  id and a redacted `paymentResponse` summary.
 
 Fix:
 

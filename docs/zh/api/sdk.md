@@ -6,8 +6,9 @@
 `packages/sdk/src/...` 内部路径导入。
 
 支付功能不需要 Avery 账号。包仍通过 `@averyso/alpha` 安装和导入，但运行时支付
-执行使用本地 x402 签名、你配置的钱包/私钥、RPC URL，以及目标 x402 端点或
-facilitator flow。你不需要 Avery 账号、Avery API key、Avery 托管服务或注册。
+执行使用本地 x402 签名、你配置的钱包/私钥、RPC URL 和目标 x402 端点。Provider-side
+结算可能在本地完成，也可能通过 provider 的 facilitator 完成，但 Avery SDK 不配置
+这条路径。你不需要 Avery 账号、Avery API key、Avery 托管服务或注册。
 
 ```ts
 import {
@@ -63,6 +64,10 @@ interface X402ClientOptions {
   函数会抛出 `X402ConfigError`。
 - `maxAmount`：默认支付上限，默认 `100000n`。
 - `rpcUrl`：可选 RPC URL，会传给 payment scheme。
+
+这里有意没有 `facilitator` 选项。`X402ClientOptions` 配置 buyer-side wallet、
+network、cap、fetch、logging 和 RPC 行为。Resource server 控制它接受的资产、
+payment scheme、定价和 provider-side 结算路径。
 
 `maxAmount` 是原子单位的支付上限，不是十进制字符串。
 

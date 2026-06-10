@@ -13,6 +13,18 @@ you.
 An **endpoint request** is the HTTP request your agent tool or application wants
 to make.
 
+A **client / buyer** is the application or server-side agent tool that sends the
+request, receives the `402 Payment Required` response, signs payment credentials,
+and retries the request. Avery SDK runs in this role.
+
+A **resource server / provider** is the x402-protected endpoint. It declares the
+price and accepted payment requirements, verifies payment, settles payment, and
+returns the protected resource.
+
+A **facilitator** is an optional provider-side service that a resource server can
+use to verify payment payloads and settle them on chain. It is part of the
+provider's settlement path, not an Avery SDK client option.
+
 A **payment requirement** is the payment option returned by an x402-protected
 endpoint when it responds with `402 Payment Required`.
 
@@ -35,12 +47,29 @@ requirements, and the second retries with signed payment credentials.
    configured network and the effective `maxAmount`.
 4. The SDK signs payment credentials on the server and retries the request with
    payment.
-5. The endpoint verifies and settles the payment, then returns the paid response
-   or reports a settlement failure.
+5. The endpoint verifies and settles the payment locally or through its
+   configured facilitator, then returns the paid response or reports a
+   settlement failure.
 6. The SDK returns an `EndpointResult` so the application can handle the outcome.
 
 If the first endpoint response is a normal non-`402` response, the SDK does not
 pay. It returns that response as a passthrough result.
+
+The SDK receives the final `PAYMENT-RESPONSE` returned by the endpoint. It does
+not choose or configure the provider's settlement service.
+
+## What Avery SDK Configures
+
+Avery SDK configures the buyer side of an x402 call:
+
+- Wallet or private key used to sign payment credentials.
+- Network and optional RPC URL used by the payment scheme.
+- `maxAmount` payment cap at the client, direct call, or tool level.
+- Custom `fetch`, logger, and log level.
+
+Avery SDK does not configure the provider's facilitator, accepted assets,
+payment scheme, endpoint pricing, or resource-server middleware. There is no
+`facilitator` option in `X402ClientOptions` by design for buyer-side calls.
 
 ## Payment Selection
 
