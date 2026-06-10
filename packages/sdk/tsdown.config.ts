@@ -1,11 +1,13 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  attw: true,
+  attw: {
+    level: "error",
+  },
   clean: true,
   dts: true,
   entry: ["src/index.ts"],
-  format: ["esm"],
+  format: ["esm", "cjs"],
   hash: false,
   outDir: "dist",
   publint: true,

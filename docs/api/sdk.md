@@ -4,8 +4,16 @@ The SDK exposes a single public entry point from `@averyso/alpha`.
 
 ## `AlphaClient`
 
+ESM:
+
 ```ts
 import { AlphaClient } from "@averyso/alpha";
+```
+
+CommonJS:
+
+```js
+const { AlphaClient } = require("@averyso/alpha");
 ```
 
 ### Constructor
@@ -44,4 +52,5 @@ Throws `AlphaError` when the HTTP response is not successful.
 
 Keep this page synchronized with `packages/sdk/src/index.ts`. Each exported type,
 class, and function should have an example that imports from `@averyso/alpha`,
-not from internal source paths.
+not from internal source paths. The package supports both ESM `import` and
+CommonJS `require` consumers.

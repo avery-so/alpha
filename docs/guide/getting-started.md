@@ -12,8 +12,20 @@ pnpm add @averyso/alpha
 
 ## Create a Client
 
+ESM:
+
 ```ts
 import { AlphaClient } from "@averyso/alpha";
+
+const client = new AlphaClient({
+  apiKey: process.env.ALPHA_API_KEY,
+});
+```
+
+CommonJS:
+
+```js
+const { AlphaClient } = require("@averyso/alpha");
 
 const client = new AlphaClient({
   apiKey: process.env.ALPHA_API_KEY,
