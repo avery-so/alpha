@@ -24,8 +24,9 @@
     "docs:build": "pnpm --filter @averyso/alpha-docs build",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "pnpm verify && changeset publish",
-    "release:publish": "changeset publish",
+    "release": "pnpm verify && changeset publish --no-git-tag",
+    "release:publish": "changeset publish --no-git-tag",
+    "release:alpha": "changeset version --snapshot alpha && changeset publish --tag alpha --no-git-tag",
     "lint-staged": "lint-staged",
     "prepare": "husky"
   },
@@ -40,13 +41,5 @@
     "oxlint": "^1.2.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,jsonc,md,yml,yaml}": [
-      "oxfmt"
-    ],
-    "*.{js,jsx,ts,tsx}": [
-      "oxlint"
-    ]
   }
 }

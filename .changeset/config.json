@@ -11,5 +11,9 @@
     "version": true,
     "tag": false
   },
-  "updateInternalDependencies": "patch"
+  "updateInternalDependencies": "patch",
+  "snapshot": {
+    "useCalculatedVersion": true,
+    "prereleaseTemplate": "{tag}-{commit}"
+  }
 }
