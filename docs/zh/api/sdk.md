@@ -344,7 +344,8 @@ interface EndpointRequestInit
 
 `EndpointResult` 是以 `kind` 为判别字段的联合类型。
 关于每个 kind 在支付生命周期中的含义，见
-[核心概念](/zh/guide/concepts#endpointresult-kind)。
+[核心概念](/zh/guide/concepts#endpointresult-kind)。重试策略和面向用户的处理建议见
+[错误处理](/zh/guide/error-handling)。
 
 ```ts
 const result = await client.call("https://api.example.com/weather");
@@ -378,6 +379,9 @@ interface EndpointResultMetadata {
 `metadata`。读取支付相关字段前，建议先按 `kind` 收窄类型。
 
 ## 错误
+
+生产环境错误处理、重试策略和安全的模型侧 tool 输出建议见
+[错误处理](/zh/guide/error-handling)。
 
 ### `X402Error`
 

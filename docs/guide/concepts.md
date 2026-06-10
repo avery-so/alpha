@@ -69,7 +69,10 @@ configured cap.
   endpoint result path.
 
 Use `kind` as the first branch in application code. The full TypeScript shape of
-each result variant is documented in the [SDK API Reference](/api/sdk#endpointresult).
+each result variant is documented in the
+[SDK API Reference](/api/sdk#endpointresult). For operational handling,
+user-facing messages, and retry guidance, see
+[Error Handling](/guide/error-handling).
 
 ## Security Boundary
 

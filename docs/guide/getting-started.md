@@ -14,9 +14,13 @@ first for the payment lifecycle and `EndpointResult.kind` outcomes.
 - An x402-protected endpoint. See [Concepts](/guide/concepts) for how an
   endpoint advertises payment requirements and how Alpha completes a compatible
   payment.
-- Credentials for the selected x402 network.
-- An RPC URL when the selected network requires one.
-- Funds on the selected testnet or mainnet network.
+- Credentials for the selected x402 network. See
+  [Wallets and Networks](/guide/wallets-and-networks) for test wallet and
+  network setup.
+- An RPC URL when the selected network requires one. See
+  [Production](/guide/production) for deployment guidance.
+- Funds on the selected testnet or mainnet network. Use the exact network and
+  asset required by the endpoint.
 
 EVM networks require a 32-byte hex private key, with or without a `0x` prefix.
 Solana networks require a base58-encoded 64-byte Solana secret key.
@@ -75,6 +79,9 @@ call, or tool level.
 The full built-in network table is in the [SDK API Reference](/api/sdk). Raw
 `eip155:*` CAIP-2 values continue to work; raw Solana CAIP-2 values are limited
 to the supported Solana Mainnet and Devnet entries.
+
+For wallet creation, faucet selection, atomic-unit conversion, and mainnet
+readiness checks, see [Wallets and Networks](/guide/wallets-and-networks).
 
 ## Build an Agent Payment Tool
 

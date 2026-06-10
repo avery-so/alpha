@@ -12,9 +12,11 @@ Alpha 是 AI Agent 时代的 Agent 支付 SDK。当模型需要调用付费 x402
 - Node.js `>=20.19.0`。
 - 一个 x402-protected endpoint。见 [核心概念](/zh/guide/concepts)，了解端点如何
   返回支付要求，以及 Alpha 如何完成兼容支付。
-- 所选 x402 网络对应的凭证。
-- 所选网络需要 RPC 时，提供 RPC URL。
-- 在对应测试网或主网上准备足够资金。
+- 所选 x402 网络对应的凭证。测试钱包和网络配置见
+  [钱包与网络](/zh/guide/wallets-and-networks)。
+- 所选网络需要 RPC 时，提供 RPC URL。部署建议见
+  [生产部署](/zh/guide/production)。
+- 在对应测试网或主网上准备足够资金。网络和资产必须匹配端点支付要求。
 
 EVM 网络需要 32 字节 hex 私钥，可带或不带 `0x` 前缀。Solana 网络需要
 base58 编码的 64 字节 Solana secret key。
@@ -71,6 +73,9 @@ call 或 tool 层覆盖。
 
 完整内置网络表见 [SDK API 参考](/zh/api/sdk)。原始 `eip155:*` CAIP-2 值会继续
 可用；原始 Solana CAIP-2 值仅限支持的 Solana Mainnet 和 Devnet 条目。
+
+钱包创建、faucet 选择、原子单位换算和主网上线检查见
+[钱包与网络](/zh/guide/wallets-and-networks)。
 
 ## 构建 Agent 支付工具
 

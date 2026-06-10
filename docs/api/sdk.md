@@ -349,7 +349,8 @@ an `x402tool()` `request` function.
 
 `EndpointResult` is a discriminated union keyed by `kind`.
 For lifecycle-level interpretation of each kind, see
-[Concepts](/guide/concepts#endpointresult-kind).
+[Concepts](/guide/concepts#endpointresult-kind). For retry and user-facing
+handling strategies, see [Error Handling](/guide/error-handling).
 
 ```ts
 const result = await client.call("https://api.example.com/weather");
@@ -385,6 +386,9 @@ The union also exposes `ok`, `paid`, `status`, `body`, `paymentResponse`, and
 `metadata`. Narrow on `kind` before reading payment-specific fields.
 
 ## Errors
+
+For production error handling, retry strategy, and safe model-facing tool
+outputs, see [Error Handling](/guide/error-handling).
 
 ### `X402Error`
 
