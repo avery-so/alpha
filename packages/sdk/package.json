@@ -3,6 +3,15 @@
   "version": "0.0.1",
   "description": "Node-only TypeScript SDK for Alpha.",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avery-so/alpha.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/avery-so/alpha/issues"
+  },
+  "homepage": "https://github.com/avery-so/alpha#readme",
   "type": "module",
   "sideEffects": false,
   "engines": {
