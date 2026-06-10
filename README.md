@@ -9,8 +9,7 @@ Use it to:
   `x402tool()`;
 - call pay-per-request x402 HTTP resources directly with `X402Client.call()`;
 - cap payment exposure per client, call, or tool with `maxAmount`;
-- keep EVM and Solana credentials, RPC URLs, and payment signing on the server;
-- check Avery SDK service status with the lightweight `AveryClient`.
+- keep EVM and Solana credentials, RPC URLs, and payment signing on the server.
 
 ## Install
 
@@ -18,9 +17,11 @@ Use it to:
 pnpm add @averyso/alpha
 ```
 
-Compatibility note: the package name remains `@averyso/alpha`. New code should
-use `AveryClient` and `AveryError`; the legacy `Alpha*` APIs remain available
-for existing consumers.
+No Avery account is required for payment features. The package is installed
+from npm as `@averyso/alpha`, but runtime payment execution uses local x402
+signing with your configured wallet/private key, RPC URL, and target x402
+endpoint or facilitator flow. You do not need an Avery account, Avery API key,
+Avery-hosted service, or registration.
 
 ## Agent Payment Quick Start
 
@@ -98,21 +99,10 @@ See the [Getting Started guide](./docs/guide/getting-started.md), the
 [SDK API reference](./docs/api/sdk.md) for the full network table and API
 details.
 
-## Avery SDK Status
-
-```ts
-import { AveryClient } from "@averyso/alpha";
-
-const client = new AveryClient({ apiKey: process.env.AVERY_API_KEY });
-const status = await client.getStatus();
-
-console.log(status.ok);
-```
-
 ## CommonJS
 
 ```js
-const { AveryClient, X402Client, x402tool } = require("@averyso/alpha");
+const { X402Client, x402tool } = require("@averyso/alpha");
 ```
 
 ## Development

@@ -21,9 +21,11 @@ Product pillars:
 pnpm add @averyso/alpha
 ```
 
-Compatibility note: the package name remains `@averyso/alpha`. New code should
-use `AveryClient` and `AveryError`; the legacy `Alpha*` APIs remain available
-for existing consumers.
+No Avery account is required for payment features. The package is installed
+from npm as `@averyso/alpha`, but runtime payment execution uses local x402
+signing with your configured wallet/private key, RPC URL, and target x402
+endpoint or facilitator flow. You do not need an Avery account, Avery API key,
+Avery-hosted service, or registration.
 
 ## Agent Payment Tools
 
@@ -179,17 +181,6 @@ Built-in friendly names, primary slugs, constants, and CAIP-2 values:
 | `SKALE Base Sepolia` | `skale-base-sepolia` | `X402Networks.skaleBaseSepolia` | `eip155:324705682` |
 | `Arbitrum Sepolia` | `arbitrum-sepolia` | `X402Networks.arbitrumSepolia` | `eip155:421614` |
 
-## Avery SDK Status
-
-```ts
-import { AveryClient } from "@averyso/alpha";
-
-const client = new AveryClient({ apiKey: process.env.AVERY_API_KEY });
-const status = await client.getStatus();
-
-console.log(status.ok);
-```
-
 ## Manual Integration Check
 
 CI tests do not spend real funds. To verify an end-to-end x402 payment on Base
@@ -203,10 +194,5 @@ request, and expose the settlement response in
 ## CommonJS
 
 ```js
-const { AveryClient, X402Client, x402tool } = require("@averyso/alpha");
-
-const client = new AveryClient({ apiKey: process.env.AVERY_API_KEY });
-const status = await client.getStatus();
-
-console.log(status.ok);
+const { X402Client, x402tool } = require("@averyso/alpha");
 ```

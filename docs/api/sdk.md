@@ -6,14 +6,14 @@ direct x402 paid HTTP calls.
 All public SDK APIs are exported from `@averyso/alpha`. Do not import from
 `packages/sdk/src/...` paths.
 
-Compatibility note: the package is still installed and imported as
-`@averyso/alpha`. Legacy `Alpha*` status APIs remain exported for existing
-consumers, but new code should use the `Avery*` names.
+No Avery account is required for payment features. The package is installed and
+imported as `@averyso/alpha`, but runtime payment execution uses local x402
+signing with your configured wallet/private key, RPC URL, and target x402
+endpoint or facilitator flow. You do not need an Avery account, Avery API key,
+Avery-hosted service, or registration.
 
 ```ts
 import {
-  AveryClient,
-  AveryError,
   X402Client,
   X402ConfigError,
   X402Error,
@@ -490,104 +490,10 @@ CAIP-2 values throw `X402ConfigError` with `details.network` and
 Re-exported from `@x402/core/types`. Successful and settlement-failed endpoint
 results include a `paymentResponse: SettleResponse`.
 
-## `AveryClient`
-
-`AveryClient` is the lightweight Avery SDK status client. It is still exported from
-the package root, but x402 integrations should use `X402Client`.
-
-```ts
-import { AveryClient } from "@averyso/alpha";
-```
-
-### Constructor
-
-```ts
-const client = new AveryClient({
-  apiKey: process.env.AVERY_API_KEY,
-  baseUrl: "https://api.avery.so/avery",
-});
-```
-
-### `AveryClientOptions`
-
-```ts
-interface AveryClientOptions {
-  apiKey?: string;
-  baseUrl?: string | URL;
-  fetch?: typeof fetch;
-}
-```
-
-- `apiKey`: Optional bearer token sent with status requests.
-- `baseUrl`: Optional API base URL. Defaults to `https://api.avery.so/avery`.
-- `fetch`: Optional fetch implementation.
-
-### `getStatus()`
-
-```ts
-const status = await client.getStatus();
-```
-
-Returns:
-
-```ts
-interface AveryStatus {
-  ok: boolean;
-  service: "avery";
-}
-```
-
-Throws `AveryError` when the HTTP response is not successful.
-
-## `AveryError`
-
-```ts
-import { AveryError } from "@averyso/alpha";
-```
-
-`AveryError` is thrown by `AveryClient.getStatus()` for unsuccessful status
-responses. It includes the HTTP status code.
-
-```ts
-try {
-  await client.getStatus();
-} catch (error) {
-  if (error instanceof AveryError) {
-    console.error(error.status);
-  }
-}
-```
-
 ## CommonJS
 
 The package also supports CommonJS consumers:
 
 ```js
-const { AveryClient, X402Client, x402tool } = require("@averyso/alpha");
-```
-
-## Legacy `Alpha*` APIs
-
-The package still exports `AlphaClientOptions`, `AlphaStatus`, `AlphaClient`,
-and `AlphaError` for compatibility. These names are deprecated in favor of
-`AveryClientOptions`, `AveryStatus`, `AveryClient`, and `AveryError`.
-
-Legacy `AlphaClient` keeps its original defaults and behavior:
-
-```ts
-import { AlphaClient, AlphaError } from "@averyso/alpha";
-
-const client = new AlphaClient({
-  apiKey: process.env.AVERY_API_KEY,
-  baseUrl: "https://api.avery.so/alpha",
-});
-
-try {
-  const status = await client.getStatus();
-  // status.service === "alpha"
-} catch (error) {
-  if (error instanceof AlphaError) {
-    console.error(error.status);
-  }
-}
+const { X402Client, x402tool } = require("@averyso/alpha");
 ```

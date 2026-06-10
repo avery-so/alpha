@@ -31,8 +31,11 @@ Solana networks require a base58-encoded 64-byte Solana secret key.
 pnpm add @averyso/alpha
 ```
 
-The package name remains `@averyso/alpha` for compatibility. New code should
-use the `Avery*` status APIs; legacy `Alpha*` names are still exported.
+No Avery account is required for payment features. The package is installed
+from npm as `@averyso/alpha`, but runtime payment execution uses local x402
+signing with your configured wallet/private key, RPC URL, and target x402
+endpoint or facilitator flow. You do not need an Avery account, Avery API key,
+Avery-hosted service, or registration.
 
 ## Imports
 

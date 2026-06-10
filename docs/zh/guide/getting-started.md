@@ -27,8 +27,9 @@ base58 编码的 64 字节 Solana secret key。
 pnpm add @averyso/alpha
 ```
 
-包名为了兼容仍是 `@averyso/alpha`。新代码应使用 `Avery*` 状态 API；legacy
-`Alpha*` 名称仍会继续导出。
+支付功能不需要 Avery 账号。包仍从 npm 以 `@averyso/alpha` 安装，但运行时支付
+执行使用本地 x402 签名、你配置的钱包/私钥、RPC URL，以及目标 x402 端点或
+facilitator flow。你不需要 Avery 账号、Avery API key、Avery 托管服务或注册。
 
 ## 导入
 
