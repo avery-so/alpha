@@ -52,6 +52,9 @@ const escapeHtmlAttribute = (value: string) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 
+const repositoryUrl = "https://github.com/avery-so/alpha";
+const editLinkPattern = `${repositoryUrl}/edit/main/docs/:path`;
+
 const usePlantUmlFence = (md: MarkdownIt) => {
   const defaultFenceRenderer = md.renderer.rules.fence;
 
@@ -198,6 +201,10 @@ export default defineConfig({
       themeConfig: {
         nav: rootNav,
         sidebar: rootSidebar,
+        editLink: {
+          pattern: editLinkPattern,
+          text: "Edit this page on GitHub",
+        },
       },
     },
     zh: {
@@ -208,12 +215,16 @@ export default defineConfig({
       themeConfig: {
         nav: zhNav,
         sidebar: zhSidebar,
+        editLink: {
+          pattern: editLinkPattern,
+          text: "在 GitHub 上编辑此页",
+        },
       },
     },
   },
   themeConfig: {
     nav: rootNav,
     sidebar: rootSidebar,
-    socialLinks: [],
+    socialLinks: [{ icon: "github", link: repositoryUrl }],
   },
 });
