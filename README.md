@@ -111,6 +111,12 @@ Commit messages follow
 [Conventional Commits](https://www.conventionalcommits.org) and are enforced by
 a `commit-msg` hook (commitlint).
 
+## Deployment
+
+Cloudflare Pages uses `docs` as the root directory. The build command is
+`npx vitepress build`, and the build output directory is `.vitepress/dist`.
+The Pages build Node version is pinned by `docs/.nvmrc`.
+
 ## Packages
 
 - `packages/sdk`: Node-only TypeScript SDK.
