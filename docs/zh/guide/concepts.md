@@ -34,6 +34,35 @@ payload 并执行链上结算。它属于 provider 的结算路径，不是 Aver
 标准 x402 流程包含两次 HTTP 请求：第一次发现支付要求，第二次带着已签名支付凭证
 重试。
 
+```plantuml x402 支付生命周期
+@startuml
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+participant "Agent/应用服务端" as App
+participant "Avery SDK" as SDK
+participant "x402 端点" as Endpoint
+participant "Facilitator/网络" as Network
+
+App -> SDK: 调用 x402tool() 或 X402Client.call()
+SDK -> Endpoint: 第一次端点请求
+Endpoint --> SDK: 402 Payment Required\n附带支付要求
+SDK -> SDK: 按配置网络和有效 maxAmount\n过滤支付要求
+SDK -> SDK: 在服务端签名支付凭证
+SDK -> Endpoint: 第二次请求\n附带支付凭证
+Endpoint -> Network: 验证并结算支付
+Network --> Endpoint: 结算结果
+alt 支付结算成功
+  Endpoint --> SDK: 付费响应
+else 结算失败
+  Endpoint --> SDK: 结算失败
+end
+SDK --> App: EndpointResult
+@enduml
+```
+
 1. agent tool 或应用通过 `x402tool()` 或 `X402Client.call()` 发起端点请求。
 2. 端点返回 `402 Payment Required`，并附带支付要求。
 3. SDK 过滤支付要求，并选择一个与配置网络和本次有效 `maxAmount` 兼容的要求。

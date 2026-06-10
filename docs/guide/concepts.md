@@ -40,6 +40,35 @@ exceeds the effective `maxAmount` for the call.
 The normal x402 flow has two HTTP requests: the first discovers payment
 requirements, and the second retries with signed payment credentials.
 
+```plantuml x402 payment lifecycle
+@startuml
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+participant "Agent/application server" as App
+participant "Avery SDK" as SDK
+participant "x402 endpoint" as Endpoint
+participant "Facilitator/network" as Network
+
+App -> SDK: Call x402tool() or X402Client.call()
+SDK -> Endpoint: First endpoint request
+Endpoint --> SDK: 402 Payment Required\nwith requirements
+SDK -> SDK: Filter by configured network\nand effective maxAmount
+SDK -> SDK: Sign payment credentials\nserver-side
+SDK -> Endpoint: Second request\nwith payment credentials
+Endpoint -> Network: Verify and settle payment
+Network --> Endpoint: Settlement result
+alt Payment settles
+  Endpoint --> SDK: Paid response
+else Settlement fails
+  Endpoint --> SDK: Settlement failure
+end
+SDK --> App: EndpointResult
+@enduml
+```
+
 1. An agent tool or application makes an endpoint request through `x402tool()` or
    `X402Client.call()`.
 2. The endpoint returns `402 Payment Required` with payment requirements.
