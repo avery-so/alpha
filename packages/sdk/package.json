@@ -2,7 +2,7 @@
   "name": "@averyso/alpha",
   "version": "0.0.1",
   "description": "Node-only Avery SDK for TypeScript.",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/avery-so/alpha.git",
@@ -11,7 +11,23 @@
   "bugs": {
     "url": "https://github.com/avery-so/alpha/issues"
   },
-  "homepage": "https://github.com/avery-so/alpha#readme",
+  "homepage": "https://alpha.avery.so/",
+  "keywords": [
+    "x402",
+    "agent",
+    "ai",
+    "payments",
+    "payment",
+    "sdk",
+    "vercel-ai-sdk",
+    "mastra",
+    "evm",
+    "solana"
+  ],
+  "author": "Avery",
+  "maintainers": [
+    "bestony"
+  ],
   "type": "module",
   "sideEffects": false,
   "engines": {

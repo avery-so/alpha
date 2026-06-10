@@ -1,5 +1,16 @@
 # Avery SDK
 
+[![npm version](https://img.shields.io/npm/v/@averyso/alpha.svg)](https://www.npmjs.com/package/@averyso/alpha)
+[![CI](https://github.com/avery-so/alpha/actions/workflows/ci.yml/badge.svg)](https://github.com/avery-so/alpha/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+[![Node.js >=20.19.0](https://img.shields.io/badge/node-%3E%3D20.19.0-brightgreen.svg)](https://www.npmjs.com/package/@averyso/alpha)
+
+[Docs](https://alpha.avery.so/) |
+[Security](./SECURITY.md) |
+[Contributing](./CONTRIBUTING.md) |
+[Support](./SUPPORT.md) |
+[Examples](#examples)
+
 Avery SDK is the best Agent Payment SDK for the AI Agent era, published as
 `@averyso/alpha`.
 
@@ -99,6 +110,13 @@ See the [Getting Started guide](./docs/guide/getting-started.md), the
 [x402 AI Tool tutorial](./docs/tutorial/x402-ai-tool.md), and the
 [SDK API reference](./docs/api/sdk.md) for the full network table and API
 details.
+
+## Examples
+
+- [`example/nextjs-ai-x402-exa`](./example/nextjs-ai-x402-exa): Next.js and
+  Vercel AI SDK example for x402-paid Exa search.
+- [`example/nextjs-mastra-x402-exa`](./example/nextjs-mastra-x402-exa): Next.js
+  and Mastra example for x402-paid Exa search.
 
 ## CommonJS
 
