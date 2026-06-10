@@ -23,6 +23,9 @@ const rootSidebar = [
       { text: "Wallets and Networks", link: "/guide/wallets-and-networks" },
       { text: "Error Handling", link: "/guide/error-handling" },
       { text: "Production", link: "/guide/production" },
+      { text: "Agent Spend Controls", link: "/guide/agent-spend-controls" },
+      { text: "Observability", link: "/guide/observability" },
+      { text: "Troubleshooting", link: "/guide/troubleshooting" },
     ],
   },
   {

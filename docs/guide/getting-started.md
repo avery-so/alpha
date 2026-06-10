@@ -74,7 +74,8 @@ always returns the normalized CAIP-2 value.
 `maxAmount` is expressed in the atomic unit required by the endpoint payment
 requirements. For example, a USDC-style six-decimal asset uses `100000n` for
 `0.1` USDC. The SDK default is `100000n`; you can override it at the client,
-call, or tool level.
+call, or tool level. For production budget ledgers and cap precedence, see
+[Agent Spend Controls](/guide/agent-spend-controls).
 
 The full built-in network table is in the [SDK API Reference](/api/sdk). Raw
 `eip155:*` CAIP-2 values continue to work; raw Solana CAIP-2 values are limited
@@ -121,7 +122,9 @@ export const tools = {
 For `GET`, `HEAD`, and `DELETE`, plain object tool input is mapped to query
 parameters. For `POST`, `PUT`, and `PATCH`, it is sent as a JSON body. Use the
 tool-level `maxAmount` to keep each model-triggered paid call within a known
-ceiling.
+ceiling. `maxAmount` caps one payment, so production agents should also enforce
+loop limits, approval policy, and budget reservations in server code; see
+[Agent Spend Controls](/guide/agent-spend-controls).
 
 To pass the tool to the AI SDK:
 

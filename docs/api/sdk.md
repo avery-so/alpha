@@ -57,13 +57,18 @@ interface X402ClientOptions {
 - `network`: Required x402 network. Accepts `X402Networks` constants, friendly
   names, primary slugs, or raw CAIP-2 `Network` strings.
 - `logLevel`: Minimum level for the default logger. Defaults to `"info"`.
-- `logger`: Custom logger with `debug`, `info`, `warn`, and `error` methods.
+- `logger`: Custom diagnostic logger with `debug`, `info`, `warn`, and `error`
+  methods. For adapter examples and audit logging guidance, see
+  [Observability and Audit Logging](/guide/observability).
 - `fetch`: Custom fetch implementation. If neither this nor `globalThis.fetch`
   is available, the constructor throws `X402ConfigError`.
-- `maxAmount`: Default payment cap. Defaults to `100000n`.
+- `maxAmount`: Default per-payment cap. Defaults to `100000n`. It is the
+  fallback cap when a direct call or tool does not provide a more specific cap.
 - `rpcUrl`: Optional RPC URL passed to the payment scheme.
 
-The `maxAmount` value is an atomic-unit cap, not a decimal string.
+The `maxAmount` value is an atomic-unit cap, not a decimal string or a
+user/session/day budget. For budget ledger patterns, see
+[Agent Spend Controls](/guide/agent-spend-controls).
 
 ### Network Selection
 
@@ -177,7 +182,10 @@ interface X402CallOptions {
 ```
 
 `maxAmount` can be set on the client, the individual call, or an `x402tool()`.
-The more specific value wins.
+The more specific value wins: direct `client.call()` options override the client
+default, and an `x402tool()` `maxAmount` is passed to the tool's internal
+`client.call()`. For a production policy model around these caps, see
+[Agent Spend Controls](/guide/agent-spend-controls#cap-precedence).
 
 ## `x402tool(config)`
 
@@ -290,7 +298,10 @@ type X402ToolConfig<INPUT, OUTPUT = EndpointResult> = {
 
 The config also accepts the AI SDK-style tool fields implemented by `X402Tool`,
 including `description`, `title`, `inputSchema`, `outputSchema`,
-`needsApproval`, `strict`, and streaming input callbacks.
+`needsApproval`, `strict`, and streaming input callbacks. Use `needsApproval`
+to pause high-risk or user-visible paid tool calls for application or human
+authorization. See [Agent Spend Controls](/guide/agent-spend-controls#approvals)
+for approval and confirmation patterns.
 
 ### `X402ToolExecutionOptions`
 
@@ -454,6 +465,12 @@ type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
 ```
 
 Pass `logger` and `logLevel` to `X402ClientOptions`.
+
+The SDK logger is diagnostic. It does not include the application context needed
+for a complete spend audit trail, such as user id, conversation id, approval
+decision, and budget reservation id. See
+[Observability and Audit Logging](/guide/observability) for logger adapters and
+audit event patterns.
 
 ## x402 Core Types
 

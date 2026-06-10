@@ -4,6 +4,8 @@ Alpha returns an `EndpointResult` by default. Branch on `result.kind` first, the
 use `status`, `metadata`, `paymentResponse`, and error details to decide what to
 show the user and what to log for operators.
 
+For symptom-based fixes, see [Troubleshooting](/guide/troubleshooting).
+
 ## Result Kinds
 
 | `kind` | Meaning | Common Causes | User Message | Developer Action | Retry? |
@@ -30,7 +32,8 @@ Common fixes:
   pay with.
 
 Blindly retrying the same request with the same wallet, network, and cap should
-produce the same result.
+produce the same result. For field checks by symptom, see
+[Troubleshooting](/guide/troubleshooting#no-compatible-payment-requirements).
 
 ## `settle_failed`
 
@@ -135,7 +138,8 @@ x402tool({
 
 Retry with bounded exponential backoff for transient fetch, RPC, 5xx, and rate
 limit failures. Preserve idempotency keys or request ids when the provider
-supports them.
+supports them. For operational fixes to repeated RPC, cap, network, and runtime
+failures, see [Troubleshooting](/guide/troubleshooting).
 
 Do not directly retry:
 

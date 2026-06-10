@@ -4,6 +4,12 @@ Alpha is a Node-only SDK. Run it on a server-side Node.js runtime with Node.js
 `>=20.19.0`, keep private keys out of client bundles, and treat every
 agent-triggered paid call as real spend.
 
+This page focuses on deployment, runtime, and secret handling. For production
+agent spend policy, see [Agent Spend Controls](/guide/agent-spend-controls). For
+audit logs and dashboards, see
+[Observability and Audit Logging](/guide/observability). For symptom-based
+operator fixes, see [Troubleshooting](/guide/troubleshooting).
+
 ## Supported Runtimes
 
 | Runtime | Support | Notes |
@@ -130,7 +136,9 @@ hot_wallet_balance =
 Monitor wallet balances, failed settlement counts, RPC error rates, and payment
 failure rates. Alert before the wallet reaches the minimum balance required for
 the next refill window. Do not store funds beyond short-term operating needs in
-the hot wallet.
+the hot wallet. Use an application budget ledger and reservation flow to avoid
+accepting more concurrent paid work than the hot wallet can support; see
+[Agent Spend Controls](/guide/agent-spend-controls#budget-ledger).
 
 ## Redaction
 
@@ -146,7 +154,8 @@ Redact sensitive fields before logging or sending errors to observability tools:
 Addresses can usually be logged in shortened form, such as the first and last
 few characters. Use `debug` logs for detailed payment diagnostics and keep
 production `info` logs focused on endpoint name, result kind, status, redacted
-network, and request id.
+network, and request id. For logger adapters, audit fields, redaction rules, and
+dashboard patterns, see [Observability and Audit Logging](/guide/observability).
 
 ## References
 
