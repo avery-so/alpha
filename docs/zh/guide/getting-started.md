@@ -133,7 +133,8 @@ const response = await generateText({
 ```
 
 `model` 来自你的 AI SDK 模型 provider。动态端点、请求覆盖和适合模型消费的输出
-结构见 [构建 x402 AI 工具](/zh/tutorial/x402-ai-tool)。
+结构见 [构建 x402 AI 工具](/zh/tutorial/x402-ai-tool)。完整 streaming chat 示例见
+[Next.js App Router 快速开始](/zh/guide/nextjs-app-router)。
 
 ## 直接调用付费端点
 

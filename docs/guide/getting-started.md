@@ -147,7 +147,8 @@ const response = await generateText({
 
 The `model` value comes from your AI SDK model provider. See
 [Build an x402 AI Tool](/tutorial/x402-ai-tool) for dynamic endpoints, request
-overrides, and model-friendly output shaping.
+overrides, and model-friendly output shaping. For a full streaming chat example,
+see [Next.js App Router Quickstart](/guide/nextjs-app-router).
 
 ## Call a Paid Endpoint Directly
 
