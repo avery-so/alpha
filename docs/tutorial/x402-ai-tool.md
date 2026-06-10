@@ -16,6 +16,10 @@ request, and `X402Client` handles the paid x402 call.
 EVM networks use a 32-byte hex private key. Solana networks use a
 base58-encoded 64-byte Solana secret key.
 
+Use `X402Networks` constants or friendly names such as `"Base Sepolia"` when
+possible. Raw CAIP-2 strings such as `"eip155:84532"` are supported, but are
+best kept for configuration files and compatibility paths.
+
 ## Create the Client
 
 ```ts

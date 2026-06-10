@@ -81,6 +81,11 @@ resolveX402Network("base-sepolia"); // "eip155:84532"
 `"eip155:84532"`. Existing raw CAIP-2 inputs such as `"eip155:84532"` continue
 to work.
 
+Friendly names, primary slugs, and built-in aliases are matched
+case-insensitively after trimming and collapsing whitespace. Raw `eip155:*`
+CAIP-2 values pass through for compatibility. Raw Solana CAIP-2 values must be
+one of the supported Solana entries in the table below.
+
 ```ts
 const X402Networks: {
   solana: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";

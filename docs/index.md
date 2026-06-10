@@ -1,7 +1,7 @@
 # Alpha
 
 `@averyso/alpha` is a Node-only TypeScript SDK for calling Alpha services and
-x402-protected paid endpoints from TypeScript.
+x402-protected paid HTTP endpoints from TypeScript.
 
 Use it when your application needs to:
 
@@ -39,6 +39,10 @@ Real integrations require an x402-protected endpoint, credentials for the
 selected network, an RPC URL when required, and enough testnet or mainnet funds
 for that network. EVM networks use a 32-byte hex private key; Solana networks
 use a base58-encoded 64-byte Solana secret key.
+
+Choose networks with `X402Networks` constants, friendly names such as
+`"Base Sepolia"`, primary slugs such as `"base-sepolia"`, or raw CAIP-2 strings
+such as `"eip155:84532"`. `client.network` always returns normalized CAIP-2.
 
 ## Next Steps
 

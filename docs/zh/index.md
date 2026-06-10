@@ -1,6 +1,6 @@
 # Alpha
 
-`@averyso/alpha` 是面向 Node.js 的 TypeScript SDK，用于调用 Alpha 服务和
+`@averyso/alpha` 是面向 Node.js 的 TypeScript SDK，用于调用 Alpha 服务和受
 x402 保护的付费 HTTP 端点。
 
 适合以下场景：
@@ -38,6 +38,10 @@ if (result.kind === "success") {
 真实集成需要 x402-protected endpoint、所选网络对应的凭证、必要时提供 RPC
 URL，以及足够的测试网或主网资金。EVM 网络使用 32 字节 hex 私钥；Solana 网络
 使用 base58 编码的 64 字节 Solana secret key。
+
+选择网络时可以使用 `X402Networks` 常量、friendly name（如
+`"Base Sepolia"`）、primary slug（如 `"base-sepolia"`），或原始 CAIP-2 字符串
+（如 `"eip155:84532"`）。`client.network` 始终返回标准化后的 CAIP-2。
 
 ## 下一步
 

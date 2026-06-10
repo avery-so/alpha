@@ -1,6 +1,13 @@
 # @averyso/alpha
 
-Node-only TypeScript SDK for Alpha.
+Node-only TypeScript SDK for Alpha services and x402-protected paid HTTP
+endpoints.
+
+Use it to:
+
+- call paid endpoints directly with `X402Client.call()`;
+- expose paid endpoints as Vercel AI SDK-compatible tools with `x402tool()`;
+- check Alpha service status with `AlphaClient`.
 
 ## Install
 
@@ -8,38 +15,58 @@ Node-only TypeScript SDK for Alpha.
 pnpm add @averyso/alpha
 ```
 
-## Usage
+## Direct x402 Calls
 
-### ESM
+`X402Client` wraps the x402 payment flow for paid HTTP resources. It supports
+EVM `exact` payments on `eip155:*` networks and Solana `exact` payments on
+Solana Mainnet and Devnet.
 
 ```ts
-import { AlphaClient } from "@averyso/alpha";
+import { X402Client, X402Networks } from "@averyso/alpha";
 
-const client = new AlphaClient({ apiKey: process.env.ALPHA_API_KEY });
-const status = await client.getStatus();
+const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+  maxAmount: 100_000n,
+});
 
-console.log(status.ok);
+const result = await x402.call({
+  url: "https://api.example.com/weather",
+  method: "POST",
+  body: {
+    city: "Taipei",
+  },
+});
+
+if (result.kind === "success") {
+  console.log(result.body);
+}
 ```
 
-## x402 AI SDK tools
+By default, payment and HTTP failures are returned as `EndpointResult` objects
+with `kind: "error"`, `kind: "payment_required"`, or `kind: "settle_failed"`.
+Set `throwOnError: true` on a direct call or tool to throw `X402PaymentError`
+instead.
 
-`X402Client` wraps x402-paid HTTP resources and can expose them as Vercel AI SDK
-tools. The client supports EVM `exact` payments on `eip155:*` networks and
-Solana `exact` payments on Solana Mainnet and Devnet.
+## AI SDK Tools
+
+`x402tool()` exposes an x402 endpoint as a Vercel AI SDK-compatible tool. The
+model supplies tool input, and the SDK prepares the request, pays the endpoint,
+and returns the endpoint result.
 
 ```ts
-import { generateText, jsonSchema } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { generateText, jsonSchema } from "ai";
 import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
   network: X402Networks.baseSepolia,
-  rpcUrl: process.env.BASE_SEPOLIA_RPC_URL,
-  maxAmount: 100000n, // atomic token units
+  rpcUrl: process.env.X402_RPC_URL,
+  maxAmount: 100_000n,
 });
 
 const tools = {
-  paidWeather: x402tool({
+  paidWeather: x402tool<{ city: string }>({
     client: x402,
     title: "Paid weather",
     description: "Fetch a paid weather report.",
@@ -47,7 +74,7 @@ const tools = {
       url: "https://api.example.com/weather",
       method: "GET",
     },
-    inputSchema: jsonSchema<{ city: string }>({
+    inputSchema: jsonSchema({
       type: "object",
       properties: {
         city: {
@@ -67,46 +94,85 @@ const result = await generateText({
 });
 ```
 
-You can also call paid endpoints directly:
-
-```ts
-const endpoint = await x402.call({
-  url: "https://api.example.com/weather",
-  method: "POST",
-  body: {
-    city: "Taipei",
-  },
-});
-
-if (endpoint.kind === "success") {
-  console.log(endpoint.body);
-}
-```
-
-By default, payment and HTTP failures are returned as `EndpointResult` objects
-with `kind: "error"`, `kind: "payment_required"`, or `kind: "settle_failed"`.
-Set `throwOnError: true` on a tool or direct call to throw `X402PaymentError`
-instead.
-
-`maxAmount` is denominated in atomic token units and defaults to `100000n`. Keep
-this ceiling low for agent workflows, and override it per tool only when that
-specific endpoint needs a higher limit:
+`maxAmount` is denominated in atomic token units and defaults to `100_000n`.
+Keep this ceiling low for agent workflows, and override it per tool only when
+that specific endpoint needs a higher limit:
 
 ```ts
 x402tool({
   client: x402,
   endpoint: "https://api.example.com/premium-report",
-  maxAmount: 250000n,
+  maxAmount: 250_000n,
   inputSchema: jsonSchema({ type: "object" }),
 });
 ```
 
-`network` accepts friendly names, canonical slugs, `X402Networks` constants, or
-raw CAIP-2 strings. EVM networks require a 32-byte hex private key with an
-optional `0x` prefix. Solana networks require a base58-encoded 64-byte Solana
-secret key.
+## Network Selection and Credentials
 
-### Manual integration check
+`network` accepts friendly names, primary slugs, `X402Networks` constants, or
+raw CAIP-2 strings:
+
+```ts
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: "Base Sepolia",
+});
+
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: "base-sepolia",
+});
+
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+});
+
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: "eip155:84532",
+});
+```
+
+`client.network` always returns normalized CAIP-2. For example,
+`new X402Client(key, { network: "Base Sepolia" }).network` is
+`"eip155:84532"`.
+
+EVM networks require a 32-byte hex private key with an optional `0x` prefix.
+Solana networks require a base58-encoded 64-byte Solana secret key. Unknown
+friendly names and unsupported raw Solana CAIP-2 values throw
+`X402ConfigError`.
+
+Built-in friendly names, primary slugs, constants, and CAIP-2 values:
+
+| Friendly Name | Primary Slug | Constant | CAIP-2 |
+|---|---|---|---|
+| `Solana Mainnet` | `solana` | `X402Networks.solana` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
+| `Base Mainnet` | `base` | `X402Networks.base` | `eip155:8453` |
+| `Polygon Mainnet` | `polygon` | `X402Networks.polygon` | `eip155:137` |
+| `xLayer Mainnet` | `xlayer` | `X402Networks.xLayer` | `eip155:196` |
+| `Peaq Mainnet` | `peaq` | `X402Networks.peaq` | `eip155:3338` |
+| `Sei Mainnet` | `sei` | `X402Networks.sei` | `eip155:1329` |
+| `SKALE Base` | `skale-base` | `X402Networks.skaleBase` | `eip155:1187947933` |
+| `KiteAI Mainnet` | `kiteai` | `X402Networks.kiteAI` | `eip155:2366` |
+| `Arbitrum One` | `arbitrum` | `X402Networks.arbitrum` | `eip155:42161` |
+| `Solana Devnet` | `solana-devnet` | `X402Networks.solanaDevnet` | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
+| `Base Sepolia` | `base-sepolia` | `X402Networks.baseSepolia` | `eip155:84532` |
+| `Avalanche Fuji` | `avalanche-fuji` | `X402Networks.avalancheFuji` | `eip155:43113` |
+| `Polygon Amoy` | `polygon-amoy` | `X402Networks.polygonAmoy` | `eip155:80002` |
+| `xLayer Testnet` | `xlayer-testnet` | `X402Networks.xLayerTestnet` | `eip155:1952` |
+| `Sei Testnet` | `sei-testnet` | `X402Networks.seiTestnet` | `eip155:713715` |
+| `SKALE Base Sepolia` | `skale-base-sepolia` | `X402Networks.skaleBaseSepolia` | `eip155:324705682` |
+| `Arbitrum Sepolia` | `arbitrum-sepolia` | `X402Networks.arbitrumSepolia` | `eip155:421614` |
+
+## Alpha Status
+
+```ts
+import { AlphaClient } from "@averyso/alpha";
+
+const client = new AlphaClient({ apiKey: process.env.ALPHA_API_KEY });
+const status = await client.getStatus();
+
+console.log(status.ok);
+```
+
+## Manual Integration Check
 
 CI tests do not spend real funds. To verify an end-to-end x402 payment on Base
 Sepolia, fund the private key with testnet USDC, provide a Base Sepolia RPC URL,
@@ -116,10 +182,10 @@ and call a real x402-protected endpoint with
 request, and expose the settlement response in
 `EndpointResult.paymentResponse`.
 
-### CommonJS
+## CommonJS
 
 ```js
-const { AlphaClient } = require("@averyso/alpha");
+const { AlphaClient, X402Client, x402tool } = require("@averyso/alpha");
 
 const client = new AlphaClient({ apiKey: process.env.ALPHA_API_KEY });
 const status = await client.getStatus();

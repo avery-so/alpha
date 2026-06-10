@@ -47,16 +47,16 @@ Never expose `X402_PRIVATE_KEY` to browsers or client-side bundles.
 ## Create a Client
 
 ```ts
-import { X402Client } from "@averyso/alpha";
+import { X402Client, X402Networks } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "Base Sepolia",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
   maxAmount: 100_000n,
 });
 ```
 
-You can also use `X402Networks.baseSepolia`, the primary slug
+You can also use the friendly name `"Base Sepolia"`, the primary slug
 `"base-sepolia"`, or the raw CAIP-2 string `"eip155:84532"`. `client.network`
 always returns the normalized CAIP-2 value.
 
@@ -64,6 +64,10 @@ always returns the normalized CAIP-2 value.
 requirements. For example, a USDC-style six-decimal asset uses `100000n` for
 `0.1` USDC. The SDK default is `100000n`; you can override it at the client,
 call, or tool level.
+
+The full built-in network table is in the [SDK API Reference](/api/sdk). Raw
+`eip155:*` CAIP-2 values continue to work; raw Solana CAIP-2 values are limited
+to the supported Solana Mainnet and Devnet entries.
 
 ## Call a Paid Endpoint
 

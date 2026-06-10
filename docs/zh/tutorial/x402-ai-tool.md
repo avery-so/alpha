@@ -16,6 +16,9 @@ x402 调用。
 EVM 网络使用 32 字节 hex 私钥。Solana 网络使用 base58 编码的 64 字节
 Solana secret key。
 
+优先使用 `X402Networks` 常量或 `"Base Sepolia"` 这样的 friendly name。原始
+CAIP-2 字符串（如 `"eip155:84532"`）仍然支持，但更适合配置文件和兼容路径。
+
 ## 创建客户端
 
 ```ts

@@ -80,6 +80,10 @@ resolveX402Network("base-sepolia"); // "eip155:84532"
 `new X402Client(key, { network: "Base Sepolia" }).network` 是
 `"eip155:84532"`。既有的原始 CAIP-2 输入，例如 `"eip155:84532"`，仍然可用。
 
+friendly name、primary slug 和内置 alias 会先 trim、合并连续空白并忽略大小写后
+匹配。原始 `eip155:*` CAIP-2 值会继续透传以保持兼容；原始 Solana CAIP-2 值
+必须是下表中受支持的 Solana 条目之一。
+
 ```ts
 const X402Networks: {
   solana: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";

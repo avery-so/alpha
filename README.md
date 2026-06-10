@@ -2,18 +2,94 @@
 
 Alpha is a Node-only TypeScript SDK published as `@averyso/alpha`.
 
-## Usage
+Use it to:
 
-ESM:
+- call x402-protected paid HTTP endpoints with `X402Client`;
+- expose paid endpoints as Vercel AI SDK-compatible tools with `x402tool()`;
+- check Alpha service status with the lightweight `AlphaClient`.
+
+## Install
+
+```sh
+pnpm add @averyso/alpha
+```
+
+## x402 Quick Start
+
+```ts
+import { X402Client, X402Networks } from "@averyso/alpha";
+
+const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+  maxAmount: 100_000n,
+});
+
+const result = await client.call("https://api.example.com/weather", {
+  query: { city: "San Francisco" },
+});
+
+if (result.kind === "success") {
+  console.log(result.body);
+}
+```
+
+`network` accepts `X402Networks` constants, friendly names such as
+`"Base Sepolia"`, primary slugs such as `"base-sepolia"`, and raw CAIP-2
+strings such as `"eip155:84532"`. `client.network` always returns normalized
+CAIP-2.
+
+EVM networks require a 32-byte hex private key, with or without a `0x` prefix.
+Solana networks require a base58-encoded 64-byte Solana secret key. Keep
+private keys and RPC URLs on the server.
+
+See the [SDK API reference](./docs/api/sdk.md) for the full network table and
+API details.
+
+## AI SDK Tools
+
+```ts
+import { jsonSchema } from "ai";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
+
+const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+});
+
+export const tools = {
+  paidWeather: x402tool<{ city: string }>({
+    client: x402,
+    description: "Fetch a paid weather report.",
+    inputSchema: jsonSchema({
+      type: "object",
+      properties: {
+        city: { type: "string" },
+      },
+      required: ["city"],
+      additionalProperties: false,
+    }),
+    endpoint: "https://api.example.com/weather",
+    maxAmount: 50_000n,
+  }),
+};
+```
+
+## Alpha Status
 
 ```ts
 import { AlphaClient } from "@averyso/alpha";
+
+const client = new AlphaClient({ apiKey: process.env.ALPHA_API_KEY });
+const status = await client.getStatus();
+
+console.log(status.ok);
 ```
 
-CommonJS:
+## CommonJS
 
 ```js
-const { AlphaClient } = require("@averyso/alpha");
+const { AlphaClient, X402Client, x402tool } = require("@averyso/alpha");
 ```
 
 ## Development
@@ -31,8 +107,9 @@ and the SDK package dry run.
 Development uses Node 24 (see `.nvmrc`); the minimum supported runtime is Node
 20.19.0 (see the `engines` field). CI runs the quality gate against both.
 
-Commit messages follow [Conventional Commits](https://www.conventionalcommits.org)
-and are enforced by a `commit-msg` hook (commitlint).
+Commit messages follow
+[Conventional Commits](https://www.conventionalcommits.org) and are enforced by
+a `commit-msg` hook (commitlint).
 
 ## Packages
 
