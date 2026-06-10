@@ -1,14 +1,14 @@
 import { defineConfig } from "vitepress";
 
 const rootNav = [
-  { text: "Guide", link: "/guide/getting-started" },
+  { text: "Guide", link: "/guide/concepts" },
   { text: "Tutorial", link: "/tutorial/x402-ai-tool" },
   { text: "API Reference", link: "/api/sdk" },
   { text: "Releases", link: "/releases/" },
 ];
 
 const zhNav = [
-  { text: "指南", link: "/zh/guide/getting-started" },
+  { text: "指南", link: "/zh/guide/concepts" },
   { text: "教程", link: "/zh/tutorial/x402-ai-tool" },
   { text: "API 参考", link: "/zh/api/sdk" },
   { text: "发布", link: "/zh/releases/" },
@@ -17,7 +17,10 @@ const zhNav = [
 const rootSidebar = [
   {
     text: "Guide",
-    items: [{ text: "Getting Started", link: "/guide/getting-started" }],
+    items: [
+      { text: "Concepts", link: "/guide/concepts" },
+      { text: "Getting Started", link: "/guide/getting-started" },
+    ],
   },
   {
     text: "Tutorial",
@@ -34,7 +37,10 @@ const rootSidebar = [
 const zhSidebar = [
   {
     text: "指南",
-    items: [{ text: "快速开始", link: "/zh/guide/getting-started" }],
+    items: [
+      { text: "核心概念", link: "/zh/guide/concepts" },
+      { text: "快速开始", link: "/zh/guide/getting-started" },
+    ],
   },
   {
     text: "教程",

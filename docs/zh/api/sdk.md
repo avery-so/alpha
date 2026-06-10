@@ -343,6 +343,8 @@ interface EndpointRequestInit
 ## `EndpointResult`
 
 `EndpointResult` 是以 `kind` 为判别字段的联合类型。
+关于每个 kind 在支付生命周期中的含义，见
+[核心概念](/zh/guide/concepts#endpointresult-kind)。
 
 ```ts
 const result = await client.call("https://api.example.com/weather");

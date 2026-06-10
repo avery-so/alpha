@@ -5,10 +5,15 @@ Alpha is the Agent Payment SDK for the AI Agent era. Start with
 server-side tool. Use `X402Client.call()` directly when your application, not a
 model, controls the request.
 
+If you are new to x402-protected endpoints, read [Concepts](/guide/concepts)
+first for the payment lifecycle and `EndpointResult.kind` outcomes.
+
 ## Requirements
 
 - Node.js `>=20.19.0`.
-- An x402-protected endpoint.
+- An x402-protected endpoint. See [Concepts](/guide/concepts) for how an
+  endpoint advertises payment requirements and how Alpha completes a compatible
+  payment.
 - Credentials for the selected x402 network.
 - An RPC URL when the selected network requires one.
 - Funds on the selected testnet or mainnet network.

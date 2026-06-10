@@ -348,6 +348,8 @@ an `x402tool()` `request` function.
 ## `EndpointResult`
 
 `EndpointResult` is a discriminated union keyed by `kind`.
+For lifecycle-level interpretation of each kind, see
+[Concepts](/guide/concepts#endpointresult-kind).
 
 ```ts
 const result = await client.call("https://api.example.com/weather");

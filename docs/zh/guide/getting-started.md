@@ -4,10 +4,14 @@ Alpha 是 AI Agent 时代的 Agent 支付 SDK。当模型需要调用付费 x402
 优先使用 `x402tool()` 构建带支付上限、运行在服务端的工具。当请求完全由应用
 自己控制时，再直接使用 `X402Client.call()`。
 
+如果你还不熟悉 x402-protected endpoint，请先阅读
+[核心概念](/zh/guide/concepts)，了解支付生命周期和 `EndpointResult.kind` 的结果。
+
 ## 环境要求
 
 - Node.js `>=20.19.0`。
-- 一个 x402-protected endpoint。
+- 一个 x402-protected endpoint。见 [核心概念](/zh/guide/concepts)，了解端点如何
+  返回支付要求，以及 Alpha 如何完成兼容支付。
 - 所选 x402 网络对应的凭证。
 - 所选网络需要 RPC 时，提供 RPC URL。
 - 在对应测试网或主网上准备足够资金。
