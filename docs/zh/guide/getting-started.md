@@ -1,26 +1,25 @@
-# Getting Started
+# 快速开始
 
-Alpha is a Node-only SDK. The main runtime path is `X402Client`, which signs
-and pays x402 requests for endpoints that advertise compatible payment
-requirements.
+Alpha 是面向 Node.js 的 SDK。主要运行路径是 `X402Client`：它会为支持
+x402 的端点签名、选择可接受的支付要求，并完成付费请求。
 
-## Requirements
+## 环境要求
 
-- Node.js `>=20.19.0`.
-- An x402-protected endpoint.
-- A 32-byte EVM private key, with or without a `0x` prefix.
-- An RPC URL when the selected x402 network requires one.
-- Funds on the selected testnet or mainnet network.
+- Node.js `>=20.19.0`。
+- 一个 x402-protected endpoint。
+- 32 字节 EVM 私钥，可带或不带 `0x` 前缀。
+- 所选 x402 网络需要 RPC 时，提供 RPC URL。
+- 在对应测试网或主网上准备足够资金。
 
-`X402Client` only supports `eip155:*` networks.
+`X402Client` 只支持 `eip155:*` 网络。
 
-## Installation
+## 安装
 
 ```sh
 pnpm add @averyso/alpha
 ```
 
-## Imports
+## 导入
 
 ESM:
 
@@ -34,16 +33,16 @@ CommonJS:
 const { X402Client, x402tool } = require("@averyso/alpha");
 ```
 
-## Environment
+## 环境变量
 
 ```sh
 X402_PRIVATE_KEY=0x...
 X402_RPC_URL=https://example-rpc.testnet
 ```
 
-Never expose `X402_PRIVATE_KEY` to browsers or client-side bundles.
+不要把 `X402_PRIVATE_KEY` 暴露到浏览器或客户端构建产物中。
 
-## Create a Client
+## 创建客户端
 
 ```ts
 import { X402Client } from "@averyso/alpha";
@@ -55,12 +54,11 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 });
 ```
 
-`maxAmount` is expressed in the atomic unit required by the endpoint payment
-requirements. For example, a USDC-style six-decimal asset uses `100000n` for
-`0.1` USDC. The SDK default is `100000n`; you can override it at the client,
-call, or tool level.
+`maxAmount` 使用端点支付要求里的原子单位。比如六位小数的 USDC 类资产中，
+`100000n` 表示 `0.1` USDC。SDK 默认值是 `100000n`，也可以在 client、
+call 或 tool 层覆盖。
 
-## Call a Paid Endpoint
+## 调用付费端点
 
 ```ts
 const result = await client.call(
@@ -85,8 +83,8 @@ switch (result.kind) {
 }
 ```
 
-By default, `client.call()` returns an `EndpointResult` discriminated union. If
-you prefer exception flow for failures, pass `throwOnError: true`:
+默认情况下，`client.call()` 返回 `EndpointResult` 判别联合类型。如果你更希望
+用异常处理失败，可以传入 `throwOnError: true`：
 
 ```ts
 const result = await client.call(
@@ -96,13 +94,13 @@ const result = await client.call(
 );
 ```
 
-## Direct Calls or AI Tools
+## 直接调用还是 AI 工具
 
-Use `client.call()` when your application directly controls the request and
-wants to branch on `EndpointResult.kind`.
+当应用自己控制请求，并希望根据 `EndpointResult.kind` 分支处理时，使用
+`client.call()`。
 
-Use `x402tool()` when a model should decide when to call the endpoint through a
-Vercel AI SDK-compatible tool:
+当模型需要通过兼容 Vercel AI SDK 的工具决定何时调用付费端点时，使用
+`x402tool()`：
 
 ```ts
 import { jsonSchema } from "ai";

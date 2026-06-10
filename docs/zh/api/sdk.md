@@ -1,7 +1,7 @@
-# SDK API Reference
+# SDK API 参考
 
-All public SDK APIs are exported from `@averyso/alpha`. Do not import from
-`packages/sdk/src/...` paths.
+所有公开 SDK API 都从 `@averyso/alpha` 导出。不要从
+`packages/sdk/src/...` 内部路径导入。
 
 ```ts
 import {
@@ -17,7 +17,7 @@ import {
 
 ## `X402Client`
 
-Pays and calls x402-protected HTTP endpoints.
+用于支付并调用 x402-protected HTTP 端点。
 
 ```ts
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
@@ -26,14 +26,13 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 });
 ```
 
-Constructor signature:
+构造函数签名：
 
 ```ts
 new X402Client(privateKey, options);
 ```
 
-`privateKey` must be a 32-byte hex string. It can include or omit the `0x`
-prefix.
+`privateKey` 必须是 32 字节 hex 字符串，可以带或不带 `0x` 前缀。
 
 ### `X402ClientOptions`
 
@@ -48,25 +47,25 @@ interface X402ClientOptions {
 }
 ```
 
-- `network`: Required x402 network. Only `eip155:*` networks are supported.
-- `logLevel`: Minimum level for the default logger. Defaults to `"info"`.
-- `logger`: Custom logger with `debug`, `info`, `warn`, and `error` methods.
-- `fetch`: Custom fetch implementation. If neither this nor `globalThis.fetch`
-  is available, the constructor throws `X402ConfigError`.
-- `maxAmount`: Default payment cap. Defaults to `100000n`.
-- `rpcUrl`: Optional RPC URL passed to the EVM payment scheme.
+- `network`：必填 x402 网络。目前只支持 `eip155:*`。
+- `logLevel`：默认 logger 的最低输出级别，默认 `"info"`。
+- `logger`：自定义 logger，需要提供 `debug`、`info`、`warn`、`error` 方法。
+- `fetch`：自定义 fetch 实现。如果没有传入且 `globalThis.fetch` 不存在，构造
+  函数会抛出 `X402ConfigError`。
+- `maxAmount`：默认支付上限，默认 `100000n`。
+- `rpcUrl`：可选 RPC URL，会传给 EVM payment scheme。
 
-The `maxAmount` value is an atomic-unit cap, not a decimal string.
+`maxAmount` 是原子单位的支付上限，不是十进制字符串。
 
-### Properties
+### 属性
 
 ```ts
 client.network;
 client.maxAmount;
 ```
 
-- `network`: The configured `Network`.
-- `maxAmount`: The client default payment cap.
+- `network`：配置的 `Network`。
+- `maxAmount`：client 默认支付上限。
 
 ### `call(endpoint, init?, opts?)`
 
@@ -78,8 +77,8 @@ const result = await client.call(
 );
 ```
 
-By default, `call()` resolves to `EndpointResult`. With
-`throwOnError: true`, failed results throw `X402PaymentError`.
+默认情况下，`call()` resolve 为 `EndpointResult`。设置
+`throwOnError: true` 后，失败结果会抛出 `X402PaymentError`。
 
 ```ts
 await client.call(
@@ -97,12 +96,12 @@ interface X402CallOptions {
 }
 ```
 
-`maxAmount` can be set on the client, the individual call, or an `x402tool()`.
-The more specific value wins.
+`maxAmount` 可以在 client、单次 call 或 `x402tool()` 上设置。越具体的配置优先级
+越高。
 
 ## `x402tool(config)`
 
-Creates a Vercel AI SDK `ToolSet`-compatible tool backed by an x402 endpoint.
+创建一个兼容 Vercel AI SDK `ToolSet` 的 tool，底层调用 x402 端点。
 
 ```ts
 import { jsonSchema } from "ai";
@@ -131,7 +130,7 @@ const tools = {
 };
 ```
 
-`endpoint` can be static:
+`endpoint` 可以是静态值：
 
 ```ts
 x402tool({
@@ -141,7 +140,7 @@ x402tool({
 });
 ```
 
-or dynamic:
+也可以根据输入动态生成：
 
 ```ts
 x402tool<{ city: string }>({
@@ -154,12 +153,12 @@ x402tool<{ city: string }>({
 });
 ```
 
-When `request` is not provided, tool input is mapped automatically:
+没有提供 `request` 时，tool input 会自动映射：
 
-- `GET`, `HEAD`, and `DELETE` plain object input is added to the query string.
-- `POST`, `PUT`, and `PATCH` input is sent as a JSON body.
+- `GET`、`HEAD`、`DELETE` 的 plain object input 会加入 query string。
+- `POST`、`PUT`、`PATCH` 的 input 会作为 JSON body 发送。
 
-When `request` is provided, automatic input mapping is disabled:
+提供 `request` 后，自动 input mapping 会被禁用：
 
 ```ts
 x402tool<{ prompt: string }>({
@@ -173,8 +172,8 @@ x402tool<{ prompt: string }>({
 });
 ```
 
-Without `execute`, the tool returns `EndpointResult`. With `execute`, the
-function receives `{ endpoint, input }` and can return a model-friendly value:
+没有 `execute` 时，tool 返回 `EndpointResult`。提供 `execute` 时，该函数接收
+`{ endpoint, input }`，可返回更适合模型消费的值：
 
 ```ts
 x402tool<{ city: string }, { forecast: unknown }>({
@@ -209,9 +208,8 @@ type X402ToolConfig<INPUT, OUTPUT = EndpointResult> = {
 };
 ```
 
-The config also accepts the AI SDK-style tool fields implemented by `X402Tool`,
-including `description`, `title`, `inputSchema`, `outputSchema`,
-`needsApproval`, `strict`, and streaming input callbacks.
+配置还接受 `X402Tool` 实现的 AI SDK 风格字段，例如 `description`、`title`、
+`inputSchema`、`outputSchema`、`needsApproval`、`strict` 和输入流回调。
 
 ### `X402ToolExecutionOptions`
 
@@ -224,9 +222,9 @@ interface X402ToolExecutionOptions {
 }
 ```
 
-These options are passed through from the AI SDK tool execution context.
+这些选项来自 AI SDK tool 执行上下文，会透传给 tool。
 
-## Endpoint Types
+## Endpoint 类型
 
 ### `EndpointConfig`
 
@@ -240,8 +238,8 @@ interface EndpointConfig {
 }
 ```
 
-Use `EndpointConfig` when you want the endpoint itself to carry method,
-headers, query, or body defaults.
+当端点本身需要携带 method、headers、query 或 body 默认值时使用
+`EndpointConfig`。
 
 ### `EndpointInput`
 
@@ -249,7 +247,7 @@ headers, query, or body defaults.
 type EndpointInput = string | URL | EndpointConfig;
 ```
 
-Accepted by `X402Client.call()` and `x402tool()` endpoint configuration.
+`X402Client.call()` 和 `x402tool()` 的 endpoint 配置都接受这个类型。
 
 ### `EndpointRequestInit`
 
@@ -263,12 +261,11 @@ interface EndpointRequestInit
 }
 ```
 
-Use this as the second argument to `client.call()` or as the value returned by
-an `x402tool()` `request` function.
+可作为 `client.call()` 的第二个参数，也可作为 `x402tool()` 的 `request` 函数返回值。
 
 ## `EndpointResult`
 
-`EndpointResult` is a discriminated union keyed by `kind`.
+`EndpointResult` 是以 `kind` 为判别字段的联合类型。
 
 ```ts
 const result = await client.call("https://api.example.com/weather");
@@ -278,17 +275,15 @@ if (result.kind === "success") {
 }
 ```
 
-Kinds:
+`kind` 取值：
 
-- `success`: The endpoint was paid and returned a successful settled response.
-- `settle_failed`: Payment settlement failed after the endpoint response.
-- `payment_required`: The endpoint required payment, but no compatible payment
-  was completed.
-- `error`: The endpoint or x402 payment flow failed.
-- `passthrough`: The response did not require payment and was returned without
-  a payment response.
+- `success`：端点已支付，并返回成功的 settled response。
+- `settle_failed`：端点响应后，支付结算失败。
+- `payment_required`：端点要求支付，但没有完成兼容支付。
+- `error`：端点请求或 x402 支付流程失败。
+- `passthrough`：响应不需要支付，直接透传返回。
 
-Every variant includes:
+每个变体都包含：
 
 ```ts
 interface EndpointResultMetadata {
@@ -300,14 +295,14 @@ interface EndpointResultMetadata {
 }
 ```
 
-The union also exposes `ok`, `paid`, `status`, `body`, `paymentResponse`, and
-`metadata`. Narrow on `kind` before reading payment-specific fields.
+联合类型还暴露 `ok`、`paid`、`status`、`body`、`paymentResponse` 和
+`metadata`。读取支付相关字段前，建议先按 `kind` 收窄类型。
 
-## Errors
+## 错误
 
 ### `X402Error`
 
-Base class for x402 SDK errors.
+x402 SDK 错误的基类。
 
 ```ts
 try {
@@ -323,13 +318,13 @@ try {
 
 ### `X402ConfigError`
 
-Thrown when the SDK cannot be configured, including invalid private keys,
-unsupported non-`eip155:*` networks, or missing `fetch`.
+SDK 配置无效时抛出，包括私钥格式错误、不支持的非 `eip155:*` 网络，或缺少
+`fetch`。
 
 ### `X402PaymentError`
 
-Thrown for paid endpoint failures when `throwOnError: true` is set. It includes
-`status` and optional `details`.
+设置 `throwOnError: true` 后，付费端点失败时抛出。包含 `status` 和可选
+`details`。
 
 ```ts
 if (error instanceof X402PaymentError) {
@@ -346,9 +341,9 @@ interface X402ErrorDetails {
 }
 ```
 
-Used by `X402Error`, `X402ConfigError`, and `X402PaymentError`.
+供 `X402Error`、`X402ConfigError` 和 `X402PaymentError` 使用。
 
-## Logging
+## 日志
 
 ### `Logger`
 
@@ -367,30 +362,30 @@ interface Logger {
 type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
 ```
 
-Pass `logger` and `logLevel` to `X402ClientOptions`.
+通过 `X402ClientOptions` 的 `logger` 和 `logLevel` 传入。
 
-## x402 Core Types
+## x402 Core 类型
 
 ### `Network`
 
-Re-exported from `@x402/core/types`. `X402Client` currently accepts only
-networks whose string value starts with `eip155:`.
+从 `@x402/core/types` 重新导出。`X402Client` 目前只接受字符串值以
+`eip155:` 开头的网络。
 
 ### `SettleResponse`
 
-Re-exported from `@x402/core/types`. Successful and settlement-failed endpoint
-results include a `paymentResponse: SettleResponse`.
+从 `@x402/core/types` 重新导出。`success` 和 `settle_failed` 类型的结果会包含
+`paymentResponse: SettleResponse`。
 
 ## `AlphaClient`
 
-`AlphaClient` is the lightweight Alpha status client. It is still exported from
-the package root, but x402 integrations should use `X402Client`.
+`AlphaClient` 是轻量级 Alpha 状态客户端。它仍然从包根导出，但 x402 集成应使用
+`X402Client`。
 
 ```ts
 import { AlphaClient } from "@averyso/alpha";
 ```
 
-### Constructor
+### 构造函数
 
 ```ts
 const client = new AlphaClient({
@@ -409,9 +404,9 @@ interface AlphaClientOptions {
 }
 ```
 
-- `apiKey`: Optional bearer token sent with status requests.
-- `baseUrl`: Optional API base URL. Defaults to `https://api.avery.so/alpha`.
-- `fetch`: Optional fetch implementation.
+- `apiKey`：可选 bearer token，会随状态请求发送。
+- `baseUrl`：可选 API base URL，默认 `https://api.avery.so/alpha`。
+- `fetch`：可选 fetch 实现。
 
 ### `getStatus()`
 
@@ -419,7 +414,7 @@ interface AlphaClientOptions {
 const status = await client.getStatus();
 ```
 
-Returns:
+返回：
 
 ```ts
 interface AlphaStatus {
@@ -428,7 +423,7 @@ interface AlphaStatus {
 }
 ```
 
-Throws `AlphaError` when the HTTP response is not successful.
+HTTP 响应不成功时抛出 `AlphaError`。
 
 ## `AlphaError`
 
@@ -436,8 +431,8 @@ Throws `AlphaError` when the HTTP response is not successful.
 import { AlphaError } from "@averyso/alpha";
 ```
 
-`AlphaError` is thrown by `AlphaClient.getStatus()` for unsuccessful status
-responses. It includes the HTTP status code.
+`AlphaClient.getStatus()` 收到非成功状态响应时抛出 `AlphaError`。错误实例包含
+HTTP status code。
 
 ```ts
 try {
@@ -451,7 +446,7 @@ try {
 
 ## CommonJS
 
-The package also supports CommonJS consumers:
+包也支持 CommonJS 使用方式：
 
 ```js
 const { AlphaClient, X402Client, x402tool } = require("@averyso/alpha");
