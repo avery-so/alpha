@@ -170,5 +170,7 @@ Mastra display and transcript payloads.
   approvals, and loop limits.
 - Read [Error Handling](/guide/error-handling) for `EndpointResult.kind`
   handling.
+- Read [Observability and Audit Logging](/guide/observability) for audit events,
+  redaction, and dashboards.
 - Read [SDK API Reference](/api/sdk#x402mastratoolconfig) for the full
   `x402MastraTool()` type.

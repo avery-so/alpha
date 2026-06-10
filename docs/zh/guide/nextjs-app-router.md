@@ -236,6 +236,7 @@ What is the weather in Lisbon?
 - 阅读 [核心概念](/zh/guide/concepts)，了解 x402 支付生命周期和
   `EndpointResult.kind`。
 - 通过 [钱包与网络](/zh/guide/wallets-and-networks) 配置凭证。
-- 使用 [Agent Spend Controls](/guide/agent-spend-controls) 增加服务端预算控制。
+- 使用 [Agent Spend Controls](/zh/guide/agent-spend-controls) 增加服务端预算控制。
 - 通过 [错误处理](/zh/guide/error-handling) 设计失败输出。
+- 通过 [可观测性与审计日志](/zh/guide/observability) 增加 audit events 和脱敏诊断。
 - 阅读 [构建 Agent 支付工具](/zh/tutorial/x402-ai-tool)，构建更完整的 tool。

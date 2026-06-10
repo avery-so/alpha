@@ -8,6 +8,11 @@ shows how the request ended.
 Read this page before setup if the phrase "x402-protected endpoint" is new to
 you.
 
+After the lifecycle and result types are clear, continue to
+[Getting Started](/guide/getting-started) for the first paid request and
+[Wallets and Networks](/guide/wallets-and-networks) for credentials, network
+selection, and payment caps.
+
 ## Core Terms
 
 An **endpoint request** is the HTTP request your agent tool or application wants
@@ -138,3 +143,9 @@ Payment signing should stay on the server. Keep private keys, RPC URLs, and
 `X402Client` construction out of browsers and client-side bundles. Agent tools
 should expose only the structured inputs a model is allowed to provide; the
 server owns endpoint selection, payment caps, credentials, and request signing.
+
+## Where Next
+
+- Start implementation with [Getting Started](/guide/getting-started).
+- Configure credentials and caps with
+  [Wallets and Networks](/guide/wallets-and-networks).

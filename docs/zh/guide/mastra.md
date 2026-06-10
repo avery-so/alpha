@@ -161,8 +161,10 @@ tool result，`transform` 控制 Mastra display 和 transcript payload。
 
 ## 下一步
 
-- 阅读 [Agent Spend Controls](/guide/agent-spend-controls)，了解预算、审批和
+- 阅读 [Agent Spend Controls](/zh/guide/agent-spend-controls)，了解预算、审批和
   loop limits。
 - 阅读 [错误处理](/zh/guide/error-handling)，了解 `EndpointResult.kind` 处理。
+- 阅读 [可观测性与审计日志](/zh/guide/observability)，了解 audit events、脱敏和
+  dashboards。
 - 阅读 [SDK API 参考](/zh/api/sdk#x402mastratoolconfig)，查看完整
   `x402MastraTool()` 类型。

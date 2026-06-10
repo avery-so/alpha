@@ -182,3 +182,11 @@ const result = await client.call(
   { throwOnError: true },
 );
 ```
+
+## 下一步
+
+- 使用 [Next.js App Router 快速开始](/zh/guide/nextjs-app-router) 构建 streaming
+  app。
+- 通过 [Mastra 集成](/zh/guide/mastra) 添加 Mastra agent tool。
+- 上生产流量前，按 [Agent Spend Controls](/zh/guide/agent-spend-controls) 增加预算、
+  审批和 loop limits。

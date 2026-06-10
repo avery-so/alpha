@@ -4,6 +4,11 @@ Avery SDK 是 Node-only SDK。请在服务端 Node.js runtime 中运行，Node.j
 `>=20.19.0`。不要把私钥放进客户端构建产物，并把每次 agent-triggered paid call
 当作真实支出处理。
 
+本页聚焦 deployment、runtime 和 secret handling。生产 agent spend policy 见
+[Agent Spend Controls](/zh/guide/agent-spend-controls)。Audit logs 和 dashboards 见
+[可观测性与审计日志](/zh/guide/observability)。按症状排查的 operator fixes 见
+[故障排查](/zh/guide/troubleshooting)。
+
 ## 支持的运行时
 
 | Runtime | 支持情况 | 说明 |
@@ -126,7 +131,9 @@ hot_wallet_balance =
 
 监控钱包余额、settlement failure 数量、RPC error rate 和 payment failure rate。在余额
 低于下一个 refill window 所需最低值前触发告警。生产 hot wallet 不要存放超过短期
-运营需求的资金。
+运营需求的资金。使用 application budget ledger 和 reservation flow，避免接受超过
+hot wallet 支撑能力的并发 paid work；见
+[Agent Spend Controls](/zh/guide/agent-spend-controls#budget-ledger)。
 
 ## 脱敏
 
@@ -141,6 +148,8 @@ hot_wallet_balance =
 
 地址通常可以缩写记录，例如只保留前后几位。详细支付诊断使用 `debug` 日志；生产
 `info` 日志聚焦 endpoint name、result kind、status、脱敏后的 network 和 request id。
+Logger adapters、audit fields、redaction rules 和 dashboard patterns 见
+[可观测性与审计日志](/zh/guide/observability)。
 
 ## 参考
 

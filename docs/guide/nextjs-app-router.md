@@ -243,5 +243,7 @@ request on the server, subject to the client and tool `maxAmount` caps.
 - Configure credentials with [Wallets and Networks](/guide/wallets-and-networks).
 - Add server-side budgets from [Agent Spend Controls](/guide/agent-spend-controls).
 - Shape failures with [Error Handling](/guide/error-handling).
+- Add audit events and redacted diagnostics with
+  [Observability and Audit Logging](/guide/observability).
 - Build a more complete tool with
   [Build an Agent Payment Tool](/tutorial/x402-ai-tool).

@@ -196,3 +196,11 @@ const result = await client.call(
   { throwOnError: true },
 );
 ```
+
+## Where Next
+
+- Build a streaming app with
+  [Next.js App Router Quickstart](/guide/nextjs-app-router).
+- Add a Mastra agent tool with [Mastra Integration](/guide/mastra).
+- Before production traffic, add budgets, approvals, and loop limits from
+  [Agent Spend Controls](/guide/agent-spend-controls).

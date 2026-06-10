@@ -7,6 +7,10 @@ Avery SDK 帮助 agent 和应用调用受 x402 保护的 HTTP 端点，而不需
 如果你还不熟悉 “x402-protected endpoint” 这个概念，建议先阅读本页，再进入环境
 配置。
 
+理解生命周期和结果类型后，继续阅读 [快速开始](/zh/guide/getting-started)，完成
+第一次付费请求；再阅读 [钱包与网络](/zh/guide/wallets-and-networks)，配置凭证、
+网络选择和支付上限。
+
 ## 核心术语
 
 **端点请求** 是 agent tool 或应用想发出的 HTTP 请求。
@@ -117,3 +121,8 @@ Avery SDK 面向 buyer-side 调用。
 支付签名应保留在服务端。不要把私钥、RPC URL 或 `X402Client` 构建逻辑放进浏览器或
 客户端构建产物中。Agent tool 只应暴露允许模型提供的结构化输入；端点选择、支付上
 限、凭证和请求签名都应由服务端控制。
+
+## 下一步
+
+- 从 [快速开始](/zh/guide/getting-started) 开始实现。
+- 通过 [钱包与网络](/zh/guide/wallets-and-networks) 配置凭证和 cap。

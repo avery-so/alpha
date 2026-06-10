@@ -73,14 +73,14 @@ const usePlantUmlFence = (md: MarkdownIt) => {
 };
 
 const rootNav = [
-  { text: "Guide", link: "/guide/concepts" },
+  { text: "Guide", link: "/guide/getting-started" },
   { text: "Tutorial", link: "/tutorial/x402-ai-tool" },
   { text: "API Reference", link: "/api/sdk" },
   { text: "Releases", link: "/releases/" },
 ];
 
 const zhNav = [
-  { text: "指南", link: "/zh/guide/concepts" },
+  { text: "指南", link: "/zh/guide/getting-started" },
   { text: "教程", link: "/zh/tutorial/x402-ai-tool" },
   { text: "API 参考", link: "/zh/api/sdk" },
   { text: "发布", link: "/zh/releases/" },
@@ -90,17 +90,35 @@ const rootSidebar = [
   {
     text: "Guide",
     items: [
-      { text: "Concepts", link: "/guide/concepts" },
-      { text: "Getting Started", link: "/guide/getting-started" },
-      { text: "Avery Developer Skill", link: "/guide/avery-developer-skill" },
-      { text: "Mastra", link: "/guide/mastra" },
-      { text: "Next.js App Router", link: "/guide/nextjs-app-router" },
-      { text: "Wallets and Networks", link: "/guide/wallets-and-networks" },
-      { text: "Error Handling", link: "/guide/error-handling" },
-      { text: "Production", link: "/guide/production" },
-      { text: "Agent Spend Controls", link: "/guide/agent-spend-controls" },
-      { text: "Observability", link: "/guide/observability" },
-      { text: "Troubleshooting", link: "/guide/troubleshooting" },
+      {
+        text: "Start Here",
+        items: [
+          { text: "Getting Started", link: "/guide/getting-started" },
+          { text: "Concepts", link: "/guide/concepts" },
+          { text: "Wallets and Networks", link: "/guide/wallets-and-networks" },
+          {
+            text: "Avery Developer Skill",
+            link: "/guide/avery-developer-skill",
+          },
+        ],
+      },
+      {
+        text: "Integrations",
+        items: [
+          { text: "Next.js App Router", link: "/guide/nextjs-app-router" },
+          { text: "Mastra", link: "/guide/mastra" },
+        ],
+      },
+      {
+        text: "Operate",
+        items: [
+          { text: "Production", link: "/guide/production" },
+          { text: "Agent Spend Controls", link: "/guide/agent-spend-controls" },
+          { text: "Error Handling", link: "/guide/error-handling" },
+          { text: "Observability", link: "/guide/observability" },
+          { text: "Troubleshooting", link: "/guide/troubleshooting" },
+        ],
+      },
     ],
   },
   {
@@ -119,17 +137,38 @@ const zhSidebar = [
   {
     text: "指南",
     items: [
-      { text: "核心概念", link: "/zh/guide/concepts" },
-      { text: "快速开始", link: "/zh/guide/getting-started" },
       {
-        text: "Avery Developer Skill",
-        link: "/zh/guide/avery-developer-skill",
+        text: "开始使用",
+        items: [
+          { text: "快速开始", link: "/zh/guide/getting-started" },
+          { text: "核心概念", link: "/zh/guide/concepts" },
+          { text: "钱包与网络", link: "/zh/guide/wallets-and-networks" },
+          {
+            text: "Avery Developer Skill",
+            link: "/zh/guide/avery-developer-skill",
+          },
+        ],
       },
-      { text: "Mastra", link: "/zh/guide/mastra" },
-      { text: "Next.js App Router", link: "/zh/guide/nextjs-app-router" },
-      { text: "钱包与网络", link: "/zh/guide/wallets-and-networks" },
-      { text: "错误处理", link: "/zh/guide/error-handling" },
-      { text: "生产部署", link: "/zh/guide/production" },
+      {
+        text: "集成",
+        items: [
+          { text: "Next.js App Router", link: "/zh/guide/nextjs-app-router" },
+          { text: "Mastra", link: "/zh/guide/mastra" },
+        ],
+      },
+      {
+        text: "生产运维",
+        items: [
+          { text: "生产部署", link: "/zh/guide/production" },
+          {
+            text: "Agent Spend Controls",
+            link: "/zh/guide/agent-spend-controls",
+          },
+          { text: "错误处理", link: "/zh/guide/error-handling" },
+          { text: "可观测性与审计日志", link: "/zh/guide/observability" },
+          { text: "故障排查", link: "/zh/guide/troubleshooting" },
+        ],
+      },
     ],
   },
   {
