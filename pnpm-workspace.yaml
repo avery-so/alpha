@@ -7,3 +7,6 @@ linkWorkspacePackages: true
 allowBuilds:
   esbuild: true
 sharedWorkspaceLockfile: true
+minimumReleaseAgeExclude:
+  - '@ai-sdk/gateway@3.0.127'
+  - ai@6.0.199

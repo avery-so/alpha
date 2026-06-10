@@ -43,6 +43,35 @@
       "rules": {
         "import/no-default-export": "off"
       }
+    },
+    {
+      "files": ["packages/sdk/src/x402/**/*.ts"],
+      "rules": {
+        "func-style": "off",
+        "import/consistent-type-specifier-style": "off",
+        "import/exports-last": "off",
+        "import/max-dependencies": "off",
+        "import/prefer-default-export": "off",
+        "max-lines-per-function": "off",
+        "max-params": "off",
+        "max-statements": "off",
+        "new-cap": "off",
+        "no-continue": "off",
+        "no-ternary": "off",
+        "typescript/consistent-type-definitions": "off",
+        "typescript/method-signature-style": "off",
+        "unicorn/no-null": "off"
+      }
+    },
+    {
+      "files": ["packages/sdk/test/x402/**/*.ts"],
+      "rules": {
+        "func-style": "off",
+        "id-length": "off",
+        "max-lines": "off",
+        "no-duplicate-imports": "off",
+        "require-await": "off"
+      }
     }
   ]
 }

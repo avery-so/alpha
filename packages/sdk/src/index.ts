@@ -67,3 +67,5 @@ export class AlphaError extends Error {
     this.name = "AlphaError";
   }
 }
+
+export * from "./x402/index.js";
