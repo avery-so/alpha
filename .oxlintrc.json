@@ -48,7 +48,9 @@
     {
       "files": [
         "example/nextjs-ai-x402-exa/**/*.ts",
-        "example/nextjs-ai-x402-exa/**/*.tsx"
+        "example/nextjs-ai-x402-exa/**/*.tsx",
+        "example/nextjs-mastra-x402-exa/**/*.ts",
+        "example/nextjs-mastra-x402-exa/**/*.tsx"
       ],
       "rules": {
         "func-style": "off",
@@ -60,13 +62,19 @@
       }
     },
     {
-      "files": ["example/nextjs-ai-x402-exa/app/layout.tsx"],
+      "files": [
+        "example/nextjs-ai-x402-exa/app/layout.tsx",
+        "example/nextjs-mastra-x402-exa/app/layout.tsx"
+      ],
       "rules": {
         "import/no-unassigned-import": "off"
       }
     },
     {
-      "files": ["example/nextjs-ai-x402-exa/next-env.d.ts"],
+      "files": [
+        "example/nextjs-ai-x402-exa/next-env.d.ts",
+        "example/nextjs-mastra-x402-exa/next-env.d.ts"
+      ],
       "rules": {
         "capitalized-comments": "off",
         "import/no-unassigned-import": "off"
