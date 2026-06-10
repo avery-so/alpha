@@ -1,0 +1,20 @@
+{
+  "name": "@averyso/alpha-docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vitepress build .",
+    "dev": "vitepress dev .",
+    "preview": "vitepress preview .",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "echo \"No docs tests configured.\""
+  },
+  "dependencies": {
+    "@averyso/alpha": "workspace:*",
+    "vitepress": "^1.6.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

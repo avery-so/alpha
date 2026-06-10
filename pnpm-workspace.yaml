@@ -1,0 +1,9 @@
+packages:
+  - "packages/*"
+  - "docs"
+
+engineStrict: true
+linkWorkspacePackages: true
+allowBuilds:
+  esbuild: true
+sharedWorkspaceLockfile: true

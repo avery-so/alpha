@@ -1,0 +1,33 @@
+{
+  "name": "@averyso/alpha",
+  "version": "1.0.0",
+  "description": "Node-only TypeScript SDK for Alpha.",
+  "license": "ISC",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.2"
+  }
+}
