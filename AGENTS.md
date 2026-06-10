@@ -55,7 +55,7 @@ Before opening a pull request, run `pnpm verify` and include a short summary,
 test results, linked issues when applicable, and screenshots for documentation
 or UI-visible docs changes. Add a Changeset for SDK releases when public package
 behavior or API surface changes.
-
+完成开发后就提交，提交前执行 pnpm verify 并修复发现的问题
 ## Security & Configuration Tips
 
 Never commit real `.env` files, private keys, OAuth tokens, RPC credentials, or
