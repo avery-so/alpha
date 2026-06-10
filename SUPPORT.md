@@ -32,7 +32,7 @@ Do not report vulnerabilities or leaked secrets in public issues. Follow
 Use GitHub Issues for general usage questions, integration questions, and
 documentation gaps:
 
-https://github.com/avery-so/alpha/issues
+https://github.com/avery-so/alpha/issues/new?template=question.md
 
 ## Commercial and Integration Support
 

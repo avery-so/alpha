@@ -48,6 +48,9 @@ docs: clarify x402 setup
 
 ## Changesets
 
+Open an issue before starting large API, behavior, or architecture changes so
+maintainers can align on scope first.
+
 Add a Changeset when a change affects the published SDK API, runtime behavior,
 package exports, dependencies, or other release-visible package contents.
 

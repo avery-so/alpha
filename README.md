@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@averyso/alpha.svg)](https://www.npmjs.com/package/@averyso/alpha)
 [![CI](https://github.com/avery-so/alpha/actions/workflows/ci.yml/badge.svg)](https://github.com/avery-so/alpha/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
-[![Node.js >=20.19.0](https://img.shields.io/badge/node-%3E%3D20.19.0-brightgreen.svg)](https://www.npmjs.com/package/@averyso/alpha)
+[![SDK Node.js >=20.19.0](https://img.shields.io/badge/SDK%20Node.js-%3E%3D20.19.0-brightgreen.svg)](https://www.npmjs.com/package/@averyso/alpha)
 
 [Docs](https://alpha.avery.so/) |
 [Security](./SECURITY.md) |
@@ -11,8 +11,8 @@
 [Support](./SUPPORT.md) |
 [Examples](#examples)
 
-Avery SDK is the best Agent Payment SDK for the AI Agent era, published as
-`@averyso/alpha`.
+Avery SDK is a TypeScript SDK for building capped x402 payment tools and direct
+x402 clients for server-side AI agents, published as `@averyso/alpha`.
 
 Use it to:
 

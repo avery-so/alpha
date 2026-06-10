@@ -1,6 +1,7 @@
 # @averyso/alpha
 
-Avery SDK is the best Agent Payment SDK for the AI Agent era.
+Avery SDK is a TypeScript SDK for building capped x402 payment tools and direct
+x402 clients for server-side AI agents.
 
 Use `@averyso/alpha` to turn x402-protected paid HTTP endpoints into safe,
 capped, model-callable tools for server-side AI agents. The same SDK also gives
