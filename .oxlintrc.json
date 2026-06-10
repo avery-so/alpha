@@ -10,6 +10,7 @@
   },
   "ignorePatterns": [
     "**/dist/**",
+    "**/.next/**",
     "**/coverage/**",
     "docs/.vitepress/cache/**",
     "docs/.vitepress/dist/**",
@@ -42,6 +43,33 @@
       "files": ["**/*.config.ts", "**/*.config.js"],
       "rules": {
         "import/no-default-export": "off"
+      }
+    },
+    {
+      "files": [
+        "example/nextjs-ai-x402-exa/**/*.ts",
+        "example/nextjs-ai-x402-exa/**/*.tsx"
+      ],
+      "rules": {
+        "func-style": "off",
+        "import/consistent-type-specifier-style": "off",
+        "import/exports-last": "off",
+        "max-lines-per-function": "off",
+        "no-ternary": "off",
+        "unicorn/no-null": "off"
+      }
+    },
+    {
+      "files": ["example/nextjs-ai-x402-exa/app/layout.tsx"],
+      "rules": {
+        "import/no-unassigned-import": "off"
+      }
+    },
+    {
+      "files": ["example/nextjs-ai-x402-exa/next-env.d.ts"],
+      "rules": {
+        "capitalized-comments": "off",
+        "import/no-unassigned-import": "off"
       }
     },
     {
