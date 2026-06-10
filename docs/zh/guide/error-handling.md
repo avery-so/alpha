@@ -1,6 +1,6 @@
 # 错误处理
 
-Alpha 默认返回 `EndpointResult`。先按 `result.kind` 分支，再结合 `status`、
+Avery SDK 默认返回 `EndpointResult`。先按 `result.kind` 分支，再结合 `status`、
 `metadata`、`paymentResponse` 和错误详情决定用户提示与运维日志。
 
 ## 结果类型
@@ -8,14 +8,14 @@ Alpha 默认返回 `EndpointResult`。先按 `result.kind` 分支，再结合 `s
 | `kind` | 含义 | 常见原因 | 用户提示 | 开发者动作 | 是否重试 |
 |---|---|---|---|---|---|
 | `success` | 支付已结算，并返回付费响应。 | 正常付费访问。 | 展示付费结果。 | 按需记录 endpoint、status 和已脱敏的 payment response。 | 不需要重试。 |
-| `payment_required` | 端点要求支付，但 Alpha 没有完成兼容支付。 | 网络不匹配、金额超过 `maxAmount`、支付要求不受支持或不兼容、余额不足、资产错误。 | 提示用户调整支付配置，或尝试更低成本请求。 | 检查端点要求、配置网络、资产、钱包余额和 cap。 | 不要用相同配置重试。 |
+| `payment_required` | 端点要求支付，但 Avery SDK 没有完成兼容支付。 | 网络不匹配、金额超过 `maxAmount`、支付要求不受支持或不兼容、余额不足、资产错误。 | 提示用户调整支付配置，或尝试更低成本请求。 | 检查端点要求、配置网络、资产、钱包余额和 cap。 | 不要用相同配置重试。 |
 | `settle_failed` | 端点完成支付处理后返回响应，但结算被报告为失败。 | Facilitator 或链上结算失败、payment 过期、provider 问题、端点拒绝结算。 | 告知用户支付无法确认，稍后重试或联系支持。 | 记录 `paymentResponse`、endpoint、status 和 request id。重放前检查 provider 状态。 | 仅在请求幂等且 provider 状态清楚时重试。 |
 | `error` | 请求、SDK、签名、fetch、RPC、端点或 x402 flow 在正常结果路径之外失败。 | 配置错误、签名失败、fetch 失败、RPC 错误、端点 5xx、x402 响应格式异常。 | 展示通用失败提示和 support reference。 | 使用 `X402PaymentError.status`、`details.cause`、`result.metadata` 和服务端日志定位。 | 只重试 transient network、RPC、rate limit 或 5xx 失败。 |
-| `passthrough` | 端点返回非 `402` 响应，因此 Alpha 没有付款。 | 免费端点、URL 错误、测试环境未启用 x402、middleware 顺序错误、provider 配置错误。 | 如果预期免费访问，直接展示响应。 | 如果预期付费，检查 URL、环境、middleware 顺序和 provider 配置。 | 不做支付重试；先修复路由或配置。 |
+| `passthrough` | 端点返回非 `402` 响应，因此 Avery SDK 没有付款。 | 免费端点、URL 错误、测试环境未启用 x402、middleware 顺序错误、provider 配置错误。 | 如果预期免费访问，直接展示响应。 | 如果预期付费，检查 URL、环境、middleware 顺序和 provider 配置。 | 不做支付重试；先修复路由或配置。 |
 
 ## `payment_required`
 
-`payment_required` 不是一次 transient payment attempt。Alpha 在签名和带支付重试前
+`payment_required` 不是一次 transient payment attempt。Avery SDK 在签名和带支付重试前
 停止，因为它无法在当前 policy 下选择兼容支付要求。
 
 常见修复：
@@ -61,7 +61,7 @@ provider、facilitator、network 和 payment response。
 - 临时 facilitator 错误。
 
 设置 `throwOnError: true` 后，付费端点失败会抛出 `X402PaymentError`。该错误包含
-`status` 和可选 `details`。当 Alpha 归一化非预期失败时，`details.cause` 会包含
+`status` 和可选 `details`。当 Avery SDK 归一化非预期失败时，`details.cause` 会包含
 原始错误。
 
 ## `passthrough`

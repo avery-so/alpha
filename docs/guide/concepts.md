@@ -1,6 +1,6 @@
 # Concepts
 
-Alpha helps agents and applications call x402-protected HTTP endpoints without
+Avery SDK helps agents and applications call x402-protected HTTP endpoints without
 putting payment signing logic in model prompts or browser code. The SDK keeps the
 payment flow server-side, applies a payment cap, and returns a typed result that
 shows how the request ended.
@@ -48,7 +48,7 @@ Payment selection is intentionally conservative. A requirement must match the
 configured network and fit within `maxAmount`. This keeps agent-triggered
 requests bounded by the budget you configured at the client, call, or tool level.
 
-If no compatible requirement is available, Alpha returns `payment_required`
+If no compatible requirement is available, Avery SDK returns `payment_required`
 instead of signing credentials or retrying with payment. Common causes include a
 network mismatch, an unsupported requirement, or a required amount above the
 configured cap.

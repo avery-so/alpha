@@ -1,6 +1,6 @@
 # Error Handling
 
-Alpha returns an `EndpointResult` by default. Branch on `result.kind` first, then
+Avery SDK returns an `EndpointResult` by default. Branch on `result.kind` first, then
 use `status`, `metadata`, `paymentResponse`, and error details to decide what to
 show the user and what to log for operators.
 
@@ -11,14 +11,14 @@ For symptom-based fixes, see [Troubleshooting](/guide/troubleshooting).
 | `kind` | Meaning | Common Causes | User Message | Developer Action | Retry? |
 |---|---|---|---|---|---|
 | `success` | Payment settled and the paid response was returned. | Normal paid access. | Show the paid result. | Record the endpoint, status, and redacted payment response if needed for audit. | No retry needed. |
-| `payment_required` | The endpoint required payment, but Alpha did not complete a compatible payment. | Network mismatch, amount over `maxAmount`, unsupported or incompatible requirements, insufficient balance, wrong asset. | Ask the user to adjust payment setup or try a lower-cost request. | Inspect endpoint requirements, configured network, asset, wallet balance, and cap. | Do not retry with the same configuration. |
+| `payment_required` | The endpoint required payment, but Avery SDK did not complete a compatible payment. | Network mismatch, amount over `maxAmount`, unsupported or incompatible requirements, insufficient balance, wrong asset. | Ask the user to adjust payment setup or try a lower-cost request. | Inspect endpoint requirements, configured network, asset, wallet balance, and cap. | Do not retry with the same configuration. |
 | `settle_failed` | The endpoint responded after payment handling, but settlement was reported as failed. | Facilitator or chain settlement failure, expired payment, provider issue, endpoint settlement rejection. | Tell the user the payment could not be confirmed and to retry later or contact support. | Log `paymentResponse`, endpoint, status, and a request id if available. Check provider state before replaying. | Only for idempotent requests and only when provider state is clear. |
 | `error` | The request, SDK, signing, fetch, RPC, endpoint, or x402 flow failed outside a normal endpoint result path. | Invalid config, signing failure, fetch failure, RPC error, endpoint 5xx, malformed x402 response. | Show a generic failure message with a support reference. | Use `X402PaymentError.status`, `details.cause`, `result.metadata`, and server logs. | Retry only transient network, RPC, rate-limit, or 5xx failures. |
-| `passthrough` | The endpoint returned a non-`402` response, so Alpha did not pay. | Free endpoint, wrong URL, test environment without x402, middleware order issue, provider configuration issue. | Show the response if free access is expected. | If payment was expected, verify URL, environment, middleware order, and provider config. | No payment retry; fix routing or configuration first. |
+| `passthrough` | The endpoint returned a non-`402` response, so Avery SDK did not pay. | Free endpoint, wrong URL, test environment without x402, middleware order issue, provider configuration issue. | Show the response if free access is expected. | If payment was expected, verify URL, environment, middleware order, and provider config. | No payment retry; fix routing or configuration first. |
 
 ## `payment_required`
 
-`payment_required` is not a transient payment attempt. Alpha stopped before
+`payment_required` is not a transient payment attempt. Avery SDK stopped before
 signing and retrying because it could not select a compatible requirement within
 the configured policy.
 
@@ -74,7 +74,7 @@ Runtime failures may be retryable with backoff:
 
 With `throwOnError: true`, failed paid endpoint results throw
 `X402PaymentError`. The thrown error includes `status` and optional `details`.
-When Alpha normalizes an unexpected failure, `details.cause` contains the
+When Avery SDK normalizes an unexpected failure, `details.cause` contains the
 original error.
 
 ## `passthrough`

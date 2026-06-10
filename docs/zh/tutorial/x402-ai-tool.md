@@ -1,6 +1,6 @@
 # 使用 x402 构建 Agent 支付工具
 
-这是 Alpha 的核心 Agent payment 工作流：把 x402-protected HTTP 端点包装成
+这是 Avery SDK 的核心 Agent payment 工作流：把 x402-protected HTTP 端点包装成
 兼容 Vercel AI SDK 的工具，限制 Agent 的单次支付上限，并把凭证保留在服务端。
 模型负责提供 tool input，SDK 负责准备请求，`X402Client` 负责完成付费的 x402
 调用。

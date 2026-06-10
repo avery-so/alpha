@@ -1,6 +1,6 @@
-# Alpha
+# Avery SDK
 
-Alpha is the best Agent Payment SDK for the AI Agent era, published as
+Avery SDK is the best Agent Payment SDK for the AI Agent era, published as
 `@averyso/alpha`.
 
 Use it to:
@@ -10,13 +10,17 @@ Use it to:
 - call pay-per-request x402 HTTP resources directly with `X402Client.call()`;
 - cap payment exposure per client, call, or tool with `maxAmount`;
 - keep EVM and Solana credentials, RPC URLs, and payment signing on the server;
-- check Alpha service status with the lightweight `AlphaClient`.
+- check Avery SDK service status with the lightweight `AveryClient`.
 
 ## Install
 
 ```sh
 pnpm add @averyso/alpha
 ```
+
+Compatibility note: the package name remains `@averyso/alpha`. New code should
+use `AveryClient` and `AveryError`; the legacy `Alpha*` APIs remain available
+for existing consumers.
 
 ## Agent Payment Quick Start
 
@@ -94,12 +98,12 @@ See the [Getting Started guide](./docs/guide/getting-started.md), the
 [SDK API reference](./docs/api/sdk.md) for the full network table and API
 details.
 
-## Alpha Status
+## Avery SDK Status
 
 ```ts
-import { AlphaClient } from "@averyso/alpha";
+import { AveryClient } from "@averyso/alpha";
 
-const client = new AlphaClient({ apiKey: process.env.ALPHA_API_KEY });
+const client = new AveryClient({ apiKey: process.env.AVERY_API_KEY });
 const status = await client.getStatus();
 
 console.log(status.ok);
@@ -108,7 +112,7 @@ console.log(status.ok);
 ## CommonJS
 
 ```js
-const { AlphaClient, X402Client, x402tool } = require("@averyso/alpha");
+const { AveryClient, X402Client, x402tool } = require("@averyso/alpha");
 ```
 
 ## Development

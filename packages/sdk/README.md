@@ -1,6 +1,6 @@
 # @averyso/alpha
 
-Alpha is the best Agent Payment SDK for the AI Agent era.
+Avery SDK is the best Agent Payment SDK for the AI Agent era.
 
 Use `@averyso/alpha` to turn x402-protected paid HTTP endpoints into safe,
 capped, model-callable tools for server-side AI agents. The same SDK also gives
@@ -20,6 +20,10 @@ Product pillars:
 ```sh
 pnpm add @averyso/alpha
 ```
+
+Compatibility note: the package name remains `@averyso/alpha`. New code should
+use `AveryClient` and `AveryError`; the legacy `Alpha*` APIs remain available
+for existing consumers.
 
 ## Agent Payment Tools
 
@@ -175,12 +179,12 @@ Built-in friendly names, primary slugs, constants, and CAIP-2 values:
 | `SKALE Base Sepolia` | `skale-base-sepolia` | `X402Networks.skaleBaseSepolia` | `eip155:324705682` |
 | `Arbitrum Sepolia` | `arbitrum-sepolia` | `X402Networks.arbitrumSepolia` | `eip155:421614` |
 
-## Alpha Status
+## Avery SDK Status
 
 ```ts
-import { AlphaClient } from "@averyso/alpha";
+import { AveryClient } from "@averyso/alpha";
 
-const client = new AlphaClient({ apiKey: process.env.ALPHA_API_KEY });
+const client = new AveryClient({ apiKey: process.env.AVERY_API_KEY });
 const status = await client.getStatus();
 
 console.log(status.ok);
@@ -199,9 +203,9 @@ request, and expose the settlement response in
 ## CommonJS
 
 ```js
-const { AlphaClient, X402Client, x402tool } = require("@averyso/alpha");
+const { AveryClient, X402Client, x402tool } = require("@averyso/alpha");
 
-const client = new AlphaClient({ apiKey: process.env.ALPHA_API_KEY });
+const client = new AveryClient({ apiKey: process.env.AVERY_API_KEY });
 const status = await client.getStatus();
 
 console.log(status.ok);

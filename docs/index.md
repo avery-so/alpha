@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: Alpha
+  name: Avery SDK
   text: The best Agent Payment SDK for the AI Agent era
   tagline: Turn paid x402 endpoints into safe, capped, model-callable tools for server-side AI agents.
   actions:

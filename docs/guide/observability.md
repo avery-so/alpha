@@ -6,13 +6,13 @@ Production payment agents need two kinds of visibility:
 - Application audit events for spend decisions, approvals, paid attempts, and
   user-visible outcomes.
 
-Alpha's `Logger` interface is diagnostic. It is useful for SDK-level messages,
+Avery SDK's `Logger` interface is diagnostic. It is useful for SDK-level messages,
 but it is not a complete audit trail. Build your audit trail around the
 application decision points before and after every paid call.
 
 ## Diagnostic Logger
 
-Pass `logger` and `logLevel` to `X402ClientOptions` when you want Alpha's
+Pass `logger` and `logLevel` to `X402ClientOptions` when you want Avery SDK's
 internal diagnostic messages to use your logging system.
 
 ```ts
@@ -50,7 +50,7 @@ const client = new X402Client(privateKey, {
 });
 ```
 
-For `pino`, adapt Alpha's `(message, details)` call shape explicitly. Pino's
+For `pino`, adapt Avery SDK's `(message, details)` call shape explicitly. Pino's
 common structured logging style usually accepts the object first and the message
 second.
 
@@ -100,13 +100,13 @@ Emit application audit events around paid calls. A useful sequence is:
 - `payment_budget_reserved`: the app reserved budget for the cap.
 - `payment_approval_requested`: the app asked for authorization.
 - `payment_approval_recorded`: a user or policy approved or denied execution.
-- `payment_call_started`: the server started the Alpha request.
+- `payment_call_started`: the server started the Avery SDK request.
 - `payment_call_finished`: the server received an `EndpointResult`.
 - `payment_budget_committed` or `payment_budget_refunded`: the ledger resolved
   the reservation.
 
 These events should be emitted by your application because they include user,
-conversation, budget, and approval context that Alpha does not know.
+conversation, budget, and approval context that Avery SDK does not know.
 
 ## Recommended Fields
 

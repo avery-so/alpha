@@ -1,14 +1,17 @@
 # SDK API 参考
 
-本参考文档覆盖 Alpha Agent 支付工具和直接 x402 付费 HTTP 调用背后的公开 API。
+本参考文档覆盖 Avery SDK Agent 支付工具和直接 x402 付费 HTTP 调用背后的公开 API。
 
 所有公开 SDK API 都从 `@averyso/alpha` 导出。不要从
 `packages/sdk/src/...` 内部路径导入。
 
+兼容说明：包仍然通过 `@averyso/alpha` 安装和导入。既有 `Alpha*` 状态 API
+仍会继续导出，但新代码应优先使用 `Avery*` 名称。
+
 ```ts
 import {
-  AlphaClient,
-  AlphaError,
+  AveryClient,
+  AveryError,
   X402Client,
   X402ConfigError,
   X402Error,
@@ -460,28 +463,28 @@ friendly name 和不支持的原始 Solana CAIP-2 值会抛出 `X402ConfigError`
 从 `@x402/core/types` 重新导出。`success` 和 `settle_failed` 类型的结果会包含
 `paymentResponse: SettleResponse`。
 
-## `AlphaClient`
+## `AveryClient`
 
-`AlphaClient` 是轻量级 Alpha 状态客户端。它仍然从包根导出，但 x402 集成应使用
+`AveryClient` 是轻量级 Avery SDK 状态客户端。它仍然从包根导出，但 x402 集成应使用
 `X402Client`。
 
 ```ts
-import { AlphaClient } from "@averyso/alpha";
+import { AveryClient } from "@averyso/alpha";
 ```
 
 ### 构造函数
 
 ```ts
-const client = new AlphaClient({
-  apiKey: process.env.ALPHA_API_KEY,
-  baseUrl: "https://api.avery.so/alpha",
+const client = new AveryClient({
+  apiKey: process.env.AVERY_API_KEY,
+  baseUrl: "https://api.avery.so/avery",
 });
 ```
 
-### `AlphaClientOptions`
+### `AveryClientOptions`
 
 ```ts
-interface AlphaClientOptions {
+interface AveryClientOptions {
   apiKey?: string;
   baseUrl?: string | URL;
   fetch?: typeof fetch;
@@ -489,7 +492,7 @@ interface AlphaClientOptions {
 ```
 
 - `apiKey`：可选 bearer token，会随状态请求发送。
-- `baseUrl`：可选 API base URL，默认 `https://api.avery.so/alpha`。
+- `baseUrl`：可选 API base URL，默认 `https://api.avery.so/avery`。
 - `fetch`：可选 fetch 实现。
 
 ### `getStatus()`
@@ -501,28 +504,28 @@ const status = await client.getStatus();
 返回：
 
 ```ts
-interface AlphaStatus {
+interface AveryStatus {
   ok: boolean;
-  service: "alpha";
+  service: "avery";
 }
 ```
 
-HTTP 响应不成功时抛出 `AlphaError`。
+HTTP 响应不成功时抛出 `AveryError`。
 
-## `AlphaError`
+## `AveryError`
 
 ```ts
-import { AlphaError } from "@averyso/alpha";
+import { AveryError } from "@averyso/alpha";
 ```
 
-`AlphaClient.getStatus()` 收到非成功状态响应时抛出 `AlphaError`。错误实例包含
+`AveryClient.getStatus()` 收到非成功状态响应时抛出 `AveryError`。错误实例包含
 HTTP status code。
 
 ```ts
 try {
   await client.getStatus();
 } catch (error) {
-  if (error instanceof AlphaError) {
+  if (error instanceof AveryError) {
     console.error(error.status);
   }
 }
@@ -533,5 +536,31 @@ try {
 包也支持 CommonJS 使用方式：
 
 ```js
-const { AlphaClient, X402Client, x402tool } = require("@averyso/alpha");
+const { AveryClient, X402Client, x402tool } = require("@averyso/alpha");
+```
+
+## Legacy `Alpha*` APIs
+
+包仍会为了兼容继续导出 `AlphaClientOptions`、`AlphaStatus`、`AlphaClient` 和
+`AlphaError`。这些名称已弃用，新代码应使用 `AveryClientOptions`、
+`AveryStatus`、`AveryClient` 和 `AveryError`。
+
+Legacy `AlphaClient` 保持原有默认值和行为：
+
+```ts
+import { AlphaClient, AlphaError } from "@averyso/alpha";
+
+const client = new AlphaClient({
+  apiKey: process.env.AVERY_API_KEY,
+  baseUrl: "https://api.avery.so/alpha",
+});
+
+try {
+  const status = await client.getStatus();
+  // status.service === "alpha"
+} catch (error) {
+  if (error instanceof AlphaError) {
+    console.error(error.status);
+  }
+}
 ```

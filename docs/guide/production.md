@@ -1,6 +1,6 @@
 # Production
 
-Alpha is a Node-only SDK. Run it on a server-side Node.js runtime with Node.js
+Avery SDK is a Node-only SDK. Run it on a server-side Node.js runtime with Node.js
 `>=20.19.0`, keep private keys out of client bundles, and treat every
 agent-triggered paid call as real spend.
 
@@ -15,13 +15,13 @@ operator fixes, see [Troubleshooting](/guide/troubleshooting).
 | Runtime | Support | Notes |
 |---|---|---|
 | Vercel Node.js Functions | Supported | Use the Node.js runtime for API routes or functions. |
-| Next.js App Router route handlers | Supported | Keep Alpha in server-only modules and use the Node.js runtime. |
+| Next.js App Router route handlers | Supported | Keep Avery SDK in server-only modules and use the Node.js runtime. |
 | Next.js Server Actions | Supported | Use only from server-side code paths. |
 | Docker, Fly.io, or a regular Node server | Supported | Inject secrets at runtime and run Node.js `>=20.19.0`. |
 | Browser or client component | Not supported | Private keys and payment signing must not ship to the client. |
 | Static frontend bundle | Not supported | There is no secure server-side signing boundary. |
 | Next.js Edge runtime | Not recommended | Edge runtime has a limited API set and does not provide full Node.js compatibility. |
-| Cloudflare Workers direct Alpha SDK usage | Not recommended | Use Cloudflare native x402 and Agents support, or call a Node service that runs Alpha. |
+| Cloudflare Workers direct Avery SDK usage | Not recommended | Use Cloudflare native x402 and Agents support, or call a Node service that runs Avery SDK. |
 
 ## Next.js Pattern
 
@@ -94,7 +94,7 @@ Suggested handling:
 
 ## Platform Configuration
 
-On Vercel, use Project Environment Variables and deploy Alpha only in Node.js
+On Vercel, use Project Environment Variables and deploy Avery SDK only in Node.js
 Functions or Next.js server routes with `runtime = "nodejs"`.
 
 On Fly.io, inject sensitive values with `fly secrets set`:

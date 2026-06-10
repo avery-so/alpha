@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: Alpha
+  name: Avery SDK
   text: AI Agent 时代最好用的 Agent 支付 SDK
   tagline: 将付费 x402 端点变成安全、带上限、可由模型调用的服务端 Agent 工具。
   actions:

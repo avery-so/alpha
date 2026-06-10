@@ -204,7 +204,7 @@ Inspect:
 
 Fix:
 
-- Run Alpha in a supported Node.js runtime.
+- Run Avery SDK in a supported Node.js runtime.
 - Pass a compatible custom `fetch` implementation through `X402ClientOptions`
   when required.
 - Restore `globalThis.fetch` in tests after mocking it.
@@ -217,7 +217,7 @@ Likely causes:
 
 - A Next.js `"use client"` component imports a module that creates
   `X402Client`.
-- Shared utility code imports Alpha from both server and browser paths.
+- Shared utility code imports Avery SDK from both server and browser paths.
 - Environment variables were prefixed with `NEXT_PUBLIC_`.
 
 Inspect:
@@ -231,7 +231,7 @@ Fix:
 - Keep `X402Client` in a server-only module.
 - Add `import "server-only";` in Next.js server helpers.
 - Expose your own API route or server action to the browser instead of importing
-  Alpha directly.
+  Avery SDK directly.
 - Rotate any key that may have been exposed.
 
 See [Production](/guide/production#nextjs-pattern).

@@ -2,7 +2,7 @@
   "name": "alpha-workspace",
   "version": "0.0.0",
   "private": true,
-  "description": "Workspace for the Alpha TypeScript SDK and documentation.",
+  "description": "Workspace for the Avery SDK and documentation.",
   "license": "ISC",
   "type": "module",
   "packageManager": "pnpm@11.4.0",

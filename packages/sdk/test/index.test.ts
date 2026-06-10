@@ -1,11 +1,41 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AlphaClient, AlphaError } from "../src/index.js";
+import {
+  AlphaClient,
+  AlphaError,
+  AveryClient,
+  AveryError,
+} from "../src/index.js";
 
-describe("AlphaClient", () => {
+describe("AveryClient", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  it("requests the default Avery status endpoint", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json(
+        { ok: true },
+        {
+          status: 200,
+        },
+      ),
+    );
+    const client = new AveryClient({
+      fetch: fetchMock,
+    });
+
+    await expect(client.getStatus()).resolves.toEqual({
+      ok: true,
+      service: "avery",
+    });
+
+    const call = fetchMock.mock.calls[0];
+    expect(call).toBeDefined();
+
+    const [url] = call as Parameters<typeof fetch>;
+    expect(String(url)).toBe("https://api.avery.so/avery/status");
   });
 
   it("requests the status endpoint with auth headers", async () => {
@@ -17,7 +47,7 @@ describe("AlphaClient", () => {
         },
       ),
     );
-    const client = new AlphaClient({
+    const client = new AveryClient({
       apiKey: "test-key",
       baseUrl: "https://example.test/api",
       fetch: fetchMock,
@@ -25,7 +55,7 @@ describe("AlphaClient", () => {
 
     await expect(client.getStatus()).resolves.toEqual({
       ok: true,
-      service: "alpha",
+      service: "avery",
     });
 
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -34,7 +64,7 @@ describe("AlphaClient", () => {
     expect(call).toBeDefined();
 
     const [url, init] = call as Parameters<typeof fetch>;
-    expect(String(url)).toBe("https://example.test/status");
+    expect(String(url)).toBe("https://example.test/api/status");
     expect(init?.method).toBe("GET");
 
     const headers = init?.headers;
@@ -45,8 +75,8 @@ describe("AlphaClient", () => {
   it("throws TypeError when no fetch implementation is available", () => {
     vi.stubGlobal("fetch", undefined);
 
-    expect(() => new AlphaClient()).toThrow(TypeError);
-    expect(() => new AlphaClient()).toThrow(
+    expect(() => new AveryClient()).toThrow(TypeError);
+    expect(() => new AveryClient()).toThrow(
       "A fetch implementation is required.",
     );
   });
@@ -60,7 +90,7 @@ describe("AlphaClient", () => {
         },
       ),
     );
-    const client = new AlphaClient({
+    const client = new AveryClient({
       baseUrl: "https://example.test",
       fetch: fetchMock,
     });
@@ -85,7 +115,7 @@ describe("AlphaClient", () => {
         },
       ),
     );
-    const client = new AlphaClient({
+    const client = new AveryClient({
       baseUrl: "https://example.test/nested/api/",
       fetch: fetchMock,
     });
@@ -96,10 +126,65 @@ describe("AlphaClient", () => {
     expect(call).toBeDefined();
 
     const [url] = call as Parameters<typeof fetch>;
-    expect(String(url)).toBe("https://example.test/status");
+    expect(String(url)).toBe("https://example.test/nested/api/status");
   });
 
-  it("throws AlphaError when the status request fails", async () => {
+  it("throws AveryError when the status request fails", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(null, { status: 503 }));
+    const client = new AveryClient({
+      baseUrl: "https://example.test",
+      fetch: fetchMock,
+    });
+
+    let thrown: unknown;
+
+    try {
+      await client.getStatus();
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(AveryError);
+    expect(thrown).toMatchObject({
+      name: "AveryError",
+      status: 503,
+    } satisfies Partial<AveryError>);
+  });
+});
+
+describe("AlphaClient", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("keeps the legacy Alpha status behavior", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json(
+        { ok: true },
+        {
+          status: 200,
+        },
+      ),
+    );
+    const client = new AlphaClient({
+      fetch: fetchMock,
+    });
+
+    await expect(client.getStatus()).resolves.toEqual({
+      ok: true,
+      service: "alpha",
+    });
+
+    const call = fetchMock.mock.calls[0];
+    expect(call).toBeDefined();
+
+    const [url] = call as Parameters<typeof fetch>;
+    expect(String(url)).toBe("https://api.avery.so/alpha/status");
+  });
+
+  it("throws AlphaError when the legacy status request fails", async () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValue(new Response(null, { status: 503 }));

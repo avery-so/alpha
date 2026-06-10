@@ -1,6 +1,6 @@
 # Build an Agent Payment Tool with x402
 
-This is the core Alpha workflow for agent payments: expose an x402-protected
+This is the core Avery SDK workflow for agent payments: expose an x402-protected
 HTTP endpoint as a Vercel AI SDK-compatible tool, cap what the agent can spend,
 and keep credentials on the server. The model supplies tool input, the SDK
 prepares the request, and `X402Client` handles the paid x402 call.

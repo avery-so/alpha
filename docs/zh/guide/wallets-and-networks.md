@@ -1,6 +1,6 @@
 # 钱包与网络
 
-Alpha 会使用服务端钱包签名 x402 支付。钱包、网络、资产、RPC provider 和
+Avery SDK 会使用服务端钱包签名 x402 支付。钱包、网络、资产、RPC provider 和
 `maxAmount` 上限都必须匹配目标端点返回的支付要求。
 
 多数首次测试建议从 `Base Sepolia` 开始。本文档示例使用它，x402 和 CDP 的测试网
@@ -13,7 +13,7 @@ Alpha 会使用服务端钱包签名 x402 支付。钱包、网络、资产、RP
 Sepolia。如果端点只接受 `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`，就配置
 Solana Devnet。
 
-Alpha 支持内置常量、friendly name、primary slug 和受支持的 CAIP-2 字符串：
+Avery SDK 支持内置常量、friendly name、primary slug 和受支持的 CAIP-2 字符串：
 
 ```ts
 import { X402Client, X402Networks } from "@averyso/alpha";

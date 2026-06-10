@@ -1,6 +1,6 @@
 # 快速开始
 
-Alpha 是 AI Agent 时代的 Agent 支付 SDK。当模型需要调用付费 x402 端点时，
+Avery SDK 是 AI Agent 时代的 Agent 支付 SDK。当模型需要调用付费 x402 端点时，
 优先使用 `x402tool()` 构建带支付上限、运行在服务端的工具。当请求完全由应用
 自己控制时，再直接使用 `X402Client.call()`。
 
@@ -11,7 +11,7 @@ Alpha 是 AI Agent 时代的 Agent 支付 SDK。当模型需要调用付费 x402
 
 - Node.js `>=20.19.0`。
 - 一个 x402-protected endpoint。见 [核心概念](/zh/guide/concepts)，了解端点如何
-  返回支付要求，以及 Alpha 如何完成兼容支付。
+  返回支付要求，以及 Avery SDK 如何完成兼容支付。
 - 所选 x402 网络对应的凭证。测试钱包和网络配置见
   [钱包与网络](/zh/guide/wallets-and-networks)。
 - 所选网络需要 RPC 时，提供 RPC URL。部署建议见
@@ -26,6 +26,9 @@ base58 编码的 64 字节 Solana secret key。
 ```sh
 pnpm add @averyso/alpha
 ```
+
+包名为了兼容仍是 `@averyso/alpha`。新代码应使用 `Avery*` 状态 API；legacy
+`Alpha*` 名称仍会继续导出。
 
 ## 导入
 
@@ -80,7 +83,7 @@ call 或 tool 层覆盖。
 ## 构建 Agent 支付工具
 
 使用 `x402tool()` 可以把付费端点暴露为兼容 Vercel AI SDK 的工具。模型提供
-结构化输入，Alpha 准备 HTTP 请求，`X402Client` 负责完成 x402 支付流程。
+结构化输入，Avery SDK 准备 HTTP 请求，`X402Client` 负责完成 x402 支付流程。
 
 ```ts
 import { jsonSchema } from "ai";

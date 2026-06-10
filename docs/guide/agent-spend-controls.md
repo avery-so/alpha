@@ -4,12 +4,12 @@ Production payment agents need server-side spending policy. `maxAmount` is the
 SDK's per-payment safety cap, but it is not a user budget, session budget, daily
 limit, or approval system by itself.
 
-Use Alpha's caps as the last payment guardrail around a single x402 request, and
+Use Avery SDK's caps as the last payment guardrail around a single x402 request, and
 enforce broader spend policy in your application before any paid tool executes.
 
 ## Cap Precedence
 
-Alpha applies the most specific cap available for the paid request path:
+Avery SDK applies the most specific cap available for the paid request path:
 
 1. `x402tool({ maxAmount })` caps that tool's internal `client.call()` execution.
 2. `client.call(..., { maxAmount })` caps that direct application-controlled
@@ -109,7 +109,7 @@ try {
 }
 ```
 
-Deny paid execution before calling Alpha when the budget is exhausted, the
+Deny paid execution before calling Avery SDK when the budget is exhausted, the
 reservation cannot be created, the requested cap exceeds policy, or the wallet
 balance is below the minimum needed for the request and refill window.
 

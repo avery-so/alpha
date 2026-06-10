@@ -1,6 +1,6 @@
 # Wallets and Networks
 
-Alpha signs x402 payments from a server-side wallet. The wallet, network, asset,
+Avery SDK signs x402 payments from a server-side wallet. The wallet, network, asset,
 RPC provider, and `maxAmount` cap must all match the payment requirements
 returned by the endpoint you are calling.
 
@@ -15,7 +15,7 @@ Always let the endpoint payment requirements drive the final network choice. If
 the endpoint only accepts `eip155:84532`, configure Base Sepolia. If it only
 accepts `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`, configure Solana Devnet.
 
-Alpha accepts built-in constants, friendly names, primary slugs, and supported
+Avery SDK accepts built-in constants, friendly names, primary slugs, and supported
 CAIP-2 strings:
 
 ```ts

@@ -62,7 +62,7 @@ const zhSidebar = [
 ];
 
 export default defineConfig({
-  title: "Alpha",
+  title: "Avery SDK",
   description: "Agent Payment SDK for the AI Agent era.",
   cleanUrls: true,
   locales: {

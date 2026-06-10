@@ -1,6 +1,6 @@
 # Getting Started
 
-Alpha is the Agent Payment SDK for the AI Agent era. Start with
+Avery SDK is the Agent Payment SDK for the AI Agent era. Start with
 `x402tool()` when a model should call paid x402 endpoints through a capped,
 server-side tool. Use `X402Client.call()` directly when your application, not a
 model, controls the request.
@@ -12,7 +12,7 @@ first for the payment lifecycle and `EndpointResult.kind` outcomes.
 
 - Node.js `>=20.19.0`.
 - An x402-protected endpoint. See [Concepts](/guide/concepts) for how an
-  endpoint advertises payment requirements and how Alpha completes a compatible
+  endpoint advertises payment requirements and how Avery SDK completes a compatible
   payment.
 - Credentials for the selected x402 network. See
   [Wallets and Networks](/guide/wallets-and-networks) for test wallet and
@@ -30,6 +30,9 @@ Solana networks require a base58-encoded 64-byte Solana secret key.
 ```sh
 pnpm add @averyso/alpha
 ```
+
+The package name remains `@averyso/alpha` for compatibility. New code should
+use the `Avery*` status APIs; legacy `Alpha*` names are still exported.
 
 ## Imports
 
@@ -87,7 +90,7 @@ readiness checks, see [Wallets and Networks](/guide/wallets-and-networks).
 ## Build an Agent Payment Tool
 
 Use `x402tool()` to expose a paid endpoint as a Vercel AI SDK-compatible tool.
-The model supplies structured input, Alpha prepares the HTTP request, and
+The model supplies structured input, Avery SDK prepares the HTTP request, and
 `X402Client` handles the x402 payment flow.
 
 ```ts
