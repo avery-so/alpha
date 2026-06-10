@@ -1,0 +1,48 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "import", "promise"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "warn",
+    "perf": "warn",
+    "style": "warn"
+  },
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/coverage/**",
+    "docs/.vitepress/cache/**",
+    "docs/.vitepress/dist/**",
+    "**/node_modules/**"
+  ],
+  "rules": {
+    "no-eval": "error",
+    "import/no-named-export": "off",
+    "import/group-exports": "off",
+    "sort-keys": "off",
+    "sort-imports": "off",
+    "no-magic-numbers": "off",
+    "max-classes-per-file": "off",
+    "prefer-destructuring": "off",
+    "@typescript-eslint/parameter-properties": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts"],
+      "rules": {
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "init-declarations": "off",
+        "max-lines-per-function": "off",
+        "max-statements": "off",
+        "unicorn/no-null": "off",
+        "unicorn/no-useless-undefined": "off"
+      }
+    },
+    {
+      "files": ["**/*.config.ts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    }
+  ]
+}

@@ -10,9 +10,12 @@ describe("AlphaClient", () => {
 
   it("requests the status endpoint with auth headers", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), {
-        status: 200,
-      }),
+      Response.json(
+        { ok: true },
+        {
+          status: 200,
+        },
+      ),
     );
     const client = new AlphaClient({
       apiKey: "test-key",
@@ -50,9 +53,12 @@ describe("AlphaClient", () => {
 
   it("omits the authorization header when no API key is provided", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), {
-        status: 200,
-      }),
+      Response.json(
+        { ok: true },
+        {
+          status: 200,
+        },
+      ),
     );
     const client = new AlphaClient({
       baseUrl: "https://example.test",
@@ -72,9 +78,12 @@ describe("AlphaClient", () => {
 
   it("resolves status URLs from custom base URLs with paths", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), {
-        status: 200,
-      }),
+      Response.json(
+        { ok: true },
+        {
+          status: 200,
+        },
+      ),
     );
     const client = new AlphaClient({
       baseUrl: "https://example.test/nested/api/",
