@@ -1,8 +1,9 @@
-# 构建 x402 AI 工具
+# 使用 x402 构建 Agent 支付工具
 
-本教程会把一个 x402-protected HTTP 端点包装成兼容 Vercel AI SDK 的工具。
-模型负责提供 tool input，SDK 负责准备请求，`X402Client` 负责完成付费的
-x402 调用。
+这是 Alpha 的核心 Agent payment 工作流：把 x402-protected HTTP 端点包装成
+兼容 Vercel AI SDK 的工具，限制 Agent 的单次支付上限，并把凭证保留在服务端。
+模型负责提供 tool input，SDK 负责准备请求，`X402Client` 负责完成付费的 x402
+调用。
 
 ## 前置条件
 
@@ -33,7 +34,7 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 
 client 层的 `maxAmount` 是默认支付上限。单个 tool 可以继续覆盖它。
 
-## 定义工具
+## 定义 Agent 工具
 
 ```ts
 import { jsonSchema } from "ai";
@@ -52,6 +53,7 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 export const tools = {
   getWeather: x402tool<WeatherInput>({
     client,
+    title: "Paid weather",
     description: "Get current weather from a paid x402 endpoint.",
     inputSchema: jsonSchema({
       type: "object",
@@ -75,7 +77,8 @@ export const tools = {
 
 上面的示例使用默认 `GET` 方法，因此
 `{ city: "Paris", units: "metric" }` 会变成
-`?city=Paris&units=metric`。
+`?city=Paris&units=metric`。tool 层的 `maxAmount` 会限制这一次由模型触发的
+付费调用。
 
 ## 使用动态端点
 
@@ -146,7 +149,8 @@ const tools = {
 ## 返回适合模型消费的结果
 
 不提供 `execute` 时，tool 会直接返回原始 `EndpointResult`。提供 `execute`
-可以把输出收敛成更稳定、更适合模型理解的对象。
+可以把输出收敛成更稳定、更适合模型理解的对象，而不是把完整支付和 HTTP 结果
+直接交给模型。
 
 ```ts
 const tools = {
@@ -181,7 +185,7 @@ const tools = {
 `execute` 接收 `{ endpoint, input }`。其中 `endpoint` 是
 `X402Client.call()` 返回的 `EndpointResult`，`input` 是原始 tool input。
 
-## 传给 AI SDK
+## 将支付工具传给 AI SDK
 
 ```ts
 import { generateText, jsonSchema } from "ai";
@@ -195,6 +199,7 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 const tools = {
   getWeather: x402tool<{ city: string }>({
     client,
+    title: "Paid weather",
     description: "Get current weather for a city.",
     inputSchema: jsonSchema({
       type: "object",

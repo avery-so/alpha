@@ -21,7 +21,9 @@ const rootSidebar = [
   },
   {
     text: "Tutorial",
-    items: [{ text: "Build an x402 AI Tool", link: "/tutorial/x402-ai-tool" }],
+    items: [
+      { text: "Build an Agent Payment Tool", link: "/tutorial/x402-ai-tool" },
+    ],
   },
   {
     text: "API Reference",
@@ -36,7 +38,7 @@ const zhSidebar = [
   },
   {
     text: "教程",
-    items: [{ text: "构建 x402 AI 工具", link: "/zh/tutorial/x402-ai-tool" }],
+    items: [{ text: "构建 Agent 支付工具", link: "/zh/tutorial/x402-ai-tool" }],
   },
   {
     text: "API 参考",
@@ -46,12 +48,13 @@ const zhSidebar = [
 
 export default defineConfig({
   title: "Alpha",
-  description: "Node-only TypeScript SDK for Alpha.",
+  description: "Agent Payment SDK for the AI Agent era.",
   cleanUrls: true,
   locales: {
     root: {
       label: "English",
       lang: "en-US",
+      description: "Agent Payment SDK for the AI Agent era.",
       themeConfig: {
         nav: rootNav,
         sidebar: rootSidebar,
@@ -61,6 +64,7 @@ export default defineConfig({
       label: "简体中文",
       lang: "zh-CN",
       link: "/zh/",
+      description: "AI Agent 时代的 Agent 支付 SDK。",
       themeConfig: {
         nav: zhNav,
         sidebar: zhSidebar,

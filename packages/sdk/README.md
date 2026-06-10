@@ -1,13 +1,19 @@
 # @averyso/alpha
 
-Node-only TypeScript SDK for Alpha services and x402-protected paid HTTP
-endpoints.
+Alpha is the best Agent Payment SDK for the AI Agent era.
 
-Use it to:
+Use `@averyso/alpha` to turn x402-protected paid HTTP endpoints into safe,
+capped, model-callable tools for server-side AI agents. The same SDK also gives
+you a direct lower-level `X402Client.call()` path for application-controlled
+requests.
 
-- call paid endpoints directly with `X402Client.call()`;
-- expose paid endpoints as Vercel AI SDK-compatible tools with `x402tool()`;
-- check Alpha service status with `AlphaClient`.
+Product pillars:
+
+- Agent-native tools for the Vercel AI SDK with `x402tool()`.
+- Pay-per-request x402 HTTP access with `X402Client`.
+- Payment exposure control with `maxAmount`.
+- Server-side private key, RPC URL, and signing boundaries.
+- EVM and Solana network support.
 
 ## Install
 
@@ -15,48 +21,14 @@ Use it to:
 pnpm add @averyso/alpha
 ```
 
-## Direct x402 Calls
-
-`X402Client` wraps the x402 payment flow for paid HTTP resources. It supports
-EVM `exact` payments on `eip155:*` networks and Solana `exact` payments on
-Solana Mainnet and Devnet.
-
-```ts
-import { X402Client, X402Networks } from "@averyso/alpha";
-
-const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: X402Networks.baseSepolia,
-  rpcUrl: process.env.X402_RPC_URL,
-  maxAmount: 100_000n,
-});
-
-const result = await x402.call({
-  url: "https://api.example.com/weather",
-  method: "POST",
-  body: {
-    city: "Taipei",
-  },
-});
-
-if (result.kind === "success") {
-  console.log(result.body);
-}
-```
-
-By default, payment and HTTP failures are returned as `EndpointResult` objects
-with `kind: "error"`, `kind: "payment_required"`, or `kind: "settle_failed"`.
-Set `throwOnError: true` on a direct call or tool to throw `X402PaymentError`
-instead.
-
-## AI SDK Tools
+## Agent Payment Tools
 
 `x402tool()` exposes an x402 endpoint as a Vercel AI SDK-compatible tool. The
-model supplies tool input, and the SDK prepares the request, pays the endpoint,
-and returns the endpoint result.
+model supplies tool input, the SDK prepares the request, pays the endpoint, and
+returns an `EndpointResult` or your custom `execute` output.
 
 ```ts
-import { openai } from "@ai-sdk/openai";
-import { generateText, jsonSchema } from "ai";
+import { jsonSchema } from "ai";
 import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
@@ -65,7 +37,7 @@ const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
   maxAmount: 100_000n,
 });
 
-const tools = {
+export const tools = {
   paidWeather: x402tool<{ city: string }>({
     client: x402,
     title: "Paid weather",
@@ -84,15 +56,15 @@ const tools = {
       required: ["city"],
       additionalProperties: false,
     }),
+    maxAmount: 50_000n,
   }),
 };
-
-const result = await generateText({
-  model: openai("gpt-4.1"),
-  prompt: "What is the paid weather report for Taipei?",
-  tools,
-});
 ```
+
+For `GET`, `HEAD`, and `DELETE` endpoints, plain object input is mapped to the
+query string. For `POST`, `PUT`, and `PATCH` endpoints, it is sent as a JSON
+body. Use `request` when the paid endpoint needs custom headers, a custom
+method, or a body shape that differs from model input.
 
 `maxAmount` is denominated in atomic token units and defaults to `100_000n`.
 Keep this ceiling low for agent workflows, and override it per tool only when
@@ -106,6 +78,48 @@ x402tool({
   inputSchema: jsonSchema({ type: "object" }),
 });
 ```
+
+## Direct x402 Calls
+
+Use `X402Client.call()` when your application directly controls the request and
+wants to branch on `EndpointResult.kind`. `X402Client` wraps the x402 payment
+flow for paid HTTP resources. It supports EVM `exact` payments on `eip155:*`
+networks and Solana `exact` payments on Solana Mainnet and Devnet.
+
+```ts
+import {
+  X402Client,
+  X402Networks,
+  type EndpointResult,
+} from "@averyso/alpha";
+
+const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+  maxAmount: 100_000n,
+});
+
+const result: EndpointResult = await x402.call(
+  {
+    url: "https://api.example.com/weather",
+    method: "POST",
+    body: {
+      city: "Taipei",
+    },
+  },
+  undefined,
+  { maxAmount: 50_000n },
+);
+
+if (result.kind === "success") {
+  console.log(result.body);
+}
+```
+
+By default, payment and HTTP failures are returned as `EndpointResult` objects
+with `kind: "error"`, `kind: "payment_required"`, or `kind: "settle_failed"`.
+Set `throwOnError: true` on a direct call or tool to throw `X402PaymentError`
+instead.
 
 ## Network Selection and Credentials
 

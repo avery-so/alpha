@@ -1,5 +1,8 @@
 # SDK API Reference
 
+This reference documents the public APIs behind Alpha agent payment tools and
+direct x402 paid HTTP calls.
+
 All public SDK APIs are exported from `@averyso/alpha`. Do not import from
 `packages/sdk/src/...` paths.
 

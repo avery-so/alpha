@@ -1,8 +1,9 @@
-# Build an x402 AI Tool
+# Build an Agent Payment Tool with x402
 
-This tutorial exposes an x402-protected HTTP endpoint as a Vercel AI
-SDK-compatible tool. The model supplies tool input, the SDK prepares the
-request, and `X402Client` handles the paid x402 call.
+This is the core Alpha workflow for agent payments: expose an x402-protected
+HTTP endpoint as a Vercel AI SDK-compatible tool, cap what the agent can spend,
+and keep credentials on the server. The model supplies tool input, the SDK
+prepares the request, and `X402Client` handles the paid x402 call.
 
 ## Prerequisites
 
@@ -35,7 +36,7 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 The client-level `maxAmount` is the default payment cap. You can lower or raise
 the cap for a specific tool.
 
-## Define the Tool
+## Define the Agent Tool
 
 ```ts
 import { jsonSchema } from "ai";
@@ -54,6 +55,7 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 export const tools = {
   getWeather: x402tool<WeatherInput>({
     client,
+    title: "Paid weather",
     description: "Get current weather from a paid x402 endpoint.",
     inputSchema: jsonSchema({
       type: "object",
@@ -78,7 +80,8 @@ automatically:
 
 The example above uses the default `GET` method, so
 `{ city: "Paris", units: "metric" }` becomes
-`?city=Paris&units=metric`.
+`?city=Paris&units=metric`. The tool-level `maxAmount` caps this specific
+model-triggered paid call.
 
 ## Use Dynamic Endpoints
 
@@ -149,7 +152,8 @@ Providing `request` disables automatic input mapping. The object returned by
 ## Return Model-Friendly Output
 
 Without `execute`, the tool returns the raw `EndpointResult`. Add `execute`
-when the model should receive a smaller, stable object.
+when the model should receive a smaller, stable object instead of the full
+payment and HTTP result.
 
 ```ts
 const tools = {
@@ -185,7 +189,7 @@ const tools = {
 `EndpointResult` returned by `X402Client.call()` and `input` is the original
 tool input.
 
-## Pass Tools to the AI SDK
+## Pass the Payment Tool to the AI SDK
 
 ```ts
 import { generateText, jsonSchema } from "ai";
@@ -199,6 +203,7 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 const tools = {
   getWeather: x402tool<{ city: string }>({
     client,
+    title: "Paid weather",
     description: "Get current weather for a city.",
     inputSchema: jsonSchema({
       type: "object",

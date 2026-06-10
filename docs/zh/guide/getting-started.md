@@ -1,7 +1,8 @@
 # 快速开始
 
-Alpha 是面向 Node.js 的 SDK。主要运行路径是 `X402Client`：它会为支持
-x402 的端点签名、选择可接受的支付要求，并完成付费请求。
+Alpha 是 AI Agent 时代的 Agent 支付 SDK。当模型需要调用付费 x402 端点时，
+优先使用 `x402tool()` 构建带支付上限、运行在服务端的工具。当请求完全由应用
+自己控制时，再直接使用 `X402Client.call()`。
 
 ## 环境要求
 
@@ -41,7 +42,8 @@ X402_PRIVATE_KEY=0x...
 X402_RPC_URL=https://example-rpc.testnet
 ```
 
-不要把 `X402_PRIVATE_KEY` 暴露到浏览器或客户端构建产物中。
+不要把 `X402_PRIVATE_KEY` 暴露到浏览器或客户端构建产物中。私钥、RPC URL 和
+支付签名流程都应保留在服务端。
 
 ## 创建客户端
 
@@ -66,7 +68,63 @@ call 或 tool 层覆盖。
 完整内置网络表见 [SDK API 参考](/zh/api/sdk)。原始 `eip155:*` CAIP-2 值会继续
 可用；原始 Solana CAIP-2 值仅限支持的 Solana Mainnet 和 Devnet 条目。
 
-## 调用付费端点
+## 构建 Agent 支付工具
+
+使用 `x402tool()` 可以把付费端点暴露为兼容 Vercel AI SDK 的工具。模型提供
+结构化输入，Alpha 准备 HTTP 请求，`X402Client` 负责完成 x402 支付流程。
+
+```ts
+import { jsonSchema } from "ai";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
+
+const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+  maxAmount: 100_000n,
+});
+
+export const tools = {
+  getWeather: x402tool<{ city: string }>({
+    client,
+    title: "Paid weather",
+    description: "Get current weather for a city.",
+    inputSchema: jsonSchema({
+      type: "object",
+      properties: {
+        city: { type: "string" },
+      },
+      required: ["city"],
+      additionalProperties: false,
+    }),
+    endpoint: "https://api.example.com/weather",
+    maxAmount: 50_000n,
+  }),
+};
+```
+
+对于 `GET`、`HEAD`、`DELETE`，plain object tool input 会被映射到 query
+parameters。对于 `POST`、`PUT`、`PATCH`，它会作为 JSON body 发送。使用 tool
+层的 `maxAmount` 可以控制每次模型触发付费调用的上限。
+
+将工具传给 AI SDK：
+
+```ts
+import { generateText } from "ai";
+
+const response = await generateText({
+  model,
+  tools,
+  prompt: "What is the weather in Lisbon?",
+});
+```
+
+`model` 来自你的 AI SDK 模型 provider。动态端点、请求覆盖和适合模型消费的输出
+结构见 [构建 x402 AI 工具](/zh/tutorial/x402-ai-tool)。
+
+## 直接调用付费端点
+
+当应用自己控制请求，并希望根据 `EndpointResult.kind` 分支处理时，使用
+`client.call()`。
 
 ```ts
 const result = await client.call(
@@ -100,39 +158,4 @@ const result = await client.call(
   { query: { city: "London" } },
   { throwOnError: true },
 );
-```
-
-## 直接调用还是 AI 工具
-
-当应用自己控制请求，并希望根据 `EndpointResult.kind` 分支处理时，使用
-`client.call()`。
-
-当模型需要通过兼容 Vercel AI SDK 的工具决定何时调用付费端点时，使用
-`x402tool()`：
-
-```ts
-import { jsonSchema } from "ai";
-import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
-
-const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: X402Networks.baseSepolia,
-  rpcUrl: process.env.X402_RPC_URL,
-});
-
-export const tools = {
-  getWeather: x402tool({
-    client,
-    description: "Get current weather for a city.",
-    inputSchema: jsonSchema({
-      type: "object",
-      properties: {
-        city: { type: "string" },
-      },
-      required: ["city"],
-      additionalProperties: false,
-    }),
-    endpoint: "https://api.example.com/weather",
-    maxAmount: 50_000n,
-  }),
-};
 ```

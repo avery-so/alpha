@@ -1,52 +1,28 @@
-# Alpha
+---
+layout: home
 
-`@averyso/alpha` is a Node-only TypeScript SDK for calling Alpha services and
-x402-protected paid HTTP endpoints from TypeScript.
+hero:
+  name: Alpha
+  text: The best Agent Payment SDK for the AI Agent era
+  tagline: Turn paid x402 endpoints into safe, capped, model-callable tools for server-side AI agents.
+  actions:
+    - theme: brand
+      text: Getting Started
+      link: /guide/getting-started
+    - theme: alt
+      text: x402 AI Tool
+      link: /tutorial/x402-ai-tool
+    - theme: alt
+      text: API Reference
+      link: /api/sdk
 
-Use it when your application needs to:
-
-- call paid HTTP endpoints with EVM or Solana credentials and x402 payment flow;
-- cap payment exposure with `maxAmount`;
-- expose paid endpoints as Vercel AI SDK-compatible tools;
-- check basic Alpha service status through the lightweight `AlphaClient`.
-
-## Install
-
-```sh
-pnpm add @averyso/alpha
-```
-
-## Quick Start
-
-```ts
-import { X402Client, X402Networks } from "@averyso/alpha";
-
-const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: X402Networks.baseSepolia,
-  rpcUrl: process.env.X402_RPC_URL,
-});
-
-const result = await client.call("https://api.example.com/weather", {
-  query: { city: "San Francisco" },
-});
-
-if (result.kind === "success") {
-  console.log(result.body);
-}
-```
-
-Real integrations require an x402-protected endpoint, credentials for the
-selected network, an RPC URL when required, and enough testnet or mainnet funds
-for that network. EVM networks use a 32-byte hex private key; Solana networks
-use a base58-encoded 64-byte Solana secret key.
-
-Choose networks with `X402Networks` constants, friendly names such as
-`"Base Sepolia"`, primary slugs such as `"base-sepolia"`, or raw CAIP-2 strings
-such as `"eip155:84532"`. `client.network` always returns normalized CAIP-2.
-
-## Next Steps
-
-- [Getting Started](/guide/getting-started)
-- [Build an x402 AI Tool](/tutorial/x402-ai-tool)
-- [API Reference](/api/sdk)
-- [Releases](/releases/)
+features:
+  - title: Agent-native tools
+    details: Wrap paid endpoints with x402tool() as Vercel AI SDK-compatible tools that models can call.
+  - title: x402 pay-per-request access
+    details: Use X402Client to sign, pay, and retry HTTP calls against x402-protected resources.
+  - title: Payment caps
+    details: Bound agent payment exposure with maxAmount at the client, call, or tool level.
+  - title: Multi-network credentials
+    details: Keep EVM and Solana private keys, RPC URLs, and payment signing on the server.
+---

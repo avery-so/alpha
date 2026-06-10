@@ -1,8 +1,9 @@
 # Getting Started
 
-Alpha is a Node-only SDK. The main runtime path is `X402Client`, which signs
-and pays x402 requests for endpoints that advertise compatible payment
-requirements.
+Alpha is the Agent Payment SDK for the AI Agent era. Start with
+`x402tool()` when a model should call paid x402 endpoints through a capped,
+server-side tool. Use `X402Client.call()` directly when your application, not a
+model, controls the request.
 
 ## Requirements
 
@@ -42,7 +43,8 @@ X402_PRIVATE_KEY=0x...
 X402_RPC_URL=https://example-rpc.testnet
 ```
 
-Never expose `X402_PRIVATE_KEY` to browsers or client-side bundles.
+Never expose `X402_PRIVATE_KEY` to browsers or client-side bundles. Keep
+private keys, RPC URLs, and payment signing on the server.
 
 ## Create a Client
 
@@ -69,7 +71,66 @@ The full built-in network table is in the [SDK API Reference](/api/sdk). Raw
 `eip155:*` CAIP-2 values continue to work; raw Solana CAIP-2 values are limited
 to the supported Solana Mainnet and Devnet entries.
 
-## Call a Paid Endpoint
+## Build an Agent Payment Tool
+
+Use `x402tool()` to expose a paid endpoint as a Vercel AI SDK-compatible tool.
+The model supplies structured input, Alpha prepares the HTTP request, and
+`X402Client` handles the x402 payment flow.
+
+```ts
+import { jsonSchema } from "ai";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
+
+const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+  rpcUrl: process.env.X402_RPC_URL,
+  maxAmount: 100_000n,
+});
+
+export const tools = {
+  getWeather: x402tool<{ city: string }>({
+    client,
+    title: "Paid weather",
+    description: "Get current weather for a city.",
+    inputSchema: jsonSchema({
+      type: "object",
+      properties: {
+        city: { type: "string" },
+      },
+      required: ["city"],
+      additionalProperties: false,
+    }),
+    endpoint: "https://api.example.com/weather",
+    maxAmount: 50_000n,
+  }),
+};
+```
+
+For `GET`, `HEAD`, and `DELETE`, plain object tool input is mapped to query
+parameters. For `POST`, `PUT`, and `PATCH`, it is sent as a JSON body. Use the
+tool-level `maxAmount` to keep each model-triggered paid call within a known
+ceiling.
+
+To pass the tool to the AI SDK:
+
+```ts
+import { generateText } from "ai";
+
+const response = await generateText({
+  model,
+  tools,
+  prompt: "What is the weather in Lisbon?",
+});
+```
+
+The `model` value comes from your AI SDK model provider. See
+[Build an x402 AI Tool](/tutorial/x402-ai-tool) for dynamic endpoints, request
+overrides, and model-friendly output shaping.
+
+## Call a Paid Endpoint Directly
+
+Use `client.call()` when your application directly controls the request and
+wants to branch on `EndpointResult.kind`.
 
 ```ts
 const result = await client.call(
@@ -103,39 +164,4 @@ const result = await client.call(
   { query: { city: "London" } },
   { throwOnError: true },
 );
-```
-
-## Direct Calls or AI Tools
-
-Use `client.call()` when your application directly controls the request and
-wants to branch on `EndpointResult.kind`.
-
-Use `x402tool()` when a model should decide when to call the endpoint through a
-Vercel AI SDK-compatible tool:
-
-```ts
-import { jsonSchema } from "ai";
-import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
-
-const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: X402Networks.baseSepolia,
-  rpcUrl: process.env.X402_RPC_URL,
-});
-
-export const tools = {
-  getWeather: x402tool({
-    client,
-    description: "Get current weather for a city.",
-    inputSchema: jsonSchema({
-      type: "object",
-      properties: {
-        city: { type: "string" },
-      },
-      required: ["city"],
-      additionalProperties: false,
-    }),
-    endpoint: "https://api.example.com/weather",
-    maxAmount: 50_000n,
-  }),
-};
 ```

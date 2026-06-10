@@ -1,5 +1,7 @@
 # SDK API 参考
 
+本参考文档覆盖 Alpha Agent 支付工具和直接 x402 付费 HTTP 调用背后的公开 API。
+
 所有公开 SDK API 都从 `@averyso/alpha` 导出。不要从
 `packages/sdk/src/...` 内部路径导入。
 
