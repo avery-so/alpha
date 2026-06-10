@@ -6,12 +6,27 @@ import type {
 } from "@x402/core/types";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { wrapFetchWithPayment } from "@x402/fetch";
+import { ExactSvmScheme } from "@x402/svm/exact/client";
 import { privateKeyToAccount } from "viem/accounts";
 import type { Hex } from "viem";
 
+import {
+  createSolanaSigner,
+  normalizeEvmPrivateKey,
+  normalizeSolanaSecretKey,
+  requiredEvmPrivateKey,
+  requiredSolanaSecretKey,
+} from "./credentials.js";
 import { prepareEndpointRequest } from "./endpoint.js";
 import { X402ConfigError, X402PaymentError } from "./errors.js";
 import { createLogger, type Logger, type LogLevel } from "./logger.js";
+import {
+  getSupportedX402NetworkDetails,
+  getX402NetworkFamily,
+  resolveX402Network,
+  type X402NetworkFamily,
+  type X402NetworkInput,
+} from "./networks.js";
 import { endpointErrorResult, toEndpointResult } from "./result.js";
 import type {
   EndpointInput,
@@ -22,7 +37,7 @@ import type {
 export type { Network, SettleResponse };
 
 export interface X402ClientOptions {
-  network: Network;
+  network: X402NetworkInput;
   logLevel?: LogLevel | undefined;
   logger?: Logger | undefined;
   fetch?: typeof fetch | undefined;
@@ -42,26 +57,39 @@ interface Runtime {
 }
 
 const defaultMaxAmount = 100_000n;
-const privateKeyPattern = /^(?:0x)?[0-9a-fA-F]{64}$/u;
 
 export class X402Client {
   readonly #fetch: typeof fetch;
   readonly #logger: Logger;
   readonly #network: Network;
-  readonly #privateKey: Hex;
+  readonly #networkFamily: X402NetworkFamily;
+  readonly #evmPrivateKey: Hex | undefined;
+  readonly #solanaSecretKey: Uint8Array | undefined;
   readonly #rpcUrl: string | undefined;
   readonly #defaultMaxAmount: bigint;
-  readonly #runtimes = new Map<string, Runtime>();
+  readonly #runtimes = new Map<string, Promise<Runtime>>();
 
   constructor(privateKey: string, options: X402ClientOptions) {
-    if (!isEip155Network(options.network)) {
-      throw new X402ConfigError("X402Client only supports eip155:* networks.", {
-        network: options.network,
+    const network = resolveX402Network(options.network);
+    const networkFamily = getX402NetworkFamily(network);
+
+    if (networkFamily === undefined) {
+      throw new X402ConfigError("Unsupported x402 network.", {
+        network,
+        supportedNetworks: getSupportedX402NetworkDetails(),
       });
     }
 
-    this.#network = options.network;
-    this.#privateKey = normalizePrivateKey(privateKey);
+    this.#network = network;
+    this.#networkFamily = networkFamily;
+    this.#evmPrivateKey =
+      networkFamily === "eip155"
+        ? normalizeEvmPrivateKey(privateKey)
+        : undefined;
+    this.#solanaSecretKey =
+      networkFamily === "solana"
+        ? normalizeSolanaSecretKey(privateKey)
+        : undefined;
     this.#fetch = options.fetch ?? globalThis.fetch;
     this.#logger = createLogger(options.logLevel ?? "info", options.logger);
     this.#defaultMaxAmount = options.maxAmount ?? defaultMaxAmount;
@@ -96,7 +124,9 @@ export class X402Client {
         url: prepared.url,
       });
 
-      const runtime = this.#runtime(opts.maxAmount ?? this.#defaultMaxAmount);
+      const runtime = await this.#runtime(
+        opts.maxAmount ?? this.#defaultMaxAmount,
+      );
       const response = await runtime.fetchWithPayment(
         prepared.input,
         prepared.init,
@@ -146,7 +176,7 @@ export class X402Client {
     }
   }
 
-  #runtime(maxAmount: bigint): Runtime {
+  #runtime(maxAmount: bigint): Promise<Runtime> {
     const key = maxAmount.toString();
     const existing = this.#runtimes.get(key);
 
@@ -154,7 +184,13 @@ export class X402Client {
       return existing;
     }
 
-    const signer = privateKeyToAccount(this.#privateKey);
+    const runtime = this.#createRuntime(maxAmount);
+    this.#runtimes.set(key, runtime);
+
+    return runtime;
+  }
+
+  async #createRuntime(maxAmount: bigint): Promise<Runtime> {
     const client = new x402Client((version, requirements) =>
       selectCheapestRequirement(
         version,
@@ -172,26 +208,42 @@ export class X402Client {
       ),
     );
 
-    registerExactEvmScheme(client, {
-      signer,
-      networks: [this.#network],
-      ...(this.#rpcUrl === undefined
-        ? {}
-        : {
-            schemeOptions: {
-              rpcUrl: this.#rpcUrl,
-            },
-          }),
-    });
+    if (this.#networkFamily === "eip155") {
+      const signer = privateKeyToAccount(
+        requiredEvmPrivateKey(this.#evmPrivateKey),
+      );
+
+      registerExactEvmScheme(client, {
+        signer,
+        networks: [this.#network],
+        ...(this.#rpcUrl === undefined
+          ? {}
+          : {
+              schemeOptions: {
+                rpcUrl: this.#rpcUrl,
+              },
+            }),
+      });
+    } else {
+      const signer = await createSolanaSigner(
+        requiredSolanaSecretKey(this.#solanaSecretKey),
+      );
+
+      client.register(
+        this.#network,
+        new ExactSvmScheme(
+          signer,
+          this.#rpcUrl === undefined ? undefined : { rpcUrl: this.#rpcUrl },
+        ),
+      );
+    }
 
     const httpClient = new x402HTTPClient(client);
-    const runtime = {
+
+    return {
       httpClient,
       fetchWithPayment: wrapFetchWithPayment(this.#fetch, httpClient),
     };
-
-    this.#runtimes.set(key, runtime);
-    return runtime;
   }
 }
 
@@ -244,18 +296,4 @@ function compareBigint(left: bigint, right: bigint): number {
   }
 
   return 0;
-}
-
-function isEip155Network(network: Network): boolean {
-  return network.startsWith("eip155:");
-}
-
-function normalizePrivateKey(privateKey: string): Hex {
-  if (!privateKeyPattern.test(privateKey)) {
-    throw new X402ConfigError(
-      "Private key must be a 32-byte hex string with an optional 0x prefix.",
-    );
-  }
-
-  return (privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`) as Hex;
 }

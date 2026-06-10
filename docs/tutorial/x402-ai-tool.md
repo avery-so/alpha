@@ -9,17 +9,20 @@ request, and `X402Client` handles the paid x402 call.
 - Node.js `>=20.19.0`.
 - `@averyso/alpha` installed.
 - An x402-protected endpoint.
-- `X402_PRIVATE_KEY` set to a 32-byte EVM private key.
-- `X402_RPC_URL` set when the selected `eip155:*` network requires an RPC URL.
+- `X402_PRIVATE_KEY` set to credentials for the selected network.
+- `X402_RPC_URL` set when the selected network requires an RPC URL.
 - Enough funds on the selected network.
+
+EVM networks use a 32-byte hex private key. Solana networks use a
+base58-encoded 64-byte Solana secret key.
 
 ## Create the Client
 
 ```ts
-import { X402Client } from "@averyso/alpha";
+import { X402Client, X402Networks } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
   maxAmount: 100_000n,
 });
@@ -40,7 +43,7 @@ interface WeatherInput {
 }
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: "Base Sepolia",
   rpcUrl: process.env.X402_RPC_URL,
 });
 
@@ -182,10 +185,10 @@ tool input.
 
 ```ts
 import { generateText, jsonSchema } from "ai";
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 

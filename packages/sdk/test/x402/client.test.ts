@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   X402Client,
   X402ConfigError,
+  X402Networks,
   X402PaymentError,
 } from "../../src/x402/index.js";
 import {
@@ -16,6 +17,8 @@ import {
   paymentRequirement,
   privateKey,
   readRequestBody,
+  solanaDevnet,
+  solanaSecretKey,
 } from "./fixtures.js";
 
 describe("X402Client configuration", () => {
@@ -38,6 +41,24 @@ describe("X402Client configuration", () => {
     expect(client.network).toBe(network);
   });
 
+  it("normalizes friendly network names", () => {
+    const client = new X402Client(privateKey, {
+      network: "Base Sepolia",
+      fetch: vi.fn<typeof fetch>(),
+    });
+
+    expect(client.network).toBe(network);
+  });
+
+  it("normalizes X402Networks constants", () => {
+    const client = new X402Client(privateKey, {
+      network: X402Networks.baseSepolia,
+      fetch: vi.fn<typeof fetch>(),
+    });
+
+    expect(client.network).toBe(network);
+  });
+
   it("throws X402ConfigError for invalid private keys", () => {
     expect(
       () =>
@@ -48,11 +69,31 @@ describe("X402Client configuration", () => {
     ).toThrow(X402ConfigError);
   });
 
-  it("throws X402ConfigError for non-eip155 networks", () => {
+  it("throws X402ConfigError for unsupported Solana networks", () => {
     expect(
       () =>
         new X402Client(privateKey, {
           network: "solana:devnet",
+          fetch: vi.fn<typeof fetch>(),
+        }),
+    ).toThrow(X402ConfigError);
+  });
+
+  it("throws X402ConfigError for invalid Solana base58 keys", () => {
+    expect(
+      () =>
+        new X402Client("not-a-solana-key", {
+          network: "Solana Devnet",
+          fetch: vi.fn<typeof fetch>(),
+        }),
+    ).toThrow(X402ConfigError);
+  });
+
+  it("throws X402ConfigError for invalid Solana secret key length", () => {
+    expect(
+      () =>
+        new X402Client("1111", {
+          network: "Solana Devnet",
           fetch: vi.fn<typeof fetch>(),
         }),
     ).toThrow(X402ConfigError);
@@ -90,6 +131,34 @@ describe("X402Client.call", () => {
     );
     const client = new X402Client(privateKey, {
       network,
+      fetch: fetchMock,
+    });
+
+    await expect(
+      client.call("https://example.test/free"),
+    ).resolves.toMatchObject({
+      kind: "passthrough",
+      ok: true,
+      paid: false,
+      body: {
+        ok: true,
+      },
+    });
+  });
+
+  it("returns Solana passthrough JSON responses without a live payment", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json(
+        {
+          ok: true,
+        },
+        {
+          status: 200,
+        },
+      ),
+    );
+    const client = new X402Client(solanaSecretKey, {
+      network: "Solana Devnet",
       fetch: fetchMock,
     });
 
@@ -162,6 +231,23 @@ describe("X402Client.call", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("selects EVM requirements with a normalized friendly network name", async () => {
+    const fetchMock = payingFetch("1000");
+    const client = new X402Client(privateKey, {
+      network: "Base Sepolia",
+      fetch: fetchMock,
+    });
+
+    await expect(
+      client.call("https://example.test/paid"),
+    ).resolves.toMatchObject({
+      kind: "success",
+      paid: true,
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it("uses call-level maxAmount override", async () => {
     const fetchMock = payingFetch("150000");
     const client = new X402Client(privateKey, {
@@ -197,6 +283,40 @@ describe("X402Client.call", () => {
     );
     const client = new X402Client(privateKey, {
       network,
+      fetch: fetchMock,
+      logLevel: "silent",
+    });
+
+    await expect(
+      client.call("https://example.test/paid"),
+    ).resolves.toMatchObject({
+      kind: "error",
+      ok: false,
+      status: 0,
+    });
+  });
+
+  it("filters Solana requirements by normalized Solana CAIP-2 network", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(null, {
+        status: 402,
+        headers: {
+          "PAYMENT-REQUIRED": encodePaymentRequiredHeader(
+            paymentRequired([
+              paymentRequirement({
+                network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+              }),
+              paymentRequirement({
+                amount: "100001",
+                network: solanaDevnet,
+              }),
+            ]),
+          ),
+        },
+      }),
+    );
+    const client = new X402Client(solanaSecretKey, {
+      network: "Solana Devnet",
       fetch: fetchMock,
       logLevel: "silent",
     });

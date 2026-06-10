@@ -5,7 +5,7 @@ x402-protected paid endpoints from TypeScript.
 
 Use it when your application needs to:
 
-- call paid HTTP endpoints with an EVM private key and x402 payment flow;
+- call paid HTTP endpoints with EVM or Solana credentials and x402 payment flow;
 - cap payment exposure with `maxAmount`;
 - expose paid endpoints as Vercel AI SDK-compatible tools;
 - check basic Alpha service status through the lightweight `AlphaClient`.
@@ -19,10 +19,10 @@ pnpm add @averyso/alpha
 ## Quick Start
 
 ```ts
-import { X402Client } from "@averyso/alpha";
+import { X402Client, X402Networks } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 
@@ -35,9 +35,10 @@ if (result.kind === "success") {
 }
 ```
 
-Real integrations require an x402-protected endpoint, a 32-byte EVM private
-key, an RPC URL for the target chain when required, and enough testnet or
-mainnet funds for the selected network.
+Real integrations require an x402-protected endpoint, credentials for the
+selected network, an RPC URL when required, and enough testnet or mainnet funds
+for that network. EVM networks use a 32-byte hex private key; Solana networks
+use a base58-encoded 64-byte Solana secret key.
 
 ## Next Steps
 

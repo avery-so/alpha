@@ -7,11 +7,12 @@ x402 的端点签名、选择可接受的支付要求，并完成付费请求。
 
 - Node.js `>=20.19.0`。
 - 一个 x402-protected endpoint。
-- 32 字节 EVM 私钥，可带或不带 `0x` 前缀。
-- 所选 x402 网络需要 RPC 时，提供 RPC URL。
+- 所选 x402 网络对应的凭证。
+- 所选网络需要 RPC 时，提供 RPC URL。
 - 在对应测试网或主网上准备足够资金。
 
-`X402Client` 只支持 `eip155:*` 网络。
+EVM 网络需要 32 字节 hex 私钥，可带或不带 `0x` 前缀。Solana 网络需要
+base58 编码的 64 字节 Solana secret key。
 
 ## 安装
 
@@ -24,7 +25,7 @@ pnpm add @averyso/alpha
 ESM:
 
 ```ts
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 ```
 
 CommonJS:
@@ -48,11 +49,15 @@ X402_RPC_URL=https://example-rpc.testnet
 import { X402Client } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: "Base Sepolia",
   rpcUrl: process.env.X402_RPC_URL,
   maxAmount: 100_000n,
 });
 ```
+
+也可以使用 `X402Networks.baseSepolia`、primary slug `"base-sepolia"`，或原始
+CAIP-2 字符串 `"eip155:84532"`。`client.network` 始终返回标准化后的 CAIP-2
+值。
 
 `maxAmount` 使用端点支付要求里的原子单位。比如六位小数的 USDC 类资产中，
 `100000n` 表示 `0.1` USDC。SDK 默认值是 `100000n`，也可以在 client、
@@ -104,10 +109,10 @@ const result = await client.call(
 
 ```ts
 import { jsonSchema } from "ai";
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 

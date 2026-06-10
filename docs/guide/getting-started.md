@@ -8,11 +8,12 @@ requirements.
 
 - Node.js `>=20.19.0`.
 - An x402-protected endpoint.
-- A 32-byte EVM private key, with or without a `0x` prefix.
-- An RPC URL when the selected x402 network requires one.
+- Credentials for the selected x402 network.
+- An RPC URL when the selected network requires one.
 - Funds on the selected testnet or mainnet network.
 
-`X402Client` only supports `eip155:*` networks.
+EVM networks require a 32-byte hex private key, with or without a `0x` prefix.
+Solana networks require a base58-encoded 64-byte Solana secret key.
 
 ## Installation
 
@@ -25,7 +26,7 @@ pnpm add @averyso/alpha
 ESM:
 
 ```ts
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 ```
 
 CommonJS:
@@ -49,11 +50,15 @@ Never expose `X402_PRIVATE_KEY` to browsers or client-side bundles.
 import { X402Client } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: "Base Sepolia",
   rpcUrl: process.env.X402_RPC_URL,
   maxAmount: 100_000n,
 });
 ```
+
+You can also use `X402Networks.baseSepolia`, the primary slug
+`"base-sepolia"`, or the raw CAIP-2 string `"eip155:84532"`. `client.network`
+always returns the normalized CAIP-2 value.
 
 `maxAmount` is expressed in the atomic unit required by the endpoint payment
 requirements. For example, a USDC-style six-decimal asset uses `100000n` for
@@ -106,10 +111,10 @@ Vercel AI SDK-compatible tool:
 
 ```ts
 import { jsonSchema } from "ai";
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 

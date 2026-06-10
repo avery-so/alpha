@@ -3,6 +3,13 @@ export type { X402CallOptions, X402ClientOptions } from "./client.js";
 export { X402ConfigError, X402Error, X402PaymentError } from "./errors.js";
 export type { X402ErrorDetails } from "./errors.js";
 export type { Logger, LogLevel } from "./logger.js";
+export { resolveX402Network, X402Networks } from "./networks.js";
+export type {
+  X402NetworkInfo,
+  X402NetworkInput,
+  X402NetworkName,
+  X402NetworkSlug,
+} from "./networks.js";
 export { x402tool } from "./tool.js";
 export type {
   EndpointConfig,

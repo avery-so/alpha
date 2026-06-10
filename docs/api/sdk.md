@@ -10,7 +10,9 @@ import {
   X402Client,
   X402ConfigError,
   X402Error,
+  X402Networks,
   X402PaymentError,
+  resolveX402Network,
   x402tool,
 } from "@averyso/alpha";
 ```
@@ -21,7 +23,7 @@ Pays and calls x402-protected HTTP endpoints.
 
 ```ts
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 ```
@@ -32,14 +34,15 @@ Constructor signature:
 new X402Client(privateKey, options);
 ```
 
-`privateKey` must be a 32-byte hex string. It can include or omit the `0x`
-prefix.
+For EVM networks, `privateKey` must be a 32-byte hex string. It can include or
+omit the `0x` prefix. For Solana networks, `privateKey` must be a
+base58-encoded 64-byte Solana secret key.
 
 ### `X402ClientOptions`
 
 ```ts
 interface X402ClientOptions {
-  network: Network;
+  network: X402NetworkInput;
   logLevel?: LogLevel;
   logger?: Logger;
   fetch?: typeof fetch;
@@ -48,15 +51,83 @@ interface X402ClientOptions {
 }
 ```
 
-- `network`: Required x402 network. Only `eip155:*` networks are supported.
+- `network`: Required x402 network. Accepts `X402Networks` constants, friendly
+  names, primary slugs, or raw CAIP-2 `Network` strings.
 - `logLevel`: Minimum level for the default logger. Defaults to `"info"`.
 - `logger`: Custom logger with `debug`, `info`, `warn`, and `error` methods.
 - `fetch`: Custom fetch implementation. If neither this nor `globalThis.fetch`
   is available, the constructor throws `X402ConfigError`.
 - `maxAmount`: Default payment cap. Defaults to `100000n`.
-- `rpcUrl`: Optional RPC URL passed to the EVM payment scheme.
+- `rpcUrl`: Optional RPC URL passed to the payment scheme.
 
 The `maxAmount` value is an atomic-unit cap, not a decimal string.
+
+### Network Selection
+
+```ts
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: "Base Sepolia",
+});
+
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+});
+
+resolveX402Network("base-sepolia"); // "eip155:84532"
+```
+
+`client.network` always returns normalized CAIP-2, so
+`new X402Client(key, { network: "Base Sepolia" }).network` is
+`"eip155:84532"`. Existing raw CAIP-2 inputs such as `"eip155:84532"` continue
+to work.
+
+```ts
+const X402Networks: {
+  solana: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+  base: "eip155:8453";
+  polygon: "eip155:137";
+  xLayer: "eip155:196";
+  peaq: "eip155:3338";
+  sei: "eip155:1329";
+  skaleBase: "eip155:1187947933";
+  kiteAI: "eip155:2366";
+  arbitrum: "eip155:42161";
+  solanaDevnet: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
+  baseSepolia: "eip155:84532";
+  avalancheFuji: "eip155:43113";
+  polygonAmoy: "eip155:80002";
+  xLayerTestnet: "eip155:1952";
+  seiTestnet: "eip155:713715";
+  skaleBaseSepolia: "eip155:324705682";
+  arbitrumSepolia: "eip155:421614";
+};
+
+type X402NetworkInput = X402NetworkName | X402NetworkSlug | Network | string;
+
+function resolveX402Network(input: X402NetworkInput): Network;
+```
+
+Built-in friendly names and primary slugs:
+
+| Friendly Name | Primary Slug | CAIP-2 |
+|---|---:|---|
+| `Solana Mainnet` | `solana` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
+| `Base Mainnet` | `base` | `eip155:8453` |
+| `Polygon Mainnet` | `polygon` | `eip155:137` |
+| `xLayer Mainnet` | `xlayer` | `eip155:196` |
+| `Peaq Mainnet` | `peaq` | `eip155:3338` |
+| `Sei Mainnet` | `sei` | `eip155:1329` |
+| `SKALE Base` | `skale-base` | `eip155:1187947933` |
+| `KiteAI Mainnet` | `kiteai` | `eip155:2366` |
+| `Arbitrum One` | `arbitrum` | `eip155:42161` |
+| `Solana Devnet` | `solana-devnet` | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
+| `Base Sepolia` | `base-sepolia` | `eip155:84532` |
+| `Avalanche Fuji` | `avalanche-fuji` | `eip155:43113` |
+| `Polygon Amoy` | `polygon-amoy` | `eip155:80002` |
+| `xLayer Testnet` | `xlayer-testnet` | `eip155:1952` |
+| `Sei Testnet` | `sei-testnet` | `eip155:713715` |
+| `SKALE Base Sepolia` | `skale-base-sepolia` | `eip155:324705682` |
+| `Arbitrum Sepolia` | `arbitrum-sepolia` | `eip155:421614` |
 
 ### Properties
 
@@ -65,7 +136,7 @@ client.network;
 client.maxAmount;
 ```
 
-- `network`: The configured `Network`.
+- `network`: The configured network as normalized CAIP-2 `Network`.
 - `maxAmount`: The client default payment cap.
 
 ### `call(endpoint, init?, opts?)`
@@ -106,10 +177,10 @@ Creates a Vercel AI SDK `ToolSet`-compatible tool backed by an x402 endpoint.
 
 ```ts
 import { jsonSchema } from "ai";
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 
@@ -324,7 +395,8 @@ try {
 ### `X402ConfigError`
 
 Thrown when the SDK cannot be configured, including invalid private keys,
-unsupported non-`eip155:*` networks, or missing `fetch`.
+unsupported network inputs, unsupported Solana CAIP-2 networks, or missing
+`fetch`.
 
 ### `X402PaymentError`
 
@@ -373,8 +445,10 @@ Pass `logger` and `logLevel` to `X402ClientOptions`.
 
 ### `Network`
 
-Re-exported from `@x402/core/types`. `X402Client` currently accepts only
-networks whose string value starts with `eip155:`.
+Re-exported from `@x402/core/types`. Raw CAIP-2 strings remain supported for
+backwards compatibility. Unknown friendly names and unsupported raw Solana
+CAIP-2 values throw `X402ConfigError` with `details.network` and
+`details.supportedNetworks`.
 
 ### `SettleResponse`
 

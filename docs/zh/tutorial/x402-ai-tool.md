@@ -9,17 +9,20 @@ x402 调用。
 - Node.js `>=20.19.0`。
 - 已安装 `@averyso/alpha`。
 - 一个 x402-protected endpoint。
-- `X402_PRIVATE_KEY` 设置为 32 字节 EVM 私钥。
-- 所选 `eip155:*` 网络需要 RPC 时，设置 `X402_RPC_URL`。
+- `X402_PRIVATE_KEY` 设置为所选网络对应的凭证。
+- 所选网络需要 RPC 时，设置 `X402_RPC_URL`。
 - 对应网络上有足够资金。
+
+EVM 网络使用 32 字节 hex 私钥。Solana 网络使用 base58 编码的 64 字节
+Solana secret key。
 
 ## 创建客户端
 
 ```ts
-import { X402Client } from "@averyso/alpha";
+import { X402Client, X402Networks } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
   maxAmount: 100_000n,
 });
@@ -39,7 +42,7 @@ interface WeatherInput {
 }
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: "Base Sepolia",
   rpcUrl: process.env.X402_RPC_URL,
 });
 
@@ -179,10 +182,10 @@ const tools = {
 
 ```ts
 import { generateText, jsonSchema } from "ai";
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 

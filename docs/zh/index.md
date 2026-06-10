@@ -5,7 +5,7 @@ x402 保护的付费 HTTP 端点。
 
 适合以下场景：
 
-- 使用 EVM 私钥完成 x402 支付并调用付费端点；
+- 使用 EVM 或 Solana 凭证完成 x402 支付并调用付费端点；
 - 通过 `maxAmount` 限制单次支付上限；
 - 将付费端点包装成兼容 Vercel AI SDK 的工具；
 - 通过轻量级 `AlphaClient` 检查 Alpha 服务状态。
@@ -19,10 +19,10 @@ pnpm add @averyso/alpha
 ## 快速示例
 
 ```ts
-import { X402Client } from "@averyso/alpha";
+import { X402Client, X402Networks } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 
@@ -35,8 +35,9 @@ if (result.kind === "success") {
 }
 ```
 
-真实集成需要 x402-protected endpoint、32 字节 EVM 私钥、目标网络所需的
-RPC URL，以及足够的测试网或主网资金。
+真实集成需要 x402-protected endpoint、所选网络对应的凭证、必要时提供 RPC
+URL，以及足够的测试网或主网资金。EVM 网络使用 32 字节 hex 私钥；Solana 网络
+使用 base58 编码的 64 字节 Solana secret key。
 
 ## 下一步
 

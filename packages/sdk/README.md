@@ -24,16 +24,16 @@ console.log(status.ok);
 ## x402 AI SDK tools
 
 `X402Client` wraps x402-paid HTTP resources and can expose them as Vercel AI SDK
-tools. The client currently supports EVM `exact` payments on `eip155:*`
-networks.
+tools. The client supports EVM `exact` payments on `eip155:*` networks and
+Solana `exact` payments on Solana Mainnet and Devnet.
 
 ```ts
 import { generateText, jsonSchema } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532", // Base Sepolia
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.BASE_SEPOLIA_RPC_URL,
   maxAmount: 100000n, // atomic token units
 });
@@ -101,13 +101,19 @@ x402tool({
 });
 ```
 
+`network` accepts friendly names, canonical slugs, `X402Networks` constants, or
+raw CAIP-2 strings. EVM networks require a 32-byte hex private key with an
+optional `0x` prefix. Solana networks require a base58-encoded 64-byte Solana
+secret key.
+
 ### Manual integration check
 
 CI tests do not spend real funds. To verify an end-to-end x402 payment on Base
 Sepolia, fund the private key with testnet USDC, provide a Base Sepolia RPC URL,
-and call a real x402-protected endpoint with `network: "eip155:84532"`. The SDK
-will read the endpoint's `PAYMENT-REQUIRED` response, sign an EIP-3009 payment
-payload, retry the request, and expose the settlement response in
+and call a real x402-protected endpoint with
+`network: X402Networks.baseSepolia`. The SDK will read the endpoint's
+`PAYMENT-REQUIRED` response, sign an EIP-3009 payment payload, retry the
+request, and expose the settlement response in
 `EndpointResult.paymentResponse`.
 
 ### CommonJS

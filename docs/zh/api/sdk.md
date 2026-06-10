@@ -10,7 +10,9 @@ import {
   X402Client,
   X402ConfigError,
   X402Error,
+  X402Networks,
   X402PaymentError,
+  resolveX402Network,
   x402tool,
 } from "@averyso/alpha";
 ```
@@ -21,7 +23,7 @@ import {
 
 ```ts
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 ```
@@ -32,13 +34,15 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 new X402Client(privateKey, options);
 ```
 
-`privateKey` 必须是 32 字节 hex 字符串，可以带或不带 `0x` 前缀。
+EVM 网络的 `privateKey` 必须是 32 字节 hex 字符串，可以带或不带 `0x`
+前缀。Solana 网络的 `privateKey` 必须是 base58 编码的 64 字节 Solana secret
+key。
 
 ### `X402ClientOptions`
 
 ```ts
 interface X402ClientOptions {
-  network: Network;
+  network: X402NetworkInput;
   logLevel?: LogLevel;
   logger?: Logger;
   fetch?: typeof fetch;
@@ -47,15 +51,82 @@ interface X402ClientOptions {
 }
 ```
 
-- `network`：必填 x402 网络。目前只支持 `eip155:*`。
+- `network`：必填 x402 网络。可传 `X402Networks` 常量、friendly name、primary
+  slug，或原始 CAIP-2 `Network` 字符串。
 - `logLevel`：默认 logger 的最低输出级别，默认 `"info"`。
 - `logger`：自定义 logger，需要提供 `debug`、`info`、`warn`、`error` 方法。
 - `fetch`：自定义 fetch 实现。如果没有传入且 `globalThis.fetch` 不存在，构造
   函数会抛出 `X402ConfigError`。
 - `maxAmount`：默认支付上限，默认 `100000n`。
-- `rpcUrl`：可选 RPC URL，会传给 EVM payment scheme。
+- `rpcUrl`：可选 RPC URL，会传给 payment scheme。
 
 `maxAmount` 是原子单位的支付上限，不是十进制字符串。
+
+### 网络选择
+
+```ts
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: "Base Sepolia",
+});
+
+new X402Client(process.env.X402_PRIVATE_KEY!, {
+  network: X402Networks.baseSepolia,
+});
+
+resolveX402Network("base-sepolia"); // "eip155:84532"
+```
+
+`client.network` 始终返回标准化后的 CAIP-2，因此
+`new X402Client(key, { network: "Base Sepolia" }).network` 是
+`"eip155:84532"`。既有的原始 CAIP-2 输入，例如 `"eip155:84532"`，仍然可用。
+
+```ts
+const X402Networks: {
+  solana: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+  base: "eip155:8453";
+  polygon: "eip155:137";
+  xLayer: "eip155:196";
+  peaq: "eip155:3338";
+  sei: "eip155:1329";
+  skaleBase: "eip155:1187947933";
+  kiteAI: "eip155:2366";
+  arbitrum: "eip155:42161";
+  solanaDevnet: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
+  baseSepolia: "eip155:84532";
+  avalancheFuji: "eip155:43113";
+  polygonAmoy: "eip155:80002";
+  xLayerTestnet: "eip155:1952";
+  seiTestnet: "eip155:713715";
+  skaleBaseSepolia: "eip155:324705682";
+  arbitrumSepolia: "eip155:421614";
+};
+
+type X402NetworkInput = X402NetworkName | X402NetworkSlug | Network | string;
+
+function resolveX402Network(input: X402NetworkInput): Network;
+```
+
+内置 friendly name 和 primary slug：
+
+| Friendly Name | Primary Slug | CAIP-2 |
+|---|---:|---|
+| `Solana Mainnet` | `solana` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
+| `Base Mainnet` | `base` | `eip155:8453` |
+| `Polygon Mainnet` | `polygon` | `eip155:137` |
+| `xLayer Mainnet` | `xlayer` | `eip155:196` |
+| `Peaq Mainnet` | `peaq` | `eip155:3338` |
+| `Sei Mainnet` | `sei` | `eip155:1329` |
+| `SKALE Base` | `skale-base` | `eip155:1187947933` |
+| `KiteAI Mainnet` | `kiteai` | `eip155:2366` |
+| `Arbitrum One` | `arbitrum` | `eip155:42161` |
+| `Solana Devnet` | `solana-devnet` | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
+| `Base Sepolia` | `base-sepolia` | `eip155:84532` |
+| `Avalanche Fuji` | `avalanche-fuji` | `eip155:43113` |
+| `Polygon Amoy` | `polygon-amoy` | `eip155:80002` |
+| `xLayer Testnet` | `xlayer-testnet` | `eip155:1952` |
+| `Sei Testnet` | `sei-testnet` | `eip155:713715` |
+| `SKALE Base Sepolia` | `skale-base-sepolia` | `eip155:324705682` |
+| `Arbitrum Sepolia` | `arbitrum-sepolia` | `eip155:421614` |
 
 ### 属性
 
@@ -64,7 +135,7 @@ client.network;
 client.maxAmount;
 ```
 
-- `network`：配置的 `Network`。
+- `network`：标准化后的 CAIP-2 `Network`。
 - `maxAmount`：client 默认支付上限。
 
 ### `call(endpoint, init?, opts?)`
@@ -105,10 +176,10 @@ interface X402CallOptions {
 
 ```ts
 import { jsonSchema } from "ai";
-import { X402Client, x402tool } from "@averyso/alpha";
+import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
-  network: "eip155:84532",
+  network: X402Networks.baseSepolia,
   rpcUrl: process.env.X402_RPC_URL,
 });
 
@@ -318,8 +389,8 @@ try {
 
 ### `X402ConfigError`
 
-SDK 配置无效时抛出，包括私钥格式错误、不支持的非 `eip155:*` 网络，或缺少
-`fetch`。
+SDK 配置无效时抛出，包括私钥格式错误、不支持的网络输入、不支持的 Solana
+CAIP-2 网络，或缺少 `fetch`。
 
 ### `X402PaymentError`
 
@@ -368,8 +439,9 @@ type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
 
 ### `Network`
 
-从 `@x402/core/types` 重新导出。`X402Client` 目前只接受字符串值以
-`eip155:` 开头的网络。
+从 `@x402/core/types` 重新导出。原始 CAIP-2 字符串仍然可用于向后兼容。未知
+friendly name 和不支持的原始 Solana CAIP-2 值会抛出 `X402ConfigError`，并在
+`details.network` 和 `details.supportedNetworks` 中提供上下文。
 
 ### `SettleResponse`
 
