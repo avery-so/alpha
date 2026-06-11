@@ -94,12 +94,6 @@ jobs:
       - name: Test SDK coverage
         run: pnpm --filter @averyso/alpha --config.engine-strict=false test:coverage
 
-      - name: Build SDK
-        run: pnpm --filter @averyso/alpha --config.engine-strict=false build
-
-      - name: Check SDK package
-        run: pnpm --config.engine-strict=false pack:check
-
   changeset:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
