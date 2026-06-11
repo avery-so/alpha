@@ -89,16 +89,16 @@ jobs:
         run: pnpm --filter @averyso/alpha... install --frozen-lockfile --config.engine-strict=false
 
       - name: Typecheck SDK
-        run: pnpm --filter @averyso/alpha typecheck
+        run: pnpm --filter @averyso/alpha --config.engine-strict=false typecheck
 
       - name: Test SDK coverage
-        run: pnpm --filter @averyso/alpha test:coverage
+        run: pnpm --filter @averyso/alpha --config.engine-strict=false test:coverage
 
       - name: Build SDK
-        run: pnpm --filter @averyso/alpha build
+        run: pnpm --filter @averyso/alpha --config.engine-strict=false build
 
       - name: Check SDK package
-        run: pnpm pack:check
+        run: pnpm --config.engine-strict=false pack:check
 
   changeset:
     if: github.event_name == 'pull_request'
