@@ -134,9 +134,7 @@ describe("X402Client.call", () => {
       fetch: fetchMock,
     });
 
-    await expect(
-      client.call("https://example.test/free"),
-    ).resolves.toMatchObject({
+    await expect(client.call("https://example.test/free")).resolves.toMatchObject({
       kind: "passthrough",
       ok: true,
       paid: false,
@@ -162,9 +160,7 @@ describe("X402Client.call", () => {
       fetch: fetchMock,
     });
 
-    await expect(
-      client.call("https://example.test/free"),
-    ).resolves.toMatchObject({
+    await expect(client.call("https://example.test/free")).resolves.toMatchObject({
       kind: "passthrough",
       ok: true,
       paid: false,
@@ -195,9 +191,7 @@ describe("X402Client.call", () => {
       logLevel: "silent",
     });
 
-    await expect(
-      client.call("https://example.test/paid"),
-    ).resolves.toMatchObject({
+    await expect(client.call("https://example.test/paid")).resolves.toMatchObject({
       kind: "error",
       ok: false,
       status: 0,
@@ -216,9 +210,7 @@ describe("X402Client.call", () => {
       maxAmount: 100_001n,
     });
 
-    await expect(
-      client.call("https://example.test/paid"),
-    ).resolves.toMatchObject({
+    await expect(client.call("https://example.test/paid")).resolves.toMatchObject({
       kind: "success",
       ok: true,
       paid: true,
@@ -238,9 +230,7 @@ describe("X402Client.call", () => {
       fetch: fetchMock,
     });
 
-    await expect(
-      client.call("https://example.test/paid"),
-    ).resolves.toMatchObject({
+    await expect(client.call("https://example.test/paid")).resolves.toMatchObject({
       kind: "success",
       paid: true,
     });
@@ -287,9 +277,7 @@ describe("X402Client.call", () => {
       logLevel: "silent",
     });
 
-    await expect(
-      client.call("https://example.test/paid"),
-    ).resolves.toMatchObject({
+    await expect(client.call("https://example.test/paid")).resolves.toMatchObject({
       kind: "error",
       ok: false,
       status: 0,
@@ -321,9 +309,7 @@ describe("X402Client.call", () => {
       logLevel: "silent",
     });
 
-    await expect(
-      client.call("https://example.test/paid"),
-    ).resolves.toMatchObject({
+    await expect(client.call("https://example.test/paid")).resolves.toMatchObject({
       kind: "error",
       ok: false,
       status: 0,
@@ -371,9 +357,7 @@ function payingFetch(amount: string): typeof fetch {
       });
     }
 
-    const payment = decodePaymentSignatureHeader(
-      request.headers.get("PAYMENT-SIGNATURE") ?? "",
-    );
+    const payment = decodePaymentSignatureHeader(request.headers.get("PAYMENT-SIGNATURE") ?? "");
 
     expect(payment.accepted.amount).toBe(amount);
 

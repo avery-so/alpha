@@ -10,11 +10,9 @@ const sixBitMask = 63;
 const highNibbleMask = 15;
 const twoBitMask = 3;
 
-const plantUmlAlphabet =
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+const plantUmlAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
 
-const encodePlantUml6Bit = (value: number): string =>
-  plantUmlAlphabet[value & sixBitMask] ?? "";
+const encodePlantUml6Bit = (value: number): string => plantUmlAlphabet[value & sixBitMask] ?? "";
 
 const encodePlantUml3Bytes = (byte1: number, byte2: number, byte3: number) => {
   const char1 = byte1 >> 2;
@@ -126,9 +124,7 @@ const rootSidebar = [
   },
   {
     text: "Tutorial",
-    items: [
-      { text: "Build an Agent Payment Tool", link: "/tutorial/x402-ai-tool" },
-    ],
+    items: [{ text: "Build an Agent Payment Tool", link: "/tutorial/x402-ai-tool" }],
   },
   {
     text: "API Reference",

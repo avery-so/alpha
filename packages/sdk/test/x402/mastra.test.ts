@@ -1,14 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  X402Client,
-  X402PaymentError,
-  x402MastraTool,
-} from "../../src/x402/index.js";
-import type {
-  EndpointResult,
-  X402MastraToolExecutionContext,
-} from "../../src/x402/index.js";
+import { X402Client, X402PaymentError, x402MastraTool } from "../../src/x402/index.js";
+import type { EndpointResult, X402MastraToolExecutionContext } from "../../src/x402/index.js";
 import { network, privateKey, readRequestBody } from "./fixtures.js";
 
 const inputSchema = {
@@ -111,9 +104,7 @@ describe("x402MastraTool", () => {
       serverName: "avery-test",
     });
     expect(marker in tool).toBe(true);
-    expect(Object.prototype.propertyIsEnumerable.call(tool, marker)).toBe(
-      false,
-    );
+    expect(Object.prototype.propertyIsEnumerable.call(tool, marker)).toBe(false);
   });
 
   it("returns the endpoint result by default", async () => {

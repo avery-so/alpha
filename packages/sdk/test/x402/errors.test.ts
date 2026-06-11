@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  X402ConfigError,
-  X402Error,
-  X402PaymentError,
-} from "../../src/x402/index.js";
+import { X402ConfigError, X402Error, X402PaymentError } from "../../src/x402/index.js";
 
 describe("x402 errors", () => {
   it("sets names, instanceof chains, and details", () => {

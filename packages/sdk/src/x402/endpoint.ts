@@ -29,9 +29,7 @@ export function prepareEndpointRequest(
 ): PreparedEndpointRequest {
   const endpointConfig = normalizeEndpoint(endpoint);
   const requestConfig = normalizeRequestOverride(options.request);
-  const method = normalizeMethod(
-    requestConfig?.method ?? endpointConfig.method ?? "GET",
-  );
+  const method = normalizeMethod(requestConfig?.method ?? endpointConfig.method ?? "GET");
   const url = new URL(String(requestConfig?.url ?? endpointConfig.url));
 
   mergeQuery(url, endpointConfig.query);
@@ -53,9 +51,7 @@ export function prepareEndpointRequest(
   const body =
     requestConfig?.body ??
     endpointConfig.body ??
-    (requestConfig === undefined && shouldDefaultBody(method)
-      ? options.toolInput
-      : undefined);
+    (requestConfig === undefined && shouldDefaultBody(method) ? options.toolInput : undefined);
 
   if (body !== undefined && method !== "GET" && method !== "HEAD") {
     init.body = encodeBody(body, headers);
@@ -112,10 +108,7 @@ function shouldDefaultBody(method: string): boolean {
   return bodyMethods.has(method);
 }
 
-function mergeQuery(
-  url: URL,
-  query: URLSearchParams | Record<string, unknown> | undefined,
-): void {
+function mergeQuery(url: URL, query: URLSearchParams | Record<string, unknown> | undefined): void {
   if (query === undefined) {
     return;
   }
@@ -144,26 +137,18 @@ function mergePlainObjectQuery(url: URL, input: unknown): void {
   mergeQuery(url, input);
 }
 
-function mergeHeaders(
-  headers: Headers,
-  overrides: HeadersInput | undefined,
-): void {
+function mergeHeaders(headers: Headers, overrides: HeadersInput | undefined): void {
   if (overrides === undefined) {
     return;
   }
 
-  const overrideHeaders = new Headers(
-    overrides as ConstructorParameters<typeof Headers>[0],
-  );
+  const overrideHeaders = new Headers(overrides as ConstructorParameters<typeof Headers>[0]);
   for (const [key, value] of overrideHeaders) {
     headers.set(key, value);
   }
 }
 
-function encodeBody(
-  body: RequestBody | JsonValue | unknown,
-  headers: Headers,
-): RequestBody {
+function encodeBody(body: RequestBody | JsonValue | unknown, headers: Headers): RequestBody {
   if (isBodyInit(body)) {
     return body;
   }

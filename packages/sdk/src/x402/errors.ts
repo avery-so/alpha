@@ -23,11 +23,7 @@ export class X402ConfigError extends X402Error {
 export class X402PaymentError extends X402Error {
   readonly status: number;
 
-  constructor(
-    message: string,
-    status = 0,
-    details?: X402ErrorDetails | undefined,
-  ) {
+  constructor(message: string, status = 0, details?: X402ErrorDetails | undefined) {
     super(message, details);
     this.name = "X402PaymentError";
     this.status = status;

@@ -104,11 +104,7 @@ export interface X402MastraToolCallbackOptions {
   [key: string]: unknown;
 }
 
-export interface X402MastraTool<
-  INPUT,
-  OUTPUT = EndpointResult,
-  ID extends string = string,
-> {
+export interface X402MastraTool<INPUT, OUTPUT = EndpointResult, ID extends string = string> {
   id: ID;
   description: string;
   inputSchema: unknown;
@@ -116,17 +112,11 @@ export interface X402MastraTool<
   requestContextSchema?: unknown;
   suspendSchema?: unknown;
   resumeSchema?: unknown;
-  execute: (
-    inputData: INPUT,
-    context?: X402MastraToolExecutionContext,
-  ) => Promise<OUTPUT>;
+  execute: (inputData: INPUT, context?: X402MastraToolExecutionContext) => Promise<OUTPUT>;
   mastra?: unknown;
   requireApproval?:
     | boolean
-    | ((
-        input: INPUT,
-        context?: X402MastraApprovalContext,
-      ) => boolean | PromiseLike<boolean>);
+    | ((input: INPUT, context?: X402MastraApprovalContext) => boolean | PromiseLike<boolean>);
   strict?: boolean | undefined;
   providerOptions?: Record<string, Record<string, unknown>> | undefined;
   toModelOutput?: ((output: OUTPUT) => unknown) | undefined;
@@ -135,9 +125,7 @@ export interface X402MastraTool<
   mcp?: X402MastraMcpToolProperties | undefined;
   mcpMetadata?: Record<string, unknown> | undefined;
   background?: unknown;
-  onInputStart?: (
-    options: X402MastraToolCallbackOptions,
-  ) => void | PromiseLike<void>;
+  onInputStart?: (options: X402MastraToolCallbackOptions) => void | PromiseLike<void>;
   onInputDelta?: (
     options: {
       inputTextDelta: string;
@@ -156,11 +144,10 @@ export interface X402MastraTool<
   ) => void | PromiseLike<void>;
 }
 
-export type X402MastraToolConfig<
-  INPUT,
-  OUTPUT = EndpointResult,
-  ID extends string = string,
-> = Omit<X402MastraTool<INPUT, OUTPUT, ID>, "execute"> & {
+export type X402MastraToolConfig<INPUT, OUTPUT = EndpointResult, ID extends string = string> = Omit<
+  X402MastraTool<INPUT, OUTPUT, ID>,
+  "execute"
+> & {
   client: X402Client;
   endpoint: EndpointInput | ((input: INPUT) => EndpointInput);
   request?:

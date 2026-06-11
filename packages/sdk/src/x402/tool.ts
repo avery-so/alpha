@@ -31,15 +31,7 @@ export interface X402EndpointToolRuntimeConfig<INPUT, OUTPUT, OPTIONS> {
 export function x402tool<INPUT, OUTPUT = EndpointResult>(
   config: X402ToolConfig<INPUT, OUTPUT>,
 ): X402Tool<INPUT, OUTPUT> {
-  const {
-    client,
-    endpoint,
-    request,
-    maxAmount,
-    throwOnError,
-    execute,
-    ...toolConfig
-  } = config;
+  const { client, endpoint, request, maxAmount, throwOnError, execute, ...toolConfig } = config;
 
   return {
     ...toolConfig,
@@ -67,8 +59,7 @@ export async function executeX402EndpointTool<INPUT, OUTPUT, OPTIONS>(
   options: OPTIONS,
   signal: AbortSignal | undefined,
 ): Promise<OUTPUT> {
-  const { client, endpoint, request, maxAmount, throwOnError, execute } =
-    config;
+  const { client, endpoint, request, maxAmount, throwOnError, execute } = config;
   const endpointInput = resolveEndpoint(endpoint, input);
   const requestOverride = await request?.(input);
   const prepared = prepareEndpointRequest(endpointInput, {
@@ -91,13 +82,9 @@ export async function executeX402EndpointTool<INPUT, OUTPUT, OPTIONS>(
   );
 
   if (throwOnError && !result.ok) {
-    throw new X402PaymentError(
-      `x402 tool endpoint failed with ${result.kind}.`,
-      result.status,
-      {
-        result,
-      },
-    );
+    throw new X402PaymentError(`x402 tool endpoint failed with ${result.kind}.`, result.status, {
+      result,
+    });
   }
 
   if (execute === undefined) {

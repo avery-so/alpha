@@ -97,9 +97,7 @@ function parseMaxAmount(value: string | undefined): bigint {
   return BigInt(value);
 }
 
-function extractExaResults(
-  endpoint: Extract<EndpointResult, { kind: "success" }>,
-) {
+function extractExaResults(endpoint: Extract<EndpointResult, { kind: "success" }>) {
   if (!isObject(endpoint.body) || !Array.isArray(endpoint.body.results)) {
     return [];
   }

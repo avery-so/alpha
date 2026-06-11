@@ -43,12 +43,7 @@ the RPC URL may expose provider credentials.
 ```ts
 // src/mastra/tools/paid-weather.ts
 import { z } from "zod";
-import {
-  X402Client,
-  X402Networks,
-  x402MastraTool,
-  type EndpointResult,
-} from "@averyso/alpha";
+import { X402Client, X402Networks, x402MastraTool, type EndpointResult } from "@averyso/alpha";
 
 const weatherInputSchema = z.object({
   city: z.string(),
@@ -74,11 +69,7 @@ const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
   maxAmount: 100_000n,
 });
 
-export const paidWeatherTool = x402MastraTool<
-  WeatherInput,
-  WeatherOutput,
-  "paid-weather"
->({
+export const paidWeatherTool = x402MastraTool<WeatherInput, WeatherOutput, "paid-weather">({
   id: "paid-weather",
   description: "Get current weather for a city from a paid x402 endpoint.",
   inputSchema: weatherInputSchema,

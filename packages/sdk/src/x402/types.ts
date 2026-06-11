@@ -12,13 +12,7 @@ export type HeadersInput =
   | ConstructorParameters<typeof Headers>[0]
   | Record<string, string | undefined>;
 
-export type EndpointMethod =
-  | "GET"
-  | "POST"
-  | "PUT"
-  | "PATCH"
-  | "DELETE"
-  | "HEAD";
+export type EndpointMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
 
 export interface EndpointConfig {
   url: string | URL;
@@ -30,8 +24,7 @@ export interface EndpointConfig {
 
 export type EndpointInput = string | URL | EndpointConfig;
 
-export interface EndpointRequestInit
-  extends Omit<RequestInit, "body" | "headers" | "method"> {
+export interface EndpointRequestInit extends Omit<RequestInit, "body" | "headers" | "method"> {
   method?: EndpointMethod | Lowercase<EndpointMethod> | string | undefined;
   headers?: HeadersInput | undefined;
   query?: URLSearchParams | Record<string, unknown> | undefined;
@@ -131,9 +124,7 @@ export interface X402Tool<INPUT, OUTPUT = EndpointResult> {
         options: Omit<X402ToolExecutionOptions, "abortSignal">,
       ) => boolean | PromiseLike<boolean>);
   strict?: boolean;
-  onInputStart?: (
-    options: X402ToolExecutionOptions,
-  ) => void | PromiseLike<void>;
+  onInputStart?: (options: X402ToolExecutionOptions) => void | PromiseLike<void>;
   onInputDelta?: (
     options: {
       inputTextDelta: string;
@@ -144,16 +135,9 @@ export interface X402Tool<INPUT, OUTPUT = EndpointResult> {
       input: any;
     } & X402ToolExecutionOptions,
   ) => void | PromiseLike<void>;
-  toModelOutput?: (options: {
-    toolCallId: string;
-    input: any;
-    output: any;
-  }) => any;
+  toModelOutput?: (options: { toolCallId: string; input: any; output: any }) => any;
   type?: undefined | "function";
-  execute: (
-    input: INPUT,
-    options: X402ToolExecutionOptions,
-  ) => OUTPUT | PromiseLike<OUTPUT>;
+  execute: (input: INPUT, options: X402ToolExecutionOptions) => OUTPUT | PromiseLike<OUTPUT>;
 }
 
 export type X402ToolConfig<INPUT, OUTPUT = EndpointResult> = Omit<

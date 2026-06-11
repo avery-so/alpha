@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { prepareEndpointRequest } from "../../src/x402/endpoint.js";
-import {
-  endpointErrorResult,
-  toEndpointResult,
-} from "../../src/x402/result.js";
+import { endpointErrorResult, toEndpointResult } from "../../src/x402/result.js";
 import type { EndpointConfig } from "../../src/x402/types.js";
 
 describe("prepareEndpointRequest", () => {
@@ -12,9 +9,9 @@ describe("prepareEndpointRequest", () => {
     expect(prepareEndpointRequest("https://example.test/path").url).toBe(
       "https://example.test/path",
     );
-    expect(
-      prepareEndpointRequest(new URL("https://example.test/url")).url,
-    ).toBe("https://example.test/url");
+    expect(prepareEndpointRequest(new URL("https://example.test/url")).url).toBe(
+      "https://example.test/url",
+    );
     expect(
       prepareEndpointRequest({
         url: "https://example.test/config",
@@ -38,9 +35,7 @@ describe("prepareEndpointRequest", () => {
       },
     );
 
-    expect(prepared.url).toBe(
-      "https://example.test/search?existing=1&q=coffee&page=2",
-    );
+    expect(prepared.url).toBe("https://example.test/search?existing=1&q=coffee&page=2");
     expect(prepared.init.body).toBeUndefined();
   });
 
@@ -58,9 +53,7 @@ describe("prepareEndpointRequest", () => {
         },
       );
 
-      expect((prepared.init.headers as Headers).get("content-type")).toBe(
-        "application/json",
-      );
+      expect((prepared.init.headers as Headers).get("content-type")).toBe("application/json");
       expect(prepared.init.body).toBe(JSON.stringify({ value: method }));
     }
   });
@@ -135,9 +128,7 @@ describe("prepareEndpointRequest", () => {
       },
     });
 
-    expect((prepared.init.headers as Headers).get("content-type")).toBe(
-      "application/vnd.api+json",
-    );
+    expect((prepared.init.headers as Headers).get("content-type")).toBe("application/vnd.api+json");
     expect(prepared.init.body).toBe(JSON.stringify({ ok: true }));
   });
 

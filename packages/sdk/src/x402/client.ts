@@ -1,9 +1,5 @@
 import { x402Client, x402HTTPClient } from "@x402/core/client";
-import type {
-  Network,
-  PaymentRequirements,
-  SettleResponse,
-} from "@x402/core/types";
+import type { Network, PaymentRequirements, SettleResponse } from "@x402/core/types";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { wrapFetchWithPayment } from "@x402/fetch";
 import { ExactSvmScheme } from "@x402/svm/exact/client";
@@ -28,11 +24,7 @@ import {
   type X402NetworkInput,
 } from "./networks.js";
 import { endpointErrorResult, toEndpointResult } from "./result.js";
-import type {
-  EndpointInput,
-  EndpointRequestInit,
-  EndpointResult,
-} from "./types.js";
+import type { EndpointInput, EndpointRequestInit, EndpointResult } from "./types.js";
 
 export type { Network, SettleResponse };
 
@@ -83,13 +75,9 @@ export class X402Client {
     this.#network = network;
     this.#networkFamily = networkFamily;
     this.#evmPrivateKey =
-      networkFamily === "eip155"
-        ? normalizeEvmPrivateKey(privateKey)
-        : undefined;
+      networkFamily === "eip155" ? normalizeEvmPrivateKey(privateKey) : undefined;
     this.#solanaSecretKey =
-      networkFamily === "solana"
-        ? normalizeSolanaSecretKey(privateKey)
-        : undefined;
+      networkFamily === "solana" ? normalizeSolanaSecretKey(privateKey) : undefined;
     this.#fetch = options.fetch ?? globalThis.fetch;
     this.#logger = createLogger(options.logLevel ?? "info", options.logger);
     this.#defaultMaxAmount = options.maxAmount ?? defaultMaxAmount;
@@ -124,16 +112,9 @@ export class X402Client {
         url: prepared.url,
       });
 
-      const runtime = await this.#runtime(
-        opts.maxAmount ?? this.#defaultMaxAmount,
-      );
-      const response = await runtime.fetchWithPayment(
-        prepared.input,
-        prepared.init,
-      );
-      const result = toEndpointResult(
-        await runtime.httpClient.processResponse(response),
-      );
+      const runtime = await this.#runtime(opts.maxAmount ?? this.#defaultMaxAmount);
+      const response = await runtime.fetchWithPayment(prepared.input, prepared.init);
+      const result = toEndpointResult(await runtime.httpClient.processResponse(response));
 
       result.metadata.method = prepared.method;
 
@@ -192,26 +173,18 @@ export class X402Client {
 
   async #createRuntime(maxAmount: bigint): Promise<Runtime> {
     const client = new x402Client((version, requirements) =>
-      selectCheapestRequirement(
-        version,
-        requirements,
-        this.#network,
-        maxAmount,
-      ),
+      selectCheapestRequirement(version, requirements, this.#network, maxAmount),
     );
 
     client.registerPolicy((_version, requirements) =>
       requirements.filter(
         (requirement) =>
-          requirement.network === this.#network &&
-          amountOf(requirement) <= maxAmount,
+          requirement.network === this.#network && amountOf(requirement) <= maxAmount,
       ),
     );
 
     if (this.#networkFamily === "eip155") {
-      const signer = privateKeyToAccount(
-        requiredEvmPrivateKey(this.#evmPrivateKey),
-      );
+      const signer = privateKeyToAccount(requiredEvmPrivateKey(this.#evmPrivateKey));
 
       registerExactEvmScheme(client, {
         signer,
@@ -225,9 +198,7 @@ export class X402Client {
             }),
       });
     } else {
-      const signer = await createSolanaSigner(
-        requiredSolanaSecretKey(this.#solanaSecretKey),
-      );
+      const signer = await createSolanaSigner(requiredSolanaSecretKey(this.#solanaSecretKey));
 
       client.register(
         this.#network,
@@ -254,23 +225,16 @@ function selectCheapestRequirement(
   maxAmount: bigint,
 ): PaymentRequirements {
   const eligible = requirements
-    .filter(
-      (requirement) =>
-        requirement.network === network && amountOf(requirement) <= maxAmount,
-    )
+    .filter((requirement) => requirement.network === network && amountOf(requirement) <= maxAmount)
     .toSorted((left, right) => compareBigint(amountOf(left), amountOf(right)));
 
   const selected = eligible[0];
 
   if (selected === undefined) {
-    throw new X402PaymentError(
-      "No compatible x402 payment requirements were available.",
-      0,
-      {
-        maxAmount: maxAmount.toString(),
-        network,
-      },
-    );
+    throw new X402PaymentError("No compatible x402 payment requirements were available.", 0, {
+      maxAmount: maxAmount.toString(),
+      network,
+    });
   }
 
   return selected;
@@ -281,9 +245,7 @@ function amountOf(requirement: PaymentRequirements): bigint {
     maxAmountRequired?: string | undefined;
   };
 
-  return BigInt(
-    maybeLegacyRequirement.amount ?? maybeLegacyRequirement.maxAmountRequired,
-  );
+  return BigInt(maybeLegacyRequirement.amount ?? maybeLegacyRequirement.maxAmountRequired);
 }
 
 function compareBigint(left: bigint, right: bigint): number {

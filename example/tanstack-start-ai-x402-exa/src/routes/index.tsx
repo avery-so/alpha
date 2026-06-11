@@ -49,8 +49,8 @@ function Home() {
       <header className="app-header">
         <h1>x402 Exa Search</h1>
         <p>
-          Ask a research question. The assistant can call Exa Search through an
-          x402 payment using the workspace Alpha SDK.
+          Ask a research question. The assistant can call Exa Search through an x402 payment using
+          the workspace Alpha SDK.
         </p>
       </header>
 
@@ -58,16 +58,13 @@ function Home() {
         {messages.length === 0 ? (
           <div className="empty-state">
             <p>
-              Try: Search for the latest public examples of x402 paid APIs and
-              summarize what developers can build with them.
+              Try: Search for the latest public examples of x402 paid APIs and summarize what
+              developers can build with them.
             </p>
           </div>
         ) : (
           messages.map((message) => (
-            <article
-              className={`message message-${message.role}`}
-              key={message.id}
-            >
+            <article className={`message message-${message.role}`} key={message.id}>
               <div className="message-role">{message.role}</div>
               <div className="message-content">
                 {message.parts.map((part, index) => (

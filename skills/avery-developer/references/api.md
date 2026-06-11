@@ -67,10 +67,10 @@ Properties:
 ```ts
 interface X402ClientOptions {
   network: X402NetworkInput; // required
-  logLevel?: LogLevel;       // default "info"
+  logLevel?: LogLevel; // default "info"
   logger?: Logger;
-  fetch?: typeof fetch;      // falls back to globalThis.fetch; throws X402ConfigError if neither exists
-  maxAmount?: bigint;        // default per-payment cap; defaults to 100000n
+  fetch?: typeof fetch; // falls back to globalThis.fetch; throws X402ConfigError if neither exists
+  maxAmount?: bigint; // default per-payment cap; defaults to 100000n
   rpcUrl?: string;
 }
 ```
@@ -92,7 +92,7 @@ const result = await client.call(endpoint, init?, opts?);
 ```ts
 interface X402CallOptions {
   signal?: AbortSignal;
-  maxAmount?: bigint;     // overrides client default for this call
+  maxAmount?: bigint; // overrides client default for this call
   throwOnError?: boolean; // default false
 }
 ```
@@ -160,8 +160,7 @@ interface EndpointConfig {
 
 type EndpointInput = string | URL | EndpointConfig;
 
-interface EndpointRequestInit
-  extends Omit<RequestInit, "body" | "headers" | "method"> {
+interface EndpointRequestInit extends Omit<RequestInit, "body" | "headers" | "method"> {
   method?: EndpointMethod | Lowercase<EndpointMethod> | string;
   headers?: HeadersInput;
   query?: URLSearchParams | Record<string, unknown>;

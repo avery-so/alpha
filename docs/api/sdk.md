@@ -133,25 +133,25 @@ function resolveX402Network(input: X402NetworkInput): Network;
 
 Built-in friendly names and primary slugs:
 
-| Friendly Name | Primary Slug | CAIP-2 |
-|---|---:|---|
-| `Solana Mainnet` | `solana` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
-| `Base Mainnet` | `base` | `eip155:8453` |
-| `Polygon Mainnet` | `polygon` | `eip155:137` |
-| `xLayer Mainnet` | `xlayer` | `eip155:196` |
-| `Peaq Mainnet` | `peaq` | `eip155:3338` |
-| `Sei Mainnet` | `sei` | `eip155:1329` |
-| `SKALE Base` | `skale-base` | `eip155:1187947933` |
-| `KiteAI Mainnet` | `kiteai` | `eip155:2366` |
-| `Arbitrum One` | `arbitrum` | `eip155:42161` |
-| `Solana Devnet` | `solana-devnet` | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
-| `Base Sepolia` | `base-sepolia` | `eip155:84532` |
-| `Avalanche Fuji` | `avalanche-fuji` | `eip155:43113` |
-| `Polygon Amoy` | `polygon-amoy` | `eip155:80002` |
-| `xLayer Testnet` | `xlayer-testnet` | `eip155:1952` |
-| `Sei Testnet` | `sei-testnet` | `eip155:713715` |
-| `SKALE Base Sepolia` | `skale-base-sepolia` | `eip155:324705682` |
-| `Arbitrum Sepolia` | `arbitrum-sepolia` | `eip155:421614` |
+| Friendly Name        |         Primary Slug | CAIP-2                                    |
+| -------------------- | -------------------: | ----------------------------------------- |
+| `Solana Mainnet`     |             `solana` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
+| `Base Mainnet`       |               `base` | `eip155:8453`                             |
+| `Polygon Mainnet`    |            `polygon` | `eip155:137`                              |
+| `xLayer Mainnet`     |             `xlayer` | `eip155:196`                              |
+| `Peaq Mainnet`       |               `peaq` | `eip155:3338`                             |
+| `Sei Mainnet`        |                `sei` | `eip155:1329`                             |
+| `SKALE Base`         |         `skale-base` | `eip155:1187947933`                       |
+| `KiteAI Mainnet`     |             `kiteai` | `eip155:2366`                             |
+| `Arbitrum One`       |           `arbitrum` | `eip155:42161`                            |
+| `Solana Devnet`      |      `solana-devnet` | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
+| `Base Sepolia`       |       `base-sepolia` | `eip155:84532`                            |
+| `Avalanche Fuji`     |     `avalanche-fuji` | `eip155:43113`                            |
+| `Polygon Amoy`       |       `polygon-amoy` | `eip155:80002`                            |
+| `xLayer Testnet`     |     `xlayer-testnet` | `eip155:1952`                             |
+| `Sei Testnet`        |        `sei-testnet` | `eip155:713715`                           |
+| `SKALE Base Sepolia` | `skale-base-sepolia` | `eip155:324705682`                        |
+| `Arbitrum Sepolia`   |   `arbitrum-sepolia` | `eip155:421614`                           |
 
 ### Properties
 
@@ -366,11 +366,7 @@ tool marker.
 ### `X402MastraToolConfig`
 
 ```ts
-type X402MastraToolConfig<
-  INPUT,
-  OUTPUT = EndpointResult,
-  ID extends string = string,
-> = {
+type X402MastraToolConfig<INPUT, OUTPUT = EndpointResult, ID extends string = string> = {
   id: ID;
   description: string;
   inputSchema: unknown;
@@ -458,8 +454,7 @@ Accepted by `X402Client.call()` and `x402tool()` endpoint configuration.
 ### `EndpointRequestInit`
 
 ```ts
-interface EndpointRequestInit
-  extends Omit<RequestInit, "body" | "headers" | "method"> {
+interface EndpointRequestInit extends Omit<RequestInit, "body" | "headers" | "method"> {
   method?: EndpointMethod | Lowercase<EndpointMethod> | string;
   headers?: HeadersInput;
   query?: URLSearchParams | Record<string, unknown>;

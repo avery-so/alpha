@@ -20,20 +20,15 @@ export function normalizeSolanaSecretKey(privateKey: string): Uint8Array {
   const decoded = decodeSolanaSecretKey(privateKey);
 
   if (decoded.byteLength !== 64) {
-    throw new X402ConfigError(
-      "Solana private key must be a base58-encoded 64-byte secret key.",
-      {
-        byteLength: decoded.byteLength,
-      },
-    );
+    throw new X402ConfigError("Solana private key must be a base58-encoded 64-byte secret key.", {
+      byteLength: decoded.byteLength,
+    });
   }
 
   return decoded;
 }
 
-export async function createSolanaSigner(
-  secretKey: Uint8Array,
-): Promise<KeyPairSigner> {
+export async function createSolanaSigner(secretKey: Uint8Array): Promise<KeyPairSigner> {
   try {
     return await createKeyPairSignerFromBytes(secretKey);
   } catch (error) {
@@ -51,9 +46,7 @@ export function requiredEvmPrivateKey(privateKey: Hex | undefined): Hex {
   return privateKey;
 }
 
-export function requiredSolanaSecretKey(
-  secretKey: Uint8Array | undefined,
-): Uint8Array {
+export function requiredSolanaSecretKey(secretKey: Uint8Array | undefined): Uint8Array {
   if (secretKey === undefined) {
     throw new X402ConfigError("Solana private key was not configured.");
   }
@@ -65,11 +58,8 @@ function decodeSolanaSecretKey(privateKey: string): Uint8Array {
   try {
     return base58.decode(privateKey);
   } catch (error) {
-    throw new X402ConfigError(
-      "Solana private key must be a base58-encoded 64-byte secret key.",
-      {
-        cause: error,
-      },
-    );
+    throw new X402ConfigError("Solana private key must be a base58-encoded 64-byte secret key.", {
+      cause: error,
+    });
   }
 }

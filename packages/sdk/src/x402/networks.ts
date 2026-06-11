@@ -11,12 +11,7 @@ import {
 } from "./network-registry.js";
 
 export { X402Networks };
-export type {
-  X402NetworkFamily,
-  X402NetworkInfo,
-  X402NetworkName,
-  X402NetworkSlug,
-};
+export type { X402NetworkFamily, X402NetworkInfo, X402NetworkName, X402NetworkSlug };
 
 export type X402NetworkInput =
   | X402NetworkName
@@ -24,19 +19,15 @@ export type X402NetworkInput =
   | Network
   | (string & Record<never, never>);
 
-const supportedNetworkSummary = x402NetworkRegistry.map(
-  ({ name, slug, network }) => ({
-    name,
-    slug,
-    network,
-  }),
-);
+const supportedNetworkSummary = x402NetworkRegistry.map(({ name, slug, network }) => ({
+  name,
+  slug,
+  network,
+}));
 
 const networkAliases = new Map<string, Network>();
 const supportedSolanaNetworks = new Set<Network>(
-  x402NetworkRegistry
-    .filter((info) => info.family === "solana")
-    .map((info) => info.network),
+  x402NetworkRegistry.filter((info) => info.family === "solana").map((info) => info.network),
 );
 
 for (const info of x402NetworkRegistry) {
@@ -62,10 +53,7 @@ export function resolveX402Network(input: X402NetworkInput): Network {
   if (trimmed.includes(":")) {
     const network = trimmed as Network;
 
-    if (
-      network.startsWith("solana:") &&
-      !supportedSolanaNetworks.has(network)
-    ) {
+    if (network.startsWith("solana:") && !supportedSolanaNetworks.has(network)) {
       throwUnsupportedSolanaNetwork(input);
     }
 
@@ -81,9 +69,7 @@ export function resolveX402Network(input: X402NetworkInput): Network {
   return network;
 }
 
-export function getX402NetworkFamily(
-  network: Network,
-): X402NetworkFamily | undefined {
+export function getX402NetworkFamily(network: Network): X402NetworkFamily | undefined {
   if (network.startsWith("eip155:")) {
     return "eip155";
   }

@@ -1,11 +1,7 @@
 import type { Network } from "@x402/core/types";
 import { describe, expect, it } from "vitest";
 
-import {
-  resolveX402Network,
-  X402ConfigError,
-  X402Networks,
-} from "../../src/x402/index.js";
+import { resolveX402Network, X402ConfigError, X402Networks } from "../../src/x402/index.js";
 import type { X402NetworkName, X402NetworkSlug } from "../../src/x402/index.js";
 import { getSupportedX402Networks } from "../../src/x402/networks.js";
 
@@ -121,29 +117,23 @@ describe("resolveX402Network", () => {
 
   it("passes through supported raw Solana CAIP-2 networks", () => {
     expect(resolveX402Network(X402Networks.solana)).toBe(X402Networks.solana);
-    expect(resolveX402Network(X402Networks.solanaDevnet)).toBe(
-      X402Networks.solanaDevnet,
-    );
+    expect(resolveX402Network(X402Networks.solanaDevnet)).toBe(X402Networks.solanaDevnet);
   });
 
   it("supports runtime aliases without widening canonical slug hints", () => {
     expect(resolveX402Network("base-mainnet")).toBe(X402Networks.base);
-    expect(resolveX402Network("X Layer Testnet")).toBe(
-      X402Networks.xLayerTestnet,
-    );
+    expect(resolveX402Network("X Layer Testnet")).toBe(X402Networks.xLayerTestnet);
     expect(resolveX402Network("kite-ai")).toBe(X402Networks.kiteAI);
   });
 
   it("throws X402ConfigError for unknown friendly names", () => {
-    expect(() => resolveX402Network("Ethereum Mainnet")).toThrow(
-      X402ConfigError,
-    );
+    expect(() => resolveX402Network("Ethereum Mainnet")).toThrow(X402ConfigError);
   });
 
   it("throws X402ConfigError for unsupported raw Solana CAIP-2 values", () => {
-    expect(() =>
-      resolveX402Network("solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z"),
-    ).toThrow(X402ConfigError);
+    expect(() => resolveX402Network("solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z")).toThrow(
+      X402ConfigError,
+    );
   });
 
   it("exposes registry metadata", () => {

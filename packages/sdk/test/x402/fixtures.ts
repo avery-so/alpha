@@ -1,7 +1,6 @@
 import type { PaymentRequired, PaymentRequirements } from "@x402/core/types";
 
-export const privateKey =
-  "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+export const privateKey = "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 export const network = "eip155:84532" as const;
 export const solanaDevnet = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" as const;

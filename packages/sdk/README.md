@@ -143,11 +143,7 @@ flow for paid HTTP resources. It supports EVM `exact` payments on `eip155:*`
 networks and Solana `exact` payments on Solana Mainnet and Devnet.
 
 ```ts
-import {
-  X402Client,
-  X402Networks,
-  type EndpointResult,
-} from "@averyso/alpha";
+import { X402Client, X402Networks, type EndpointResult } from "@averyso/alpha";
 
 const x402 = new X402Client(process.env.X402_PRIVATE_KEY!, {
   network: X402Networks.baseSepolia,
@@ -211,25 +207,25 @@ friendly names and unsupported raw Solana CAIP-2 values throw
 
 Built-in friendly names, primary slugs, constants, and CAIP-2 values:
 
-| Friendly Name | Primary Slug | Constant | CAIP-2 |
-|---|---|---|---|
-| `Solana Mainnet` | `solana` | `X402Networks.solana` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
-| `Base Mainnet` | `base` | `X402Networks.base` | `eip155:8453` |
-| `Polygon Mainnet` | `polygon` | `X402Networks.polygon` | `eip155:137` |
-| `xLayer Mainnet` | `xlayer` | `X402Networks.xLayer` | `eip155:196` |
-| `Peaq Mainnet` | `peaq` | `X402Networks.peaq` | `eip155:3338` |
-| `Sei Mainnet` | `sei` | `X402Networks.sei` | `eip155:1329` |
-| `SKALE Base` | `skale-base` | `X402Networks.skaleBase` | `eip155:1187947933` |
-| `KiteAI Mainnet` | `kiteai` | `X402Networks.kiteAI` | `eip155:2366` |
-| `Arbitrum One` | `arbitrum` | `X402Networks.arbitrum` | `eip155:42161` |
-| `Solana Devnet` | `solana-devnet` | `X402Networks.solanaDevnet` | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
-| `Base Sepolia` | `base-sepolia` | `X402Networks.baseSepolia` | `eip155:84532` |
-| `Avalanche Fuji` | `avalanche-fuji` | `X402Networks.avalancheFuji` | `eip155:43113` |
-| `Polygon Amoy` | `polygon-amoy` | `X402Networks.polygonAmoy` | `eip155:80002` |
-| `xLayer Testnet` | `xlayer-testnet` | `X402Networks.xLayerTestnet` | `eip155:1952` |
-| `Sei Testnet` | `sei-testnet` | `X402Networks.seiTestnet` | `eip155:713715` |
-| `SKALE Base Sepolia` | `skale-base-sepolia` | `X402Networks.skaleBaseSepolia` | `eip155:324705682` |
-| `Arbitrum Sepolia` | `arbitrum-sepolia` | `X402Networks.arbitrumSepolia` | `eip155:421614` |
+| Friendly Name        | Primary Slug         | Constant                        | CAIP-2                                    |
+| -------------------- | -------------------- | ------------------------------- | ----------------------------------------- |
+| `Solana Mainnet`     | `solana`             | `X402Networks.solana`           | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
+| `Base Mainnet`       | `base`               | `X402Networks.base`             | `eip155:8453`                             |
+| `Polygon Mainnet`    | `polygon`            | `X402Networks.polygon`          | `eip155:137`                              |
+| `xLayer Mainnet`     | `xlayer`             | `X402Networks.xLayer`           | `eip155:196`                              |
+| `Peaq Mainnet`       | `peaq`               | `X402Networks.peaq`             | `eip155:3338`                             |
+| `Sei Mainnet`        | `sei`                | `X402Networks.sei`              | `eip155:1329`                             |
+| `SKALE Base`         | `skale-base`         | `X402Networks.skaleBase`        | `eip155:1187947933`                       |
+| `KiteAI Mainnet`     | `kiteai`             | `X402Networks.kiteAI`           | `eip155:2366`                             |
+| `Arbitrum One`       | `arbitrum`           | `X402Networks.arbitrum`         | `eip155:42161`                            |
+| `Solana Devnet`      | `solana-devnet`      | `X402Networks.solanaDevnet`     | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
+| `Base Sepolia`       | `base-sepolia`       | `X402Networks.baseSepolia`      | `eip155:84532`                            |
+| `Avalanche Fuji`     | `avalanche-fuji`     | `X402Networks.avalancheFuji`    | `eip155:43113`                            |
+| `Polygon Amoy`       | `polygon-amoy`       | `X402Networks.polygonAmoy`      | `eip155:80002`                            |
+| `xLayer Testnet`     | `xlayer-testnet`     | `X402Networks.xLayerTestnet`    | `eip155:1952`                             |
+| `Sei Testnet`        | `sei-testnet`        | `X402Networks.seiTestnet`       | `eip155:713715`                           |
+| `SKALE Base Sepolia` | `skale-base-sepolia` | `X402Networks.skaleBaseSepolia` | `eip155:324705682`                        |
+| `Arbitrum Sepolia`   | `arbitrum-sepolia`   | `X402Networks.arbitrumSepolia`  | `eip155:421614`                           |
 
 ## Manual Integration Check
 

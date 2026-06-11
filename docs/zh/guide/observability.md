@@ -170,10 +170,7 @@ function summarizePaymentResponse(paymentResponse: unknown) {
 transitions。
 
 ```ts
-async function executePaidTool<INPUT>(
-  input: INPUT,
-  options: X402ToolExecutionOptions,
-) {
+async function executePaidTool<INPUT>(input: INPUT, options: X402ToolExecutionOptions) {
   const startedAt = performance.now();
   const reservation = await budgetLedger.reserve({
     userId,

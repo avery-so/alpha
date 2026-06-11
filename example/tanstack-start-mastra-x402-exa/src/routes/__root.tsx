@@ -1,9 +1,4 @@
-import {
-  HeadContent,
-  Outlet,
-  Scripts,
-  createRootRoute,
-} from "@tanstack/react-router";
+import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -22,8 +17,7 @@ export const Route = createRootRoute({
       },
       {
         name: "description",
-        content:
-          "A TanStack Start chat app using Mastra and Alpha SDK x402-paid Exa Search.",
+        content: "A TanStack Start chat app using Mastra and Alpha SDK x402-paid Exa Search.",
       },
     ],
   }),

@@ -19,10 +19,7 @@ const priorities = {
 
 const noop: LogSink = () => {};
 
-export function createLogger(
-  level: LogLevel = "info",
-  logger?: Logger | undefined,
-): Logger {
+export function createLogger(level: LogLevel = "info", logger?: Logger | undefined): Logger {
   const sink = logger ?? console;
 
   return {
@@ -33,9 +30,6 @@ export function createLogger(
   };
 }
 
-function enabled(
-  level: LogLevel,
-  method: Exclude<LogLevel, "silent">,
-): boolean {
+function enabled(level: LogLevel, method: Exclude<LogLevel, "silent">): boolean {
   return priorities[method] >= priorities[level];
 }

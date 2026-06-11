@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Avery SDK (`@averyso/alpha`) — an agent payment SDK that turns paid [x402](https://x402.org) HTTP endpoints into callable resources and AI-agent tools. The SDK signs and settles x402 payments locally using a configured wallet/private key + RPC URL; there is no Avery account, API key, or hosted service involved.
 
 This is a pnpm workspace (`pnpm-workspace.yaml`):
+
 - `packages/sdk` — the published Node-only TypeScript SDK. **This is the heart of the repo.**
 - `example/*` — Next.js apps demoing the SDK with the Vercel AI SDK and Mastra.
 - `docs` — VitePress documentation site (deployed to Cloudflare Pages, root dir `docs`).
@@ -31,6 +32,7 @@ pnpm changeset              # add a changeset (required for SDK API/behavior cha
 `pnpm verify` = `lint && format:check && typecheck && test:coverage && build && pack:check`. It is the exact gate CI runs. **Run it before committing and fix anything it reports.**
 
 Run a single test (the SDK is the only package with tests):
+
 ```sh
 pnpm --filter @averyso/alpha exec vitest run test/x402/client.test.ts   # one file
 pnpm --filter @averyso/alpha exec vitest run -t "rejects unsupported"   # by test name
@@ -43,7 +45,7 @@ All SDK code lives under `packages/sdk/src/x402/`. The public surface is central
 
 The SDK is a thin, opinionated wrapper over the `@x402/*` packages (`core`, `evm`, `svm`, `fetch`) plus `viem` (EVM signing) and `@solana/kit` (Solana signing). The flow:
 
-- **`X402Client` (`client.ts`)** — the entry point. Constructed with `(privateKey, { network, maxAmount?, rpcUrl?, ... })`. On construction it resolves the network to a family (`eip155` or `solana`) and normalizes the matching key type. `call()` prepares the request, runs it through a payment-aware `fetch`, and returns a normalized result. It **lazily builds and caches a "Runtime" per distinct `maxAmount`** (a `Map` keyed by the amount string) — each Runtime holds an `x402HTTPClient` with a policy that filters payment requirements to the configured network + amount cap, and a selector that picks the *cheapest* eligible requirement.
+- **`X402Client` (`client.ts`)** — the entry point. Constructed with `(privateKey, { network, maxAmount?, rpcUrl?, ... })`. On construction it resolves the network to a family (`eip155` or `solana`) and normalizes the matching key type. `call()` prepares the request, runs it through a payment-aware `fetch`, and returns a normalized result. It **lazily builds and caches a "Runtime" per distinct `maxAmount`** (a `Map` keyed by the amount string) — each Runtime holds an `x402HTTPClient` with a policy that filters payment requirements to the configured network + amount cap, and a selector that picks the _cheapest_ eligible requirement.
 
 - **Spend caps cascade.** Client-level `maxAmount` (default `100_000n` atomic units) is overridable per `call()` and per tool. The cap is enforced in two places inside the Runtime: a `registerPolicy` filter and `selectCheapestRequirement`. This is the SDK's core safety property — preserve it when touching `client.ts`.
 

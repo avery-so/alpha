@@ -68,13 +68,7 @@ Gateway model string.
 Create `app/api/chat/route.ts`:
 
 ```ts
-import {
-  convertToModelMessages,
-  jsonSchema,
-  stepCountIs,
-  streamText,
-  type UIMessage,
-} from "ai";
+import { convertToModelMessages, jsonSchema, stepCountIs, streamText, type UIMessage } from "ai";
 import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 export const runtime = "nodejs";
@@ -87,9 +81,7 @@ type WeatherInput = {
   city: string;
 };
 
-type WeatherOutput =
-  | { ok: true; weather: unknown }
-  | { ok: false; reason: string };
+type WeatherOutput = { ok: true; weather: unknown } | { ok: false; reason: string };
 
 const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
   network: X402Networks.baseSepolia,
@@ -160,9 +152,7 @@ export default function Chat() {
       <div className="flex flex-1 flex-col gap-4">
         {messages.map((message) => (
           <div key={message.id} className="rounded border p-3">
-            <div className="mb-2 text-sm font-semibold uppercase text-zinc-500">
-              {message.role}
-            </div>
+            <div className="mb-2 text-sm font-semibold uppercase text-zinc-500">{message.role}</div>
 
             <div className="space-y-2 whitespace-pre-wrap">
               {message.parts.map((part, index) => {

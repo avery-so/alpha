@@ -3,11 +3,7 @@ import type { ToolSet } from "ai";
 import { jsonSchema } from "ai";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  X402Client,
-  X402PaymentError,
-  x402tool,
-} from "../../src/x402/index.js";
+import { X402Client, X402PaymentError, x402tool } from "../../src/x402/index.js";
 import { network, privateKey, readRequestBody } from "./fixtures.js";
 
 describe("x402tool", () => {
@@ -351,9 +347,7 @@ describe("x402tool", () => {
 
       if (!request.headers.has("PAYMENT-SIGNATURE")) {
         const { encodePaymentRequiredHeader } = await import("@x402/core/http");
-        const { paymentRequired, paymentRequirement } = await import(
-          "./fixtures.js"
-        );
+        const { paymentRequired, paymentRequirement } = await import("./fixtures.js");
 
         return new Response(null, {
           status: 402,

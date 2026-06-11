@@ -13,8 +13,8 @@ Use this skill to help developers go from "I have a paid x402 API" to "my agent 
 
 Pick based on **who decides to make the request**:
 
-- **`x402tool()`** — the *model* decides. Wraps a paid endpoint as a Vercel AI SDK-compatible tool. Use this for agent payments: the LLM calls the tool with structured input, the SDK pays and returns a result. **This is the primary, most common path.**
-- **`X402Client.call()`** — your *application code* decides. A direct paid HTTP call you branch on yourself. Use this when there is no model in the loop, or your server fully controls the request.
+- **`x402tool()`** — the _model_ decides. Wraps a paid endpoint as a Vercel AI SDK-compatible tool. Use this for agent payments: the LLM calls the tool with structured input, the SDK pays and returns a result. **This is the primary, most common path.**
+- **`X402Client.call()`** — your _application code_ decides. A direct paid HTTP call you branch on yourself. Use this when there is no model in the loop, or your server fully controls the request.
 
 Both share one `X402Client` instance that holds the wallet, network, and default spend cap.
 
@@ -149,11 +149,11 @@ const result = await client.call(
 );
 
 switch (result.kind) {
-  case "success":      // paid and settled; use result.body
+  case "success": // paid and settled; use result.body
   case "payment_required": // no compatible payment — DON'T blindly retry; fix network/cap/asset
-  case "settle_failed":    // payment may have moved; don't treat as success
-  case "passthrough":      // endpoint didn't require payment (free / wrong URL / middleware order)
-  case "error":            // transient (retry with backoff) or config (don't retry)
+  case "settle_failed": // payment may have moved; don't treat as success
+  case "passthrough": // endpoint didn't require payment (free / wrong URL / middleware order)
+  case "error": // transient (retry with backoff) or config (don't retry)
 }
 ```
 

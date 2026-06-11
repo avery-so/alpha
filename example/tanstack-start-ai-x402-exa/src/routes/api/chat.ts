@@ -25,8 +25,7 @@ export const Route = createFileRoute("/api/chat")({
           messages: await convertToModelMessages(messages),
           tools: {
             searchExa: tool({
-              description:
-                "Search the web with Exa through an x402-paid endpoint.",
+              description: "Search the web with Exa through an x402-paid endpoint.",
               inputSchema: searchInputSchema,
               async execute(input, options) {
                 const client = createX402Client();
@@ -90,10 +89,7 @@ function createX402Client() {
     throw new Error("X402_PRIVATE_KEY is required.");
   }
 
-  if (
-    process.env.X402_RPC_URL === undefined ||
-    process.env.X402_RPC_URL.length === 0
-  ) {
+  if (process.env.X402_RPC_URL === undefined || process.env.X402_RPC_URL.length === 0) {
     console.info(
       "X402_RPC_URL is not set. The x402 client will rely on SDK defaults where supported.",
     );
@@ -114,9 +110,7 @@ function parseMaxAmount(value: string | undefined): bigint {
   return BigInt(value);
 }
 
-function extractExaResults(
-  endpoint: Extract<EndpointResult, { kind: "success" }>,
-) {
+function extractExaResults(endpoint: Extract<EndpointResult, { kind: "success" }>) {
   if (!isObject(endpoint.body) || !Array.isArray(endpoint.body.results)) {
     return [];
   }

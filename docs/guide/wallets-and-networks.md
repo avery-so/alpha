@@ -87,10 +87,10 @@ tokenAmount = atomic / 10 ** decimals;
 For USDC-style six-decimal assets:
 
 | Atomic Amount | Token Amount |
-|---:|---:|
-| `50_000n` | `0.05` USDC |
-| `100_000n` | `0.1` USDC |
-| `1_000_000n` | `1` USDC |
+| ------------: | -----------: |
+|     `50_000n` |  `0.05` USDC |
+|    `100_000n` |   `0.1` USDC |
+|  `1_000_000n` |     `1` USDC |
 
 In production, avoid floating-point math for payment caps. Parse decimal strings
 into integer atomic units and review each cap as a spend limit.

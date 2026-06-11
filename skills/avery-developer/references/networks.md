@@ -30,32 +30,32 @@ const X402Networks: {
 
 ## Friendly name / slug / CAIP-2 table
 
-| Friendly Name | Primary Slug | CAIP-2 |
-|---|---|---|
-| `Solana Mainnet` | `solana` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
-| `Base Mainnet` | `base` | `eip155:8453` |
-| `Polygon Mainnet` | `polygon` | `eip155:137` |
-| `xLayer Mainnet` | `xlayer` | `eip155:196` |
-| `Peaq Mainnet` | `peaq` | `eip155:3338` |
-| `Sei Mainnet` | `sei` | `eip155:1329` |
-| `SKALE Base` | `skale-base` | `eip155:1187947933` |
-| `KiteAI Mainnet` | `kiteai` | `eip155:2366` |
-| `Arbitrum One` | `arbitrum` | `eip155:42161` |
-| `Solana Devnet` | `solana-devnet` | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
-| `Base Sepolia` | `base-sepolia` | `eip155:84532` |
-| `Avalanche Fuji` | `avalanche-fuji` | `eip155:43113` |
-| `Polygon Amoy` | `polygon-amoy` | `eip155:80002` |
-| `xLayer Testnet` | `xlayer-testnet` | `eip155:1952` |
-| `Sei Testnet` | `sei-testnet` | `eip155:713715` |
-| `SKALE Base Sepolia` | `skale-base-sepolia` | `eip155:324705682` |
-| `Arbitrum Sepolia` | `arbitrum-sepolia` | `eip155:421614` |
+| Friendly Name        | Primary Slug         | CAIP-2                                    |
+| -------------------- | -------------------- | ----------------------------------------- |
+| `Solana Mainnet`     | `solana`             | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
+| `Base Mainnet`       | `base`               | `eip155:8453`                             |
+| `Polygon Mainnet`    | `polygon`            | `eip155:137`                              |
+| `xLayer Mainnet`     | `xlayer`             | `eip155:196`                              |
+| `Peaq Mainnet`       | `peaq`               | `eip155:3338`                             |
+| `Sei Mainnet`        | `sei`                | `eip155:1329`                             |
+| `SKALE Base`         | `skale-base`         | `eip155:1187947933`                       |
+| `KiteAI Mainnet`     | `kiteai`             | `eip155:2366`                             |
+| `Arbitrum One`       | `arbitrum`           | `eip155:42161`                            |
+| `Solana Devnet`      | `solana-devnet`      | `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` |
+| `Base Sepolia`       | `base-sepolia`       | `eip155:84532`                            |
+| `Avalanche Fuji`     | `avalanche-fuji`     | `eip155:43113`                            |
+| `Polygon Amoy`       | `polygon-amoy`       | `eip155:80002`                            |
+| `xLayer Testnet`     | `xlayer-testnet`     | `eip155:1952`                             |
+| `Sei Testnet`        | `sei-testnet`        | `eip155:713715`                           |
+| `SKALE Base Sepolia` | `skale-base-sepolia` | `eip155:324705682`                        |
+| `Arbitrum Sepolia`   | `arbitrum-sepolia`   | `eip155:421614`                           |
 
 Friendly names, slugs, and aliases are matched case-insensitively after trimming. Raw `eip155:*` CAIP-2 values pass through. Raw Solana CAIP-2 must be one of the supported Solana entries above. Unknown names or unsupported Solana CAIP-2 throw `X402ConfigError` (with `details.network` and `details.supportedNetworks`).
 
 ```ts
 new X402Client(key, { network: X402Networks.baseSepolia }); // preferred
-new X402Client(key, { network: "Base Sepolia" });            // friendly name
-resolveX402Network("base-sepolia");                          // "eip155:84532"
+new X402Client(key, { network: "Base Sepolia" }); // friendly name
+resolveX402Network("base-sepolia"); // "eip155:84532"
 ```
 
 ## Wallets and keys
@@ -87,11 +87,11 @@ tokenAmount = atomic / 10 ** decimals;
 
 USDC-style 6-decimal asset:
 
-| Atomic (`bigint`) | Token |
-|---:|---:|
-| `50_000n` | `0.05` USDC |
-| `100_000n` | `0.1` USDC |
-| `1_000_000n` | `1` USDC |
+| Atomic (`bigint`) |       Token |
+| ----------------: | ----------: |
+|         `50_000n` | `0.05` USDC |
+|        `100_000n` |  `0.1` USDC |
+|      `1_000_000n` |    `1` USDC |
 
 In production, avoid floating-point math for caps. Parse decimal strings into integer atomic units, and review each cap as a real spend limit.
 

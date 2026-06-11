@@ -46,8 +46,8 @@ export default function Home() {
       <header className="app-header">
         <h1>Mastra x402 Exa Search</h1>
         <p>
-          Ask a research question. A Mastra agent can call Exa Search through an
-          x402 payment using the workspace Alpha SDK.
+          Ask a research question. A Mastra agent can call Exa Search through an x402 payment using
+          the workspace Alpha SDK.
         </p>
       </header>
 
@@ -55,16 +55,13 @@ export default function Home() {
         {messages.length === 0 ? (
           <div className="empty-state">
             <p>
-              Try: Search for recent x402 agent payment examples and summarize
-              what developers can build with Mastra.
+              Try: Search for recent x402 agent payment examples and summarize what developers can
+              build with Mastra.
             </p>
           </div>
         ) : (
           messages.map((message) => (
-            <article
-              className={`message message-${message.role}`}
-              key={message.id}
-            >
+            <article className={`message message-${message.role}`} key={message.id}>
               <div className="message-role">{message.role}</div>
               <div className="message-content">
                 {message.parts.map((part, index) => (

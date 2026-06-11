@@ -1,9 +1,4 @@
-import {
-  X402Client,
-  X402Networks,
-  x402MastraTool,
-  type EndpointResult,
-} from "@averyso/alpha";
+import { X402Client, X402Networks, x402MastraTool, type EndpointResult } from "@averyso/alpha";
 import { z } from "zod";
 
 const exaSearchUrl = "https://api.exa.ai/search";
@@ -36,11 +31,7 @@ export const searchExaOutputSchema = z.discriminatedUnion("ok", [
 export type SearchExaInput = z.infer<typeof searchExaInputSchema>;
 export type SearchExaOutput = z.infer<typeof searchExaOutputSchema>;
 
-export const searchExaTool = x402MastraTool<
-  SearchExaInput,
-  SearchExaOutput,
-  "search-exa"
->({
+export const searchExaTool = x402MastraTool<SearchExaInput, SearchExaOutput, "search-exa">({
   id: "search-exa",
   client: createX402ClientForTool(),
   description: "Search the web with Exa through an x402-paid endpoint.",
@@ -94,8 +85,7 @@ export const searchExaTool = x402MastraTool<
 
 function createX402ClientForTool() {
   const privateKey =
-    process.env.X402_PRIVATE_KEY === undefined ||
-    process.env.X402_PRIVATE_KEY.length === 0
+    process.env.X402_PRIVATE_KEY === undefined || process.env.X402_PRIVATE_KEY.length === 0
       ? buildPlaceholderPrivateKey
       : process.env.X402_PRIVATE_KEY;
 
@@ -107,18 +97,12 @@ function createX402ClientForTool() {
 }
 
 function assertRuntimeConfiguration() {
-  if (
-    process.env.X402_PRIVATE_KEY === undefined ||
-    process.env.X402_PRIVATE_KEY.length === 0
-  ) {
+  if (process.env.X402_PRIVATE_KEY === undefined || process.env.X402_PRIVATE_KEY.length === 0) {
     console.error("Missing required X402_PRIVATE_KEY for Exa x402 search.");
     throw new Error("X402_PRIVATE_KEY is required.");
   }
 
-  if (
-    process.env.X402_RPC_URL === undefined ||
-    process.env.X402_RPC_URL.length === 0
-  ) {
+  if (process.env.X402_RPC_URL === undefined || process.env.X402_RPC_URL.length === 0) {
     console.warn(
       "X402_RPC_URL is not set. The x402 client will rely on SDK defaults where supported.",
     );
@@ -133,9 +117,7 @@ function parseMaxAmount(value: string | undefined): bigint {
   return BigInt(value);
 }
 
-function extractExaResults(
-  endpoint: Extract<EndpointResult, { kind: "success" }>,
-) {
+function extractExaResults(endpoint: Extract<EndpointResult, { kind: "success" }>) {
   if (!isObject(endpoint.body) || !Array.isArray(endpoint.body.results)) {
     return [];
   }

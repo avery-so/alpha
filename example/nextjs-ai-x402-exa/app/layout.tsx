@@ -5,8 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Alpha x402 Exa Search",
-  description:
-    "A Next.js AI SDK chat example that pays for Exa Search with x402.",
+  description: "A Next.js AI SDK chat example that pays for Exa Search with x402.",
 };
 
 interface RootLayoutProps {

@@ -99,12 +99,7 @@ export const x402NetworkRegistry = [
     slug: "xlayer",
     network: X402Networks.xLayer,
     family: "eip155",
-    aliases: [
-      "xlayer-mainnet",
-      "x-layer",
-      "x-layer-mainnet",
-      "X Layer Mainnet",
-    ],
+    aliases: ["xlayer-mainnet", "x-layer", "x-layer-mainnet", "X Layer Mainnet"],
   },
   {
     name: "Peaq Mainnet",
@@ -132,12 +127,7 @@ export const x402NetworkRegistry = [
     slug: "kiteai",
     network: X402Networks.kiteAI,
     family: "eip155",
-    aliases: [
-      "kiteai-mainnet",
-      "kite-ai",
-      "kite-ai-mainnet",
-      "Kite AI Mainnet",
-    ],
+    aliases: ["kiteai-mainnet", "kite-ai", "kite-ai-mainnet", "Kite AI Mainnet"],
   },
   {
     name: "Arbitrum One",

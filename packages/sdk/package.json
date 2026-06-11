@@ -2,37 +2,40 @@
   "name": "@averyso/alpha",
   "version": "1.0.0",
   "description": "Node-only Avery SDK for TypeScript.",
+  "keywords": [
+    "agent",
+    "ai",
+    "evm",
+    "mastra",
+    "payment",
+    "payments",
+    "sdk",
+    "solana",
+    "vercel-ai-sdk",
+    "x402"
+  ],
+  "homepage": "https://alpha.avery.so/",
+  "bugs": {
+    "url": "https://github.com/avery-so/alpha/issues"
+  },
   "license": "Apache-2.0",
+  "author": "Avery",
+  "maintainers": [
+    "bestony"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/avery-so/alpha.git",
     "directory": "packages/sdk"
   },
-  "bugs": {
-    "url": "https://github.com/avery-so/alpha/issues"
-  },
-  "homepage": "https://alpha.avery.so/",
-  "keywords": [
-    "x402",
-    "agent",
-    "ai",
-    "payments",
-    "payment",
-    "sdk",
-    "vercel-ai-sdk",
-    "mastra",
-    "evm",
-    "solana"
-  ],
-  "author": "Avery",
-  "maintainers": [
-    "bestony"
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
-  "engines": {
-    "node": ">=20.19.0"
-  },
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "import": {
@@ -46,26 +49,12 @@
     },
     "./package.json": "./package.json"
   },
-  "types": "./dist/index.d.mts",
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
-  },
-  "devDependencies": {
-    "@arethetypeswrong/core": "^0.18.3",
-    "@vitest/coverage-v8": "^3.2.4",
-    "ai": "^6.0.199",
-    "publint": "^0.3.21",
-    "tsdown": "^0.22.2",
-    "zod": "^4.4.3"
   },
   "dependencies": {
     "@scure/base": "^1.2.6",
@@ -76,6 +65,14 @@
     "@x402/svm": "^2.14.0",
     "viem": "^2.52.2"
   },
+  "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.3",
+    "@vitest/coverage-v8": "^3.2.4",
+    "ai": "^6.0.199",
+    "publint": "^0.3.21",
+    "tsdown": "^0.22.2",
+    "zod": "^4.4.3"
+  },
   "peerDependencies": {
     "ai": "^6.0.0"
   },
@@ -83,5 +80,8 @@
     "ai": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }

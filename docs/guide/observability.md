@@ -174,10 +174,7 @@ Wrap paid tool execution so audit events and budget transitions happen even
 when the tool fails.
 
 ```ts
-async function executePaidTool<INPUT>(
-  input: INPUT,
-  options: X402ToolExecutionOptions,
-) {
+async function executePaidTool<INPUT>(input: INPUT, options: X402ToolExecutionOptions) {
   const startedAt = performance.now();
   const reservation = await budgetLedger.reserve({
     userId,

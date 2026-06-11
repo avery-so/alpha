@@ -25,13 +25,7 @@ Keep `X402_PRIVATE_KEY`, RPC URLs, and payment signing on the server. The AI SDK
 ## Route handler — `app/api/chat/route.ts`
 
 ```ts
-import {
-  convertToModelMessages,
-  jsonSchema,
-  stepCountIs,
-  streamText,
-  type UIMessage,
-} from "ai";
+import { convertToModelMessages, jsonSchema, stepCountIs, streamText, type UIMessage } from "ai";
 import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
 
 export const runtime = "nodejs"; // Avery SDK is Node-only; never the edge runtime
@@ -97,9 +91,7 @@ export default function Chat() {
       <div className="flex flex-1 flex-col gap-4">
         {messages.map((message) => (
           <div key={message.id} className="rounded border p-3">
-            <div className="mb-2 text-sm font-semibold uppercase text-zinc-500">
-              {message.role}
-            </div>
+            <div className="mb-2 text-sm font-semibold uppercase text-zinc-500">{message.role}</div>
             <div className="space-y-2 whitespace-pre-wrap">
               {message.parts.map((part, index) => {
                 switch (part.type) {
@@ -107,7 +99,10 @@ export default function Chat() {
                     return <div key={index}>{part.text}</div>;
                   case "tool-paidWeather": // tool parts are named tool-{toolName}
                     return (
-                      <pre key={index} className="overflow-auto rounded bg-zinc-950 p-3 text-xs text-zinc-50">
+                      <pre
+                        key={index}
+                        className="overflow-auto rounded bg-zinc-950 p-3 text-xs text-zinc-50"
+                      >
                         {JSON.stringify(part, null, 2)}
                       </pre>
                     );

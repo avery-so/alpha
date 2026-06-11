@@ -11,16 +11,16 @@ Avery SDK 是 Node-only SDK。请在服务端 Node.js runtime 中运行，Node.j
 
 ## 支持的运行时
 
-| Runtime | 支持情况 | 说明 |
-|---|---|---|
-| Vercel Node.js Functions | 支持 | API routes 或 functions 使用 Node.js runtime。 |
-| Next.js App Router route handlers | 支持 | Avery SDK 放在 server-only module，并使用 Node.js runtime。 |
-| Next.js Server Actions | 支持 | 仅从服务端代码路径使用。 |
-| Docker、Fly.io 或普通 Node server | 支持 | 运行时注入 secrets，并使用 Node.js `>=20.19.0`。 |
-| Browser 或 client component | 不支持 | 私钥和支付签名不能发送到客户端。 |
-| Static frontend bundle | 不支持 | 缺少安全的服务端签名边界。 |
-| Next.js Edge runtime | 不推荐 | Edge runtime 的 API 集合有限，不提供完整 Node.js 兼容性。 |
-| Cloudflare Workers 直接运行 Avery SDK | 不推荐 | 使用 Cloudflare 原生 x402 和 Agents 支持，或调用运行 Avery SDK 的 Node 服务。 |
+| Runtime                               | 支持情况 | 说明                                                                          |
+| ------------------------------------- | -------- | ----------------------------------------------------------------------------- |
+| Vercel Node.js Functions              | 支持     | API routes 或 functions 使用 Node.js runtime。                                |
+| Next.js App Router route handlers     | 支持     | Avery SDK 放在 server-only module，并使用 Node.js runtime。                   |
+| Next.js Server Actions                | 支持     | 仅从服务端代码路径使用。                                                      |
+| Docker、Fly.io 或普通 Node server     | 支持     | 运行时注入 secrets，并使用 Node.js `>=20.19.0`。                              |
+| Browser 或 client component           | 不支持   | 私钥和支付签名不能发送到客户端。                                              |
+| Static frontend bundle                | 不支持   | 缺少安全的服务端签名边界。                                                    |
+| Next.js Edge runtime                  | 不推荐   | Edge runtime 的 API 集合有限，不提供完整 Node.js 兼容性。                     |
+| Cloudflare Workers 直接运行 Avery SDK | 不推荐   | 使用 Cloudflare 原生 x402 和 Agents 支持，或调用运行 Avery SDK 的 Node 服务。 |
 
 ## Next.js 模式
 
