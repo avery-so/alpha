@@ -210,6 +210,49 @@ describe("x402tool", () => {
     });
   });
 
+  it("resolves function endpoints from input", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async (input) => {
+      const request = new Request(input);
+
+      return Response.json({
+        url: request.url,
+      });
+    });
+    const client = new X402Client(privateKey, {
+      network,
+      fetch: fetchMock,
+    });
+    const tool = x402tool({
+      client,
+      endpoint: (input: { id: string; expand: string }) => ({
+        url: `https://example.test/items/${input.id}`,
+        method: "GET",
+      }),
+      inputSchema: jsonSchema<{
+        id: string;
+        expand: string;
+      }>({
+        type: "object",
+      }),
+      execute: async ({ endpoint }) => endpoint.body,
+    });
+
+    await expect(
+      tool.execute?.(
+        {
+          id: "42",
+          expand: "details",
+        },
+        {
+          toolCallId: "call-1",
+          messages: [],
+        },
+      ),
+    ).resolves.toEqual({
+      url: "https://example.test/items/42?id=42&expand=details",
+    });
+  });
+
   it("returns 500 results by default and throws when configured", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
       Response.json(

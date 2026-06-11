@@ -2,12 +2,12 @@
   "name": "alpha-workspace",
   "version": "0.0.0",
   "private": true,
-  "description": "Workspace for the Alpha TypeScript SDK and documentation.",
-  "license": "ISC",
+  "description": "Workspace for the Avery SDK and documentation.",
+  "license": "Apache-2.0",
   "type": "module",
   "packageManager": "pnpm@11.4.0",
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "build": "pnpm -r --workspace-concurrency=1 build",

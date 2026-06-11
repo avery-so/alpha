@@ -1,8 +1,33 @@
 {
   "name": "@averyso/alpha",
   "version": "1.0.0",
-  "description": "Node-only TypeScript SDK for Alpha.",
-  "license": "ISC",
+  "description": "Node-only Avery SDK for TypeScript.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avery-so/alpha.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/avery-so/alpha/issues"
+  },
+  "homepage": "https://alpha.avery.so/",
+  "keywords": [
+    "x402",
+    "agent",
+    "ai",
+    "payments",
+    "payment",
+    "sdk",
+    "vercel-ai-sdk",
+    "mastra",
+    "evm",
+    "solana"
+  ],
+  "author": "Avery",
+  "maintainers": [
+    "bestony"
+  ],
   "type": "module",
   "sideEffects": false,
   "engines": {
@@ -43,9 +68,12 @@
     "zod": "^4.4.3"
   },
   "dependencies": {
+    "@scure/base": "^1.2.6",
+    "@solana/kit": "^6.9.0",
     "@x402/core": "^2.14.0",
     "@x402/evm": "^2.14.0",
     "@x402/fetch": "^2.14.0",
+    "@x402/svm": "^2.14.0",
     "viem": "^2.52.2"
   },
   "peerDependencies": {

@@ -4,6 +4,9 @@ export const privateKey =
   "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 export const network = "eip155:84532" as const;
+export const solanaDevnet = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" as const;
+export const solanaSecretKey =
+  "3JjyNmvHXmALZY4i87RbXiFjLmf9b4pmyoguJat5D46QGrFMp6wwxmjH1Jb7mnW7eXCm9DfAbqb5RMEcqctgqCVK";
 
 export function paymentRequirement(
   overrides: Partial<PaymentRequirements> = {},

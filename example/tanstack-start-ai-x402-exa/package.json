@@ -1,0 +1,33 @@
+{
+  "name": "@averyso/example-tanstack-start-ai-x402-exa",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev",
+    "preview": "vite preview",
+    "start": "node .output/server/index.mjs",
+    "test": "echo \"No example tests configured.\"",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/react": "^3.0.201",
+    "@averyso/alpha": "workspace:*",
+    "@tanstack/react-router": "^1.170.15",
+    "@tanstack/react-start": "^1.168.25",
+    "ai": "^6.0.199",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "nitro": "^3.0.260610-beta",
+    "typescript": "^5.8.3",
+    "vite": "^8.0.16"
+  }
+}

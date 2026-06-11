@@ -1,12 +1,28 @@
 packages:
   - "packages/*"
+  - "example/*"
   - "docs"
 
 engineStrict: true
 linkWorkspacePackages: true
 allowBuilds:
   esbuild: true
+  sharp: true
 sharedWorkspaceLockfile: true
 minimumReleaseAgeExclude:
   - '@ai-sdk/gateway@3.0.127'
   - ai@6.0.199
+  - '@ai-sdk/react@3.0.201'
+  - '@next/env@16.2.9'
+  - '@next/swc-darwin-arm64@16.2.9'
+  - '@next/swc-darwin-x64@16.2.9'
+  - '@next/swc-linux-arm64-gnu@16.2.9'
+  - '@next/swc-linux-arm64-musl@16.2.9'
+  - '@next/swc-linux-x64-gnu@16.2.9'
+  - '@next/swc-linux-x64-musl@16.2.9'
+  - '@next/swc-win32-arm64-msvc@16.2.9'
+  - '@next/swc-win32-x64-msvc@16.2.9'
+  - next@16.2.9
+  - env-runner@0.1.12
+  - nitro@3.0.260610-beta
+  - ocache@0.1.5

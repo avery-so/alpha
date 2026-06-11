@@ -1,0 +1,29 @@
+{
+  "skill_name": "avery-developer",
+  "evals": [
+    {
+      "id": 0,
+      "name": "build-agent-payment-tool",
+      "prompt": "I'm building an AI agent with the Vercel AI SDK and I've got a paid weather API at https://api.weatherpay.io/current that's x402-protected (it returns 402 Payment Required). I want my agent to be able to call it and pay automatically. I'm testing on Base Sepolia. Can you show me how to wire this up with @averyso/alpha?",
+      "expected_output": "Working server-side code using X402Client + x402tool, network set to Base Sepolia, maxAmount as a bigint atomic value, jsonSchema input from 'ai', tool passed to generateText/streamText. Should keep the private key server-side and not invent an Avery account/API key.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 1,
+      "name": "spend-controls-budget",
+      "prompt": "We have an AI agent in production that calls a paid x402 search API through @averyso/alpha. My manager is worried it could blow through our budget if it gets stuck in a loop. I already set maxAmount on the tool — isn't that enough? How do I actually cap spending, like per user per day, and stop runaway loops?",
+      "expected_output": "Explains that maxAmount caps only a single payment, not totals/loops. Recommends server-side budget ledger (reserve/commit/refund), AI SDK loop limits (stopWhen/stepCountIs), per-user/day counters, and possibly needsApproval. Stresses enforcement in server code, not prompts.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "diagnose-payment-required",
+      "prompt": "Using @averyso/alpha, when I do X402Client.call() I keep getting back a result where kind is 'payment_required', even though I'm pretty sure my wallet has funds. What does that mean and how should my code be handling the different result kinds?",
+      "expected_output": "Explains payment_required = no compatible payment selected (network mismatch, amount over maxAmount, wrong asset, unsupported requirements), and that it's NOT transient so don't blindly retry. Shows branching on result.kind for all variants (success/payment_required/settle_failed/passthrough/error).",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}
