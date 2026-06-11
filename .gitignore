@@ -2,6 +2,7 @@ node_modules
 dist
 .next
 .output
+.nitro
 .tanstack
 .vite
 .vitepress/cache

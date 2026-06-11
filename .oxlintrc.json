@@ -53,7 +53,9 @@
         "example/nextjs-mastra-x402-exa/**/*.ts",
         "example/nextjs-mastra-x402-exa/**/*.tsx",
         "example/tanstack-start-ai-x402-exa/**/*.ts",
-        "example/tanstack-start-ai-x402-exa/**/*.tsx"
+        "example/tanstack-start-ai-x402-exa/**/*.tsx",
+        "example/tanstack-start-mastra-x402-exa/**/*.ts",
+        "example/tanstack-start-mastra-x402-exa/**/*.tsx"
       ],
       "rules": {
         "func-style": "off",
@@ -69,14 +71,18 @@
       "files": [
         "example/nextjs-ai-x402-exa/app/layout.tsx",
         "example/nextjs-mastra-x402-exa/app/layout.tsx",
-        "example/tanstack-start-ai-x402-exa/src/routes/__root.tsx"
+        "example/tanstack-start-ai-x402-exa/src/routes/__root.tsx",
+        "example/tanstack-start-mastra-x402-exa/src/routes/__root.tsx"
       ],
       "rules": {
         "import/no-unassigned-import": "off"
       }
     },
     {
-      "files": ["example/tanstack-start-ai-x402-exa/src/routeTree.gen.ts"],
+      "files": [
+        "example/tanstack-start-ai-x402-exa/src/routeTree.gen.ts",
+        "example/tanstack-start-mastra-x402-exa/src/routeTree.gen.ts"
+      ],
       "rules": {
         "capitalized-comments": "off",
         "import/no-unassigned-import": "off",

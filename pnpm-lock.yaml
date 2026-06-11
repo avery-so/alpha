@@ -184,6 +184,64 @@ importers:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@24.13.1)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0)
 
+  example/tanstack-start-mastra-x402-exa:
+    dependencies:
+      '@ai-sdk/gateway':
+        specifier: ^3.0.127
+        version: 3.0.127(zod@4.4.3)
+      '@ai-sdk/react':
+        specifier: ^3.0.201
+        version: 3.0.201(react@19.2.7)(zod@4.4.3)
+      '@averyso/alpha':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@mastra/ai-sdk':
+        specifier: ^1.4.4
+        version: 1.4.4(@mastra/core@1.41.0(ai@6.0.199(zod@4.4.3))(express@5.2.1)(zod@4.4.3))(zod@4.4.3)
+      '@mastra/core':
+        specifier: ^1.41.0
+        version: 1.41.0(ai@6.0.199(zod@4.4.3))(express@5.2.1)(zod@4.4.3)
+      '@tanstack/react-router':
+        specifier: ^1.170.15
+        version: 1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tanstack/react-start':
+        specifier: ^1.168.25
+        version: 1.168.25(crossws@0.4.6(srvx@0.11.16))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.13.1)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
+      ai:
+        specifier: ^6.0.199
+        version: 6.0.199(zod@4.4.3)
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.3
+        version: 24.13.1
+      '@types/react':
+        specifier: ^19.2.7
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.17)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.2
+        version: 6.0.2(vite@8.0.16(@types/node@24.13.1)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
+      nitro:
+        specifier: ^3.0.260610-beta
+        version: 3.0.260610-beta(chokidar@5.0.0)(dotenv@17.4.2)(jiti@2.7.0)(lru-cache@11.5.1)(rollup@4.61.1)(vite@8.0.16(@types/node@24.13.1)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.16
+        version: 8.0.16(@types/node@24.13.1)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0)
+
   packages/sdk:
     dependencies:
       '@scure/base':
