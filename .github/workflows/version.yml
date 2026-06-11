@@ -17,6 +17,8 @@ jobs:
   version:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      HUSKY: "0"
     permissions:
       contents: write
       pull-requests: write
