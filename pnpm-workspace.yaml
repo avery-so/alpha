@@ -5,6 +5,10 @@ packages:
 
 engineStrict: true
 linkWorkspacePackages: true
+overrides:
+  "@mastra/core@1.41.0>@ai-sdk/provider-utils-v5": "npm:@ai-sdk/provider-utils@4.0.27"
+  "postcss@<8.5.10": "8.5.15"
+  "vite@<=6.4.1": "6.4.2"
 allowBuilds:
   esbuild: true
   sharp: true
