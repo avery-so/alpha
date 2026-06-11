@@ -23,3 +23,6 @@ minimumReleaseAgeExclude:
   - '@next/swc-win32-arm64-msvc@16.2.9'
   - '@next/swc-win32-x64-msvc@16.2.9'
   - next@16.2.9
+  - env-runner@0.1.12
+  - nitro@3.0.260610-beta
+  - ocache@0.1.5
