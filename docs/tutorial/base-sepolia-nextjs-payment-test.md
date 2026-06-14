@@ -97,12 +97,12 @@ You need two balances on the same Base Sepolia address:
 - Base Sepolia ETH for gas.
 - Base Sepolia USDC for the x402 payment.
 
-Start with the Coinbase Developer Platform Faucet. The CDP Faucet supports Base
-Sepolia testnet assets, including ETH and USDC, subject to the current faucet
-limits. If the CDP Faucet is unavailable or rate-limited, Circle Faucet can be a
-backup source for test stablecoins. Faucet availability, limits, supported
-networks, and account requirements can change, so follow the current official
-faucet pages.
+Start with the [Coinbase Developer Platform Faucet](https://portal.cdp.coinbase.com/products/faucet).
+The CDP Faucet supports Base Sepolia testnet assets, including ETH and USDC,
+subject to the current faucet limits. If the CDP Faucet is unavailable or
+rate-limited, Circle Faucet can be a backup source for test stablecoins. Faucet
+availability, limits, supported networks, and account requirements can change,
+so follow the current official faucet pages.
 
 The paid endpoint currently charges `0.01` testnet USDC, but request more than
 one payment worth so you can retry failed local tests.
@@ -532,7 +532,7 @@ requirement.
 - MetaMask private key export:
   https://support.metamask.io/configure/accounts/how-to-export-an-accounts-private-key/
 - CDP Faucet:
-  https://docs.cdp.coinbase.com/faucets/introduction/welcome
+  https://portal.cdp.coinbase.com/products/faucet
 - Circle Faucet:
   https://faucet.circle.com/
 - Coinbase x402 network support:
