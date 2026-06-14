@@ -3,11 +3,9 @@ import { deflateRawSync } from "node:zlib";
 import { defineConfig } from "vitepress";
 // eslint-disable-next-line no-duplicate-imports -- Type-only imports stay separate under verbatimModuleSyntax.
 import type { MarkdownOptions } from "vitepress";
+import createAnalyticsHeadEntries from "./analytics";
 
 type MarkdownIt = Parameters<NonNullable<MarkdownOptions["config"]>>[0];
-type HeadEntry =
-  | [tag: string, attrs: Record<string, string>]
-  | [tag: string, attrs: Record<string, string>, children: string];
 
 const sixBitMask = 63;
 const highNibbleMask = 15;
@@ -55,71 +53,6 @@ const escapeHtmlAttribute = (value: string) =>
 
 const repositoryUrl = "https://github.com/avery-so/alpha";
 const editLinkPattern = `${repositoryUrl}/edit/main/docs/:path`;
-
-const getOptionalEnv = (name: string) => {
-  const value = process.env[name]?.trim();
-
-  return value || undefined;
-};
-
-const createGoogleAnalyticsHeadEntries = (googleAnalyticsId: string): HeadEntry[] => {
-  const serializedGoogleAnalyticsId = JSON.stringify(googleAnalyticsId);
-
-  return [
-    [
-      "script",
-      {
-        async: "",
-        src: `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(googleAnalyticsId)}`,
-      },
-    ],
-    [
-      "script",
-      {},
-      [
-        "window.dataLayer = window.dataLayer || [];",
-        "function gtag(){dataLayer.push(arguments);}",
-        "gtag('js', new Date());",
-        `gtag('config', ${serializedGoogleAnalyticsId});`,
-      ].join("\n"),
-    ],
-  ];
-};
-
-const createMicrosoftClarityHeadEntries = (clarityProjectId: string): HeadEntry[] => {
-  const clarityScriptUrl = `https://www.clarity.ms/tag/${encodeURIComponent(clarityProjectId)}`;
-  const serializedClarityScriptUrl = JSON.stringify(clarityScriptUrl);
-
-  return [
-    [
-      "script",
-      {},
-      [
-        "(function(c,l,a,r,t,y){",
-        "c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};",
-        `t=l.createElement(r);t.async=1;t.src=${serializedClarityScriptUrl};`,
-        "y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);",
-        '})(window, document, "clarity", "script");',
-      ].join("\n"),
-    ],
-  ];
-};
-
-const createAnalyticsHeadEntries = (): HeadEntry[] => {
-  const googleAnalyticsId = getOptionalEnv("DOCS_GOOGLE_ANALYTICS_ID");
-  const clarityProjectId = getOptionalEnv("DOCS_MICROSOFT_CLARITY_PROJECT_ID");
-  const entries: HeadEntry[] = [];
-
-  if (googleAnalyticsId) {
-    entries.push(...createGoogleAnalyticsHeadEntries(googleAnalyticsId));
-  }
-
-  if (clarityProjectId) {
-    entries.push(...createMicrosoftClarityHeadEntries(clarityProjectId));
-  }
-
-  return entries;
-};
 
 const usePlantUmlFence = (md: MarkdownIt) => {
   const defaultFenceRenderer = md.renderer.rules.fence;
