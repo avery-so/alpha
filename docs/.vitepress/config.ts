@@ -165,10 +165,7 @@ const rootSidebar = [
           { text: "Getting Started", link: "/guide/getting-started" },
           { text: "Concepts", link: "/guide/concepts" },
           { text: "Wallets and Networks", link: "/guide/wallets-and-networks" },
-          {
-            text: "Avery Developer Skill",
-            link: "/guide/avery-developer-skill",
-          },
+          { text: "Avery Developer Skill", link: "/guide/avery-developer-skill" },
         ],
       },
       {
@@ -192,7 +189,10 @@ const rootSidebar = [
   },
   {
     text: "Tutorial",
-    items: [{ text: "Build an Agent Payment Tool", link: "/tutorial/x402-ai-tool" }],
+    items: [
+      { text: "Build an Agent Payment Tool", link: "/tutorial/x402-ai-tool" },
+      { text: "Base Sepolia Payment Test", link: "/tutorial/base-sepolia-nextjs-payment-test" },
+    ],
   },
   {
     text: "API Reference",
@@ -210,10 +210,7 @@ const zhSidebar = [
           { text: "快速开始", link: "/zh/guide/getting-started" },
           { text: "核心概念", link: "/zh/guide/concepts" },
           { text: "钱包与网络", link: "/zh/guide/wallets-and-networks" },
-          {
-            text: "Avery Developer Skill",
-            link: "/zh/guide/avery-developer-skill",
-          },
+          { text: "Avery Developer Skill", link: "/zh/guide/avery-developer-skill" },
         ],
       },
       {
@@ -227,10 +224,7 @@ const zhSidebar = [
         text: "生产运维",
         items: [
           { text: "生产部署", link: "/zh/guide/production" },
-          {
-            text: "Agent Spend Controls",
-            link: "/zh/guide/agent-spend-controls",
-          },
+          { text: "Agent Spend Controls", link: "/zh/guide/agent-spend-controls" },
           { text: "错误处理", link: "/zh/guide/error-handling" },
           { text: "可观测性与审计日志", link: "/zh/guide/observability" },
           { text: "故障排查", link: "/zh/guide/troubleshooting" },
@@ -240,7 +234,10 @@ const zhSidebar = [
   },
   {
     text: "教程",
-    items: [{ text: "构建 Agent 支付工具", link: "/zh/tutorial/x402-ai-tool" }],
+    items: [
+      { text: "构建 Agent 支付工具", link: "/zh/tutorial/x402-ai-tool" },
+      { text: "Base Sepolia 支付测试", link: "/zh/tutorial/base-sepolia-nextjs-payment-test" },
+    ],
   },
   {
     text: "API 参考",
