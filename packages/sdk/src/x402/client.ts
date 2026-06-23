@@ -114,7 +114,7 @@ export class X402Client {
 
       const runtime = await this.#runtime(opts.maxAmount ?? this.#defaultMaxAmount);
       const response = await runtime.fetchWithPayment(prepared.input, prepared.init);
-      const result = toEndpointResult(await runtime.httpClient.processResponse(response));
+      const result = toEndpointResult(await runtime.httpClient.processResponse(response), response);
 
       result.metadata.method = prepared.method;
 

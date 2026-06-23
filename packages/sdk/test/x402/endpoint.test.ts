@@ -262,6 +262,190 @@ describe("toEndpointResult", () => {
       paymentResponse: null,
     });
   });
+
+  it("maps current settled resource responses", () => {
+    const response = Response.json(
+      {
+        ok: true,
+      },
+      {
+        status: 200,
+        headers: {
+          "x-request-id": "req_123",
+        },
+      },
+    );
+    const result = toEndpointResult(
+      {
+        status: 200,
+        paymentStatus: "settled",
+        body: {
+          ok: true,
+        },
+        header: {
+          success: true,
+          transaction: "0xabc",
+          network: "eip155:84532",
+        },
+      },
+      response,
+    );
+
+    expect(result).toMatchObject({
+      kind: "success",
+      paid: true,
+      ok: true,
+      status: 200,
+      body: {
+        ok: true,
+      },
+      paymentResponse: {
+        success: true,
+        transaction: "0xabc",
+      },
+      metadata: {
+        status: 200,
+        headers: {
+          "x-request-id": "req_123",
+        },
+      },
+    });
+  });
+
+  it("maps current settle_failed resource responses", () => {
+    const response = Response.json({ ok: false }, { status: 402 });
+    const result = toEndpointResult(
+      {
+        status: 402,
+        paymentStatus: "settle_failed",
+        body: {
+          ok: false,
+        },
+        header: {
+          success: false,
+          transaction: "0xabc",
+          network: "eip155:84532",
+          errorReason: "failed",
+        },
+      },
+      response,
+    );
+
+    expect(result).toMatchObject({
+      kind: "settle_failed",
+      paid: false,
+      ok: false,
+      status: 402,
+      paymentResponse: {
+        success: false,
+      },
+    });
+  });
+
+  it("maps current payment_required resource responses", () => {
+    const response = Response.json({ error: "payment required" }, { status: 402 });
+    const result = toEndpointResult(
+      {
+        status: 402,
+        paymentStatus: "payment_required",
+        body: {
+          error: "payment required",
+        },
+        header: {
+          x402Version: 2,
+          resource: {
+            url: "https://example.test",
+          },
+          accepts: [],
+        },
+      },
+      response,
+    );
+
+    expect(result).toMatchObject({
+      kind: "payment_required",
+      paid: false,
+      ok: false,
+      status: 402,
+      body: null,
+      paymentResponse: null,
+    });
+  });
+
+  it("maps current none resource responses to passthrough for ok status", () => {
+    const response = Response.json({ ok: true }, { status: 200 });
+    const result = toEndpointResult(
+      {
+        status: 200,
+        paymentStatus: "none",
+        body: {
+          ok: true,
+        },
+      },
+      response,
+    );
+
+    expect(result).toMatchObject({
+      kind: "passthrough",
+      paid: false,
+      ok: true,
+      status: 200,
+      body: {
+        ok: true,
+      },
+      paymentResponse: null,
+    });
+  });
+
+  it("maps current none resource responses to error for failing status", () => {
+    const response = Response.json({ error: "failed" }, { status: 500 });
+    const result = toEndpointResult(
+      {
+        status: 500,
+        paymentStatus: "none",
+        body: {
+          error: "failed",
+        },
+      },
+      response,
+    );
+
+    expect(result).toMatchObject({
+      kind: "error",
+      paid: false,
+      ok: false,
+      status: 500,
+      body: {
+        error: "failed",
+      },
+      paymentResponse: null,
+    });
+  });
+
+  it("maps current settled responses without settlement headers to error", () => {
+    const result = toEndpointResult(
+      {
+        status: 200,
+        paymentStatus: "settled",
+        body: {
+          ok: true,
+        },
+      },
+      Response.json({ ok: true }, { status: 200 }),
+    );
+
+    expect(result).toMatchObject({
+      kind: "error",
+      paid: false,
+      ok: false,
+      status: 200,
+      body: {
+        error: "Missing x402 settlement response header.",
+        paymentStatus: "settled",
+      },
+      paymentResponse: null,
+    });
+  });
 });
 
 describe("endpointErrorResult", () => {
