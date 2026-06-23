@@ -13,13 +13,13 @@ server-side secret handling.
 Install it with the [skills CLI](https://www.skills.sh/docs):
 
 ```sh
-npx skills add averyso/alpha --skill avery-developer
+npx skills add avery-so/alpha --skill avery-developer
 ```
 
 To install it for a specific agent:
 
 ```sh
-npx skills add averyso/alpha --skill avery-developer -a claude-code
+npx skills add avery-so/alpha --skill avery-developer -a claude-code
 ```
 
 ## What It Covers
