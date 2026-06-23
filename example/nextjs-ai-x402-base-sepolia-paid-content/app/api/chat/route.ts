@@ -16,6 +16,7 @@ interface PaidContentSuccess {
   ok: true;
   status: number;
   body: unknown;
+  transactionHash?: string;
 }
 
 interface PaidContentFailure {
@@ -43,58 +44,39 @@ export async function POST(request: Request) {
       readPaidContent: tool({
         description: "Read the Base Sepolia x402 paid-content endpoint.",
         inputSchema: readPaidContentInputSchema,
-        async execute(_input, options): Promise<PaidContentOutput> {
-          const endpointUrl = paidContentEndpoint();
-          const maxAmount = parseMaxAmount(process.env.X402_MAX_AMOUNT);
-          const client = createX402Client(maxAmount);
-
-          console.info("Calling Base Sepolia x402 paid-content endpoint.", {
-            endpoint: endpointUrl,
-            network,
-            maxAmount: maxAmount.toString(),
-          });
-
-          const endpoint = await client.call(
-            endpointUrl,
-            {
-              method: "GET",
-            },
-            {
-              signal: options.abortSignal,
-              throwOnError: false,
-            },
-          );
-
-          if (endpoint.kind !== "success") {
-            console.warn("Base Sepolia x402 paid-content call failed.", {
-              endpoint: endpointUrl,
-              network,
-              maxAmount: maxAmount.toString(),
-              kind: endpoint.kind,
-              status: endpoint.status,
-            });
-
-            return {
-              ok: false,
-              reason: endpoint.kind,
-              status: endpoint.status,
-            };
-          }
-
-          console.info("Base Sepolia x402 paid-content call succeeded.", {
-            endpoint: endpointUrl,
-            network,
-            maxAmount: maxAmount.toString(),
-            status: endpoint.status,
-          });
-
-          return toPaidContentSuccess(endpoint);
+        execute(_input, options): Promise<PaidContentOutput> {
+          return readPaidContent(options.abortSignal);
         },
       }),
     },
   });
 
   return result.toUIMessageStreamResponse();
+}
+
+async function readPaidContent(abortSignal: AbortSignal | undefined): Promise<PaidContentOutput> {
+  const endpointUrl = paidContentEndpoint();
+  const maxAmount = parseMaxAmount(process.env.X402_MAX_AMOUNT);
+  const client = createX402Client(maxAmount);
+
+  logPaidContentCall(endpointUrl, maxAmount);
+
+  const endpoint = await client.call(
+    endpointUrl,
+    {
+      method: "GET",
+    },
+    {
+      signal: abortSignal,
+      throwOnError: false,
+    },
+  );
+
+  if (endpoint.kind !== "success") {
+    return toPaidContentFailure(endpoint, endpointUrl, maxAmount);
+  }
+
+  return toLoggedPaidContentSuccess(endpoint, endpointUrl, maxAmount);
 }
 
 function createX402Client(maxAmount: bigint) {
@@ -145,10 +127,73 @@ function parseMaxAmount(value: string | undefined): bigint {
   return BigInt(value);
 }
 
+function logPaidContentCall(endpointUrl: string, maxAmount: bigint): void {
+  console.info("Calling Base Sepolia x402 paid-content endpoint.", {
+    endpoint: endpointUrl,
+    network,
+    maxAmount: maxAmount.toString(),
+  });
+}
+
+function toPaidContentFailure(
+  endpoint: Exclude<EndpointResult, { kind: "success" }>,
+  endpointUrl: string,
+  maxAmount: bigint,
+): PaidContentFailure {
+  console.warn("Base Sepolia x402 paid-content call failed.", {
+    endpoint: endpointUrl,
+    network,
+    maxAmount: maxAmount.toString(),
+    kind: endpoint.kind,
+    status: endpoint.status,
+  });
+
+  return {
+    ok: false,
+    reason: endpoint.kind,
+    status: endpoint.status,
+  };
+}
+
+function toLoggedPaidContentSuccess(
+  endpoint: Extract<EndpointResult, { kind: "success" }>,
+  endpointUrl: string,
+  maxAmount: bigint,
+): PaidContentSuccess {
+  const success = toPaidContentSuccess(endpoint);
+
+  console.info("Base Sepolia x402 paid-content call succeeded.", {
+    endpoint: endpointUrl,
+    network,
+    maxAmount: maxAmount.toString(),
+    status: endpoint.status,
+    hasTransactionHash: success.transactionHash !== undefined,
+  });
+
+  return success;
+}
+
 function toPaidContentSuccess(endpoint: Extract<EndpointResult, { kind: "success" }>) {
+  const transactionHash = getTransactionHash(endpoint.paymentResponse.transaction);
+
   return {
     ok: true as const,
     status: endpoint.status,
     body: endpoint.body,
+    ...(transactionHash === undefined ? {} : { transactionHash }),
   };
+}
+
+function getTransactionHash(transaction: unknown): string | undefined {
+  if (typeof transaction !== "string") {
+    return undefined;
+  }
+
+  const trimmedTransaction = transaction.trim();
+
+  if (trimmedTransaction.length === 0) {
+    return undefined;
+  }
+
+  return trimmedTransaction;
 }

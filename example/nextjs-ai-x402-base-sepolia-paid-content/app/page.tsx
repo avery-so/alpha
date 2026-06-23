@@ -8,6 +8,7 @@ interface PaidContentSuccess {
   ok: true;
   status: number;
   body: unknown;
+  transactionHash?: string;
 }
 
 interface PaidContentFailure {
@@ -134,6 +135,16 @@ function PaidContentToolPart({ output }: { output: PaidContentOutput | undefined
         <h2>readPaidContent</h2>
         <span className="tool-status">Succeeded · {output.status}</span>
       </header>
+      {output.transactionHash === undefined ? null : (
+        <a
+          className="transaction-link"
+          href={`https://sepolia.basescan.org/tx/${output.transactionHash}`}
+          rel="noreferrer"
+          target="_blank"
+        >
+          View transaction on BaseScan
+        </a>
+      )}
       <pre className="json-output">{formattedBody}</pre>
     </aside>
   );

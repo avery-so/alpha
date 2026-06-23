@@ -74,6 +74,8 @@ Expected result:
 - Server logs show the Base Sepolia endpoint, network, max amount, and status.
 - The UI renders a succeeded `readPaidContent` tool result with the returned
   JSON body.
+- When the SDK returns a transaction hash, the succeeded tool result includes a
+  BaseScan transaction link.
 - No private key, payment header, DeepSeek API key, or full payment metadata is
   printed.
 

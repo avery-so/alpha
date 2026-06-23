@@ -183,6 +183,29 @@ button:disabled {
   color: var(--danger);
 }
 
+.transaction-link {
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 8px;
+  color: var(--accent-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-decoration-color: rgb(20 108 92 / 42%);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.transaction-link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.transaction-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .json-output {
   max-height: 420px;
   margin: 0;
