@@ -11,7 +11,7 @@
     "lint": "oxlint --max-warnings=0",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm -r --workspace-concurrency=1 typecheck",
     "test": "pnpm -r test",
     "test:coverage": "pnpm --filter @averyso/alpha test:coverage",
     "build:sdk": "pnpm --filter @averyso/alpha build",
