@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
+    "build": "pnpm run build:workspace-sdk && next build",
+    "build:workspace-sdk": "pnpm --filter @averyso/alpha build",
+    "dev": "pnpm run build:workspace-sdk && next dev",
     "lint": "next lint",
     "start": "next start",
     "test": "echo \"No example tests configured.\"",
-    "typecheck": "tsc --project tsconfig.json --noEmit"
+    "typecheck": "pnpm run build:workspace-sdk && tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^2.0.39",

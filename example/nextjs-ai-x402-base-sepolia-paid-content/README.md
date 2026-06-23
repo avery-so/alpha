@@ -58,6 +58,10 @@ pnpm install
 pnpm --filter @averyso/example-nextjs-ai-x402-base-sepolia-paid-content dev
 ```
 
+This example uses pnpm workspace links for the local `@averyso/alpha` SDK. Run
+it with `pnpm`, not `npm`; the `dev`, `build`, and `typecheck` scripts build
+the workspace SDK before starting Next.js so the package export files exist.
+
 Open `http://localhost:3000` and send:
 
 ```txt
