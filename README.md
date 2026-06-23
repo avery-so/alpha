@@ -113,6 +113,9 @@ details.
 
 ## Examples
 
+- [`example/nextjs-ai-x402-base-sepolia-paid-content`](./example/nextjs-ai-x402-base-sepolia-paid-content):
+  Next.js and Vercel AI SDK example for DeepSeek reading Base Sepolia x402 paid
+  content.
 - [`example/nextjs-ai-x402-exa`](./example/nextjs-ai-x402-exa): Next.js and
   Vercel AI SDK example for x402-paid Exa search.
 - [`example/nextjs-mastra-x402-exa`](./example/nextjs-mastra-x402-exa): Next.js
