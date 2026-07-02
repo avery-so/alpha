@@ -17,11 +17,154 @@ import {
   X402Error,
   X402Networks,
   X402PaymentError,
+  WeiXinAIPayClient,
+  WeiXinAIPayConfigError,
+  buildWeiXinAIPayPreorderRequest,
+  encodeWeiXinAIPaymentRequired,
   resolveX402Network,
+  signWeiXinAIPayPreorder,
   x402MastraTool,
   x402tool,
 } from "@averyso/alpha";
 ```
+
+## `WeiXinAIPayClient`
+
+用于在 server runtime 中构建并发送 WeiXinAI Pay preorder 请求。
+
+```ts
+const client = new WeiXinAIPayClient({
+  developerId: process.env.WEIXIN_AI_DEVELOPER_ID!,
+  publicKeyId: process.env.WEIXIN_AI_PUBLIC_KEY_ID!,
+  privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
+});
+```
+
+构造函数签名：
+
+```ts
+new WeiXinAIPayClient(options);
+```
+
+`privateKey` 必须是 32 字节 SM2 私钥的 hex 字符串，可以带或不带 `0x`
+前缀。该私钥应只保存在服务端。
+
+### `WeiXinAIPayClientOptions`
+
+```ts
+interface WeiXinAIPayClientOptions {
+  developerId: string;
+  publicKeyId: string;
+  privateKey: string;
+  developerPlatform?: string;
+  fetch?: typeof fetch;
+  endpoint?: string;
+  logLevel?: LogLevel;
+  logger?: Logger;
+  signatureEncoding?: "der" | "raw";
+}
+```
+
+- `developerId`：WeiXinAI Pay developer identifier，会作为 `developer_id`
+  发送。
+- `publicKeyId`：WeiXinAI Pay public key identifier，会作为 `pub_key_id`
+  发送。
+- `privateKey`：本地签名使用的 SM2 私钥。
+- `developerPlatform`：会作为 `developer_platform` 发送，默认 `"WXPAY"`。
+- `fetch`：自定义 fetch 实现。如果没有传入且 `globalThis.fetch` 不存在，构造
+  函数会抛出 `WeiXinAIPayConfigError`。
+- `endpoint`：preorder 端点，默认
+  `https://payapp.weixin.qq.com/palmpayminiapp/clawagentpay/preorder`。
+- `logLevel`：默认 logger 的最低输出级别，默认 `"info"`。
+- `logger`：自定义诊断 logger，需要提供 `debug`、`info`、`warn`、`error`
+  方法。
+- `signatureEncoding`：默认 `"der"`。设置为 `"raw"` 时会发送 raw `r || s`
+  签名。
+
+### `preorder(paymentRequired, options?)`
+
+```ts
+const result = await client.preorder(
+  {
+    appid: "wx-miniapp",
+    mchid: "1900000109",
+    out_trade_no: "order-1001",
+    description: "AI agent request",
+    amount: {
+      total: 100,
+      currency: "CNY",
+    },
+  },
+  {
+    signal: abortController.signal,
+  },
+);
+
+result.paymentCode;
+result.rawResponse.payment_code;
+```
+
+```ts
+interface WeiXinAIPayPreorderOptions {
+  signal?: AbortSignal;
+  timestamp?: string;
+  nonceStr?: string;
+  developerPlatform?: string;
+  endpoint?: string;
+  signatureEncoding?: "der" | "raw";
+}
+
+interface WeiXinAIPayPreorderResult {
+  paymentCode: string;
+  rawResponse: {
+    payment_code: string;
+  };
+}
+```
+
+`timestamp` 默认是 Unix seconds 字符串。`nonceStr` 默认是 crypto-secure
+random hex string。请求会以 `POST` JSON 发送，并带上
+`Content-Type: application/json`。
+
+### Request Builder
+
+如果由其他 HTTP 层负责发送请求，可以直接使用底层 builder：
+
+```ts
+const body = buildWeiXinAIPayPreorderRequest(paymentRequired, {
+  developerId: process.env.WEIXIN_AI_DEVELOPER_ID!,
+  publicKeyId: process.env.WEIXIN_AI_PUBLIC_KEY_ID!,
+  privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
+  timestamp: "1735689600",
+  nonceStr: "abcdef0123456789abcdef0123456789",
+});
+```
+
+返回的 JSON body wire shape 如下：
+
+```ts
+interface WeiXinAIPayPreorderRequest {
+  signature_type: "WEIXINAIPAY-SM2-WITH-SM3";
+  developer_platform: string;
+  developer_id: string;
+  pub_key_id: string;
+  nonce_str: string;
+  timestamp: string;
+  signature: string;
+  payment_required: string;
+}
+```
+
+`encodeWeiXinAIPaymentRequired(value)` 会执行 `JSON.stringify(value)`，并将
+UTF-8 JSON bytes 做 Base64 编码。`signWeiXinAIPayPreorder(input, options)`
+严格使用 WeiXinAI 签名规则：
+
+```ts
+const signString = `${timestamp}\n${nonceStr}\n${paymentRequired}\n`;
+```
+
+SDK 会计算该字符串的 SM3 digest，用 SM2 对 digest 签名，并将签名字节做
+Base64 编码。
 
 ## `X402Client`
 
