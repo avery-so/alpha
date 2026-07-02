@@ -1,5 +1,12 @@
 # @averyso/alpha
 
+## 1.0.1
+
+### Patch Changes
+
+- d4c85d0: Support both legacy `kind` and current `paymentStatus` x402 processResponse result shapes.
+- f5e428f: Add a WeiXinAI Pay preorder client, request builder, SM2/SM3 signing helpers, and typed preorder response handling.
+
 ## 1.0.0
 
 ### Major Changes
