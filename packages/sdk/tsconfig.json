@@ -4,5 +4,5 @@
     "outDir": "dist",
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
-  "include": ["src", "test", "tsdown.config.ts", "vitest.config.ts"]
+  "include": ["src", "test", "types", "tsdown.config.ts", "vitest.config.ts"]
 }

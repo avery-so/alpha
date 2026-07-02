@@ -11,14 +11,16 @@
 [Support](./SUPPORT.md) |
 [Examples](#examples)
 
-Avery SDK is a TypeScript SDK for building capped x402 payment tools and direct
-x402 clients for server-side AI agents, published as `@averyso/alpha`.
+Avery SDK is a TypeScript SDK for building capped x402 payment tools, direct
+x402 clients, and server-side WeiXinAI Pay preorder requests for AI agents,
+published as `@averyso/alpha`.
 
 Use it to:
 
 - turn paid x402 endpoints into Vercel AI SDK-compatible tools with
   `x402tool()`;
 - call pay-per-request x402 HTTP resources directly with `X402Client.call()`;
+- create WeiXinAI Pay preorder requests with `WeiXinAIPayClient.preorder()`;
 - cap payment exposure per client, call, or tool with `maxAmount`;
 - keep EVM and Solana credentials, RPC URLs, and payment signing on the server.
 
@@ -34,6 +36,38 @@ signing with your configured wallet/private key, RPC URL, and target x402
 endpoint. Provider-side settlement may happen locally or through the provider's
 facilitator, but Avery SDK does not configure that path. You do not need an
 Avery account, Avery API key, Avery-hosted service, or registration.
+
+## WeiXinAI Pay Preorder
+
+Create a WeiXinAI Pay preorder request from your server:
+
+```ts
+import { WeiXinAIPayClient } from "@averyso/alpha";
+
+const client = new WeiXinAIPayClient({
+  developerId: process.env.WEIXIN_AI_DEVELOPER_ID!,
+  publicKeyId: process.env.WEIXIN_AI_PUBLIC_KEY_ID!,
+  privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
+});
+
+const preorder = await client.preorder({
+  appid: "wx-miniapp",
+  mchid: "1900000109",
+  out_trade_no: "order-1001",
+  description: "AI agent request",
+  amount: {
+    total: 100,
+    currency: "CNY",
+  },
+});
+
+console.log(preorder.paymentCode);
+```
+
+The SDK Base64-encodes the business JSON as `payment_required`, signs
+`timestamp + "\n" + nonce_str + "\n" + payment_required + "\n"` with SM2 over
+the SM3 digest, and posts the curl-equivalent JSON body to the WeiXinAI Pay
+preorder endpoint. The SM2 private key must stay server-side.
 
 ## Agent Payment Quick Start
 
@@ -124,7 +158,7 @@ details.
 ## CommonJS
 
 ```js
-const { X402Client, x402tool } = require("@averyso/alpha");
+const { WeiXinAIPayClient, X402Client, x402tool } = require("@averyso/alpha");
 ```
 
 ## Development

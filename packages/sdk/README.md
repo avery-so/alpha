@@ -1,7 +1,7 @@
 # @averyso/alpha
 
-Avery SDK is a TypeScript SDK for building capped x402 payment tools and direct
-x402 clients for server-side AI agents.
+Avery SDK is a TypeScript SDK for building capped x402 payment tools, direct
+x402 clients, and server-side WeiXinAI Pay preorder requests for AI agents.
 
 Use `@averyso/alpha` to turn x402-protected paid HTTP endpoints into safe,
 capped, model-callable tools for server-side AI agents. The same SDK also gives
@@ -13,6 +13,7 @@ Product pillars:
 - Agent-native tools for the Vercel AI SDK with `x402tool()`.
 - Mastra-compatible tools with `x402MastraTool()`.
 - Pay-per-request x402 HTTP access with `X402Client`.
+- WeiXinAI Pay preorder request signing with `WeiXinAIPayClient`.
 - Payment exposure control with `maxAmount`.
 - Server-side private key, RPC URL, and signing boundaries.
 - EVM and Solana network support.
@@ -29,6 +30,42 @@ signing with your configured wallet/private key, RPC URL, and target x402
 endpoint. Provider-side settlement may happen locally or through the provider's
 facilitator, but Avery SDK does not configure that path. You do not need an
 Avery account, Avery API key, Avery-hosted service, or registration.
+
+## WeiXinAI Pay Preorder
+
+Use `WeiXinAIPayClient` to create and send WeiXinAI Pay preorder requests from
+your server. The SDK builds the `payment_required` Base64 JSON payload, signs
+the WeiXinAI preorder string with SM2 over the SM3 digest, and posts the JSON
+body to the WeiXinAI Pay preorder endpoint.
+
+```ts
+import { WeiXinAIPayClient } from "@averyso/alpha";
+
+const client = new WeiXinAIPayClient({
+  developerId: process.env.WEIXIN_AI_DEVELOPER_ID!,
+  publicKeyId: process.env.WEIXIN_AI_PUBLIC_KEY_ID!,
+  privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
+});
+
+const preorder = await client.preorder({
+  appid: "wx-miniapp",
+  mchid: "1900000109",
+  out_trade_no: "order-1001",
+  description: "AI agent request",
+  amount: {
+    total: 100,
+    currency: "CNY",
+  },
+});
+
+console.log(preorder.paymentCode);
+```
+
+`privateKey` must be a 32-byte SM2 private key encoded as hex, with or without
+the `0x` prefix. The default endpoint is
+`https://payapp.weixin.qq.com/palmpayminiapp/clawagentpay/preorder`, and
+`developer_platform` defaults to `"WXPAY"`. Signatures are DER-encoded by
+default; set `signatureEncoding: "raw"` to emit raw `r || s` signatures.
 
 ## Agent Payment Tools
 
@@ -240,5 +277,5 @@ request, and expose the settlement response in
 ## CommonJS
 
 ```js
-const { X402Client, x402MastraTool, x402tool } = require("@averyso/alpha");
+const { WeiXinAIPayClient, X402Client, x402MastraTool, x402tool } = require("@averyso/alpha");
 ```

@@ -47,6 +47,12 @@
       }
     },
     {
+      "files": ["packages/sdk/types/**/*.d.ts"],
+      "rules": {
+        "max-params": "off"
+      }
+    },
+    {
       "files": [
         "example/nextjs-ai-x402-exa/**/*.ts",
         "example/nextjs-ai-x402-exa/**/*.tsx",
@@ -104,7 +110,7 @@
       }
     },
     {
-      "files": ["packages/sdk/src/x402/**/*.ts"],
+      "files": ["packages/sdk/src/x402/**/*.ts", "packages/sdk/src/weixin-ai-pay/**/*.ts"],
       "rules": {
         "func-style": "off",
         "import/consistent-type-specifier-style": "off",
@@ -123,7 +129,7 @@
       }
     },
     {
-      "files": ["packages/sdk/test/x402/**/*.ts"],
+      "files": ["packages/sdk/test/x402/**/*.ts", "packages/sdk/test/weixin-ai-pay/**/*.ts"],
       "rules": {
         "func-style": "off",
         "id-length": "off",

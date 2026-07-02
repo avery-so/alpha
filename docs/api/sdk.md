@@ -20,11 +20,152 @@ import {
   X402Error,
   X402Networks,
   X402PaymentError,
+  WeiXinAIPayClient,
+  WeiXinAIPayConfigError,
+  buildWeiXinAIPayPreorderRequest,
+  encodeWeiXinAIPaymentRequired,
   resolveX402Network,
+  signWeiXinAIPayPreorder,
   x402MastraTool,
   x402tool,
 } from "@averyso/alpha";
 ```
+
+## `WeiXinAIPayClient`
+
+Builds and sends WeiXinAI Pay preorder requests from a server runtime.
+
+```ts
+const client = new WeiXinAIPayClient({
+  developerId: process.env.WEIXIN_AI_DEVELOPER_ID!,
+  publicKeyId: process.env.WEIXIN_AI_PUBLIC_KEY_ID!,
+  privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
+});
+```
+
+Constructor signature:
+
+```ts
+new WeiXinAIPayClient(options);
+```
+
+`privateKey` must be a 32-byte SM2 private key encoded as hex, with or without
+the `0x` prefix. Keep this key server-side.
+
+### `WeiXinAIPayClientOptions`
+
+```ts
+interface WeiXinAIPayClientOptions {
+  developerId: string;
+  publicKeyId: string;
+  privateKey: string;
+  developerPlatform?: string;
+  fetch?: typeof fetch;
+  endpoint?: string;
+  logLevel?: LogLevel;
+  logger?: Logger;
+  signatureEncoding?: "der" | "raw";
+}
+```
+
+- `developerId`: WeiXinAI Pay developer identifier. Sent as `developer_id`.
+- `publicKeyId`: WeiXinAI Pay public key identifier. Sent as `pub_key_id`.
+- `privateKey`: SM2 private key used only for local signing.
+- `developerPlatform`: Sent as `developer_platform`. Defaults to `"WXPAY"`.
+- `fetch`: Custom fetch implementation. If neither this nor `globalThis.fetch`
+  is available, the constructor throws `WeiXinAIPayConfigError`.
+- `endpoint`: Preorder endpoint. Defaults to
+  `https://payapp.weixin.qq.com/palmpayminiapp/clawagentpay/preorder`.
+- `logLevel`: Minimum level for the default logger. Defaults to `"info"`.
+- `logger`: Custom diagnostic logger with `debug`, `info`, `warn`, and `error`
+  methods.
+- `signatureEncoding`: `"der"` by default. Set `"raw"` to send raw `r || s`
+  signatures.
+
+### `preorder(paymentRequired, options?)`
+
+```ts
+const result = await client.preorder(
+  {
+    appid: "wx-miniapp",
+    mchid: "1900000109",
+    out_trade_no: "order-1001",
+    description: "AI agent request",
+    amount: {
+      total: 100,
+      currency: "CNY",
+    },
+  },
+  {
+    signal: abortController.signal,
+  },
+);
+
+result.paymentCode;
+result.rawResponse.payment_code;
+```
+
+```ts
+interface WeiXinAIPayPreorderOptions {
+  signal?: AbortSignal;
+  timestamp?: string;
+  nonceStr?: string;
+  developerPlatform?: string;
+  endpoint?: string;
+  signatureEncoding?: "der" | "raw";
+}
+
+interface WeiXinAIPayPreorderResult {
+  paymentCode: string;
+  rawResponse: {
+    payment_code: string;
+  };
+}
+```
+
+`timestamp` defaults to Unix seconds as a string. `nonceStr` defaults to a
+crypto-secure random hex string. The request is sent as `POST` JSON with
+`Content-Type: application/json`.
+
+### Request Builder
+
+Use the lower-level builder when another HTTP layer sends the request:
+
+```ts
+const body = buildWeiXinAIPayPreorderRequest(paymentRequired, {
+  developerId: process.env.WEIXIN_AI_DEVELOPER_ID!,
+  publicKeyId: process.env.WEIXIN_AI_PUBLIC_KEY_ID!,
+  privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
+  timestamp: "1735689600",
+  nonceStr: "abcdef0123456789abcdef0123456789",
+});
+```
+
+The returned JSON body has this wire shape:
+
+```ts
+interface WeiXinAIPayPreorderRequest {
+  signature_type: "WEIXINAIPAY-SM2-WITH-SM3";
+  developer_platform: string;
+  developer_id: string;
+  pub_key_id: string;
+  nonce_str: string;
+  timestamp: string;
+  signature: string;
+  payment_required: string;
+}
+```
+
+`encodeWeiXinAIPaymentRequired(value)` runs `JSON.stringify(value)` and
+Base64-encodes the UTF-8 JSON bytes. `signWeiXinAIPayPreorder(input, options)`
+uses the WeiXinAI signing rule exactly:
+
+```ts
+const signString = `${timestamp}\n${nonceStr}\n${paymentRequired}\n`;
+```
+
+The SDK computes the SM3 digest of that string, signs the digest with SM2, and
+Base64-encodes the signature bytes.
 
 ## `X402Client`
 
