@@ -16,6 +16,8 @@ Product pillars:
 - Pay-per-request x402 HTTP access with `X402Client`.
 - WeiXinAI Pay preorder request signing with `WeiXinAIPayClient`.
 - Alipay AI pay-per-use (AI按量付费) merchant flows with `AlipayAIPayClient`.
+- Express, Hono, and Next.js route protection through one provider/direction
+  runtime.
 - Payment exposure control with `maxAmount`.
 - Server-side private key, RPC URL, and signing boundaries.
 - EVM and Solana network support.
@@ -115,6 +117,73 @@ RSA2 (SHA256withRSA); configure `alipayPublicKey` to also verify gateway
 response signatures. `verifyPayment` marks the result `verified` only when the
 credential is `active` and every `expect` field matches. Pass `appAuthToken`
 to call on behalf of a merchant as a third-party application.
+
+## Payment Middleware
+
+Create one reusable runtime for one provider and direction. This x402 inbound
+runtime uses an explicit facilitator and registers the official exact server
+scheme required by its routes:
+
+```ts
+import { createAlphaPayment } from "@averyso/alpha";
+
+export const payment = createAlphaPayment({
+  provider: "x402",
+  direction: "inbound",
+  facilitator: process.env.X402_FACILITATOR_URL!,
+  schemes: "auto",
+  routes: {
+    "GET /paid": {
+      accepts: {
+        scheme: "exact",
+        network: "base-sepolia",
+        price: "$0.01",
+        payTo: process.env.X402_PAY_TO!,
+      },
+    },
+  },
+});
+```
+
+Express:
+
+```ts
+import express from "express";
+import { alphaExpressMiddleware } from "@averyso/alpha/express";
+import { payment } from "./payment.js";
+
+const app = express();
+app.use(alphaExpressMiddleware(payment));
+app.get("/paid", (_req, res) => res.json({ data: "protected" }));
+```
+
+Hono:
+
+```ts
+import { Hono } from "hono";
+import { alphaHonoMiddleware } from "@averyso/alpha/hono";
+import { payment } from "./payment.js";
+
+const app = new Hono();
+app.use(alphaHonoMiddleware(payment));
+app.get("/paid", (c) => c.json({ data: "protected" }));
+```
+
+Next.js App Router:
+
+```ts
+import { withAlphaNext } from "@averyso/alpha/next";
+import { payment } from "@/server/payment";
+
+export const runtime = "nodejs";
+export const GET = withAlphaNext(payment, async () => Response.json({ data: "protected" }));
+```
+
+Alipay inbound handlers must use `withAlphaExpress()`, `withAlphaHono()`, or
+`withAlphaNext()` so the response remains buffered until fulfillment succeeds.
+Production Alipay deployments also require a persistent, atomic replay store.
+See the [Payment Middleware guide](https://alpha.avery.so/guide/payment-middleware)
+and [Middleware API reference](https://alpha.avery.so/api/middleware).
 
 ## Agent Payment Tools
 

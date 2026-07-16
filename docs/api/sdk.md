@@ -6,6 +6,10 @@ direct x402 paid HTTP calls.
 All public SDK APIs are exported from `@averyso/alpha`. Do not import from
 `packages/sdk/src/...` paths.
 
+Framework-neutral payment runtime types are exported from the same root entry.
+Express, Hono, and Next.js adapters use subpath exports documented in the
+[Middleware API reference](/api/middleware).
+
 No Avery account is required for payment features. The package is installed and
 imported as `@averyso/alpha`, but runtime payment execution uses local x402
 signing with your configured wallet/private key, RPC URL, and target x402

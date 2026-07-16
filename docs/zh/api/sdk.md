@@ -5,6 +5,9 @@
 所有公开 SDK API 都从 `@averyso/alpha` 导出。不要从
 `packages/sdk/src/...` 内部路径导入。
 
+Framework-neutral payment runtime 类型同样由根入口导出。Express、Hono 和
+Next.js adapter 使用独立 subpath，详见 [Middleware API 参考](/zh/api/middleware)。
+
 支付功能不需要 Avery 账号。包仍通过 `@averyso/alpha` 安装和导入，但运行时支付
 执行使用本地 x402 签名、你配置的钱包/私钥、RPC URL 和目标 x402 端点。Provider-side
 结算可能在本地完成，也可能通过 provider 的 facilitator 完成，但 Avery SDK 不配置

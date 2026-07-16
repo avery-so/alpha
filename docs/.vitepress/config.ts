@@ -104,6 +104,7 @@ const rootSidebar = [
       {
         text: "Integrations",
         items: [
+          { text: "Payment Middleware", link: "/guide/payment-middleware" },
           { text: "Next.js App Router", link: "/guide/nextjs-app-router" },
           { text: "Mastra", link: "/guide/mastra" },
         ],
@@ -129,7 +130,10 @@ const rootSidebar = [
   },
   {
     text: "API Reference",
-    items: [{ text: "SDK API", link: "/api/sdk" }],
+    items: [
+      { text: "SDK API", link: "/api/sdk" },
+      { text: "Middleware API", link: "/api/middleware" },
+    ],
   },
 ];
 
@@ -149,6 +153,7 @@ const zhSidebar = [
       {
         text: "集成",
         items: [
+          { text: "支付 Middleware", link: "/zh/guide/payment-middleware" },
           { text: "Next.js App Router", link: "/zh/guide/nextjs-app-router" },
           { text: "Mastra", link: "/zh/guide/mastra" },
         ],
@@ -174,7 +179,10 @@ const zhSidebar = [
   },
   {
     text: "API 参考",
-    items: [{ text: "SDK API", link: "/zh/api/sdk" }],
+    items: [
+      { text: "SDK API", link: "/zh/api/sdk" },
+      { text: "Middleware API", link: "/zh/api/middleware" },
+    ],
   },
 ];
 

@@ -24,6 +24,8 @@ Use it to:
 - run the Alipay AI pay-per-use (AI按量付费) merchant flow with
   `AlipayAIPayClient` — signed 402 `Payment-Needed` bills, `Payment-Proof`
   verification, and fulfillment confirmation;
+- protect Express, Hono, and Next.js routes with one provider/direction payment
+  runtime;
 - cap payment exposure per client, call, or tool with `maxAmount`;
 - keep EVM and Solana credentials, RPC URLs, and payment signing on the server.
 
@@ -114,6 +116,73 @@ if (verification.verified) {
 Bills and gateway requests are signed locally with your application RSA
 private key (RSA2 / SHA256withRSA); when `alipayPublicKey` is set, gateway
 response signatures are verified too. Keys must stay server-side.
+
+## Payment Middleware
+
+Create one reusable runtime for one provider and direction. This x402 inbound
+runtime uses an explicit facilitator and registers the official exact server
+scheme required by its routes:
+
+```ts
+import { createAlphaPayment } from "@averyso/alpha";
+
+export const payment = createAlphaPayment({
+  provider: "x402",
+  direction: "inbound",
+  facilitator: process.env.X402_FACILITATOR_URL!,
+  schemes: "auto",
+  routes: {
+    "GET /paid": {
+      accepts: {
+        scheme: "exact",
+        network: "base-sepolia",
+        price: "$0.01",
+        payTo: process.env.X402_PAY_TO!,
+      },
+    },
+  },
+});
+```
+
+Express:
+
+```ts
+import express from "express";
+import { alphaExpressMiddleware } from "@averyso/alpha/express";
+import { payment } from "./payment.js";
+
+const app = express();
+app.use(alphaExpressMiddleware(payment));
+app.get("/paid", (_req, res) => res.json({ data: "protected" }));
+```
+
+Hono:
+
+```ts
+import { Hono } from "hono";
+import { alphaHonoMiddleware } from "@averyso/alpha/hono";
+import { payment } from "./payment.js";
+
+const app = new Hono();
+app.use(alphaHonoMiddleware(payment));
+app.get("/paid", (c) => c.json({ data: "protected" }));
+```
+
+Next.js App Router:
+
+```ts
+import { withAlphaNext } from "@averyso/alpha/next";
+import { payment } from "@/server/payment";
+
+export const runtime = "nodejs";
+export const GET = withAlphaNext(payment, async () => Response.json({ data: "protected" }));
+```
+
+Alipay inbound handlers must use `withAlphaExpress()`, `withAlphaHono()`, or
+`withAlphaNext()` so the response remains buffered until fulfillment succeeds.
+Production Alipay deployments also require a persistent, atomic replay store.
+See the [Payment Middleware guide](./docs/guide/payment-middleware.md) and
+[Middleware API reference](./docs/api/middleware.md).
 
 ## Agent Payment Quick Start
 
