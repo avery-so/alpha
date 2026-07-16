@@ -113,10 +113,12 @@
       "files": [
         "packages/sdk/src/x402/**/*.ts",
         "packages/sdk/src/weixin-ai-pay/**/*.ts",
-        "packages/sdk/src/alipay-ai-pay/**/*.ts"
+        "packages/sdk/src/alipay-ai-pay/**/*.ts",
+        "packages/sdk/src/middleware/**/*.ts"
       ],
       "rules": {
         "func-style": "off",
+        "init-declarations": "off",
         "import/consistent-type-specifier-style": "off",
         "import/exports-last": "off",
         "import/max-dependencies": "off",
@@ -126,6 +128,7 @@
         "max-params": "off",
         "max-statements": "off",
         "new-cap": "off",
+        "no-await-in-loop": "off",
         "no-continue": "off",
         "no-ternary": "off",
         "typescript/consistent-type-definitions": "off",
@@ -138,7 +141,8 @@
       "files": [
         "packages/sdk/test/x402/**/*.ts",
         "packages/sdk/test/weixin-ai-pay/**/*.ts",
-        "packages/sdk/test/alipay-ai-pay/**/*.ts"
+        "packages/sdk/test/alipay-ai-pay/**/*.ts",
+        "packages/sdk/test/middleware/**/*.ts"
       ],
       "rules": {
         "func-style": "off",
