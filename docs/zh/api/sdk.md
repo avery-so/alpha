@@ -12,6 +12,8 @@
 
 ```ts
 import {
+  AlipayAIPayClient,
+  AlipayAIPayConfigError,
   X402Client,
   X402ConfigError,
   X402Error,
@@ -19,8 +21,10 @@ import {
   X402PaymentError,
   WeiXinAIPayClient,
   WeiXinAIPayConfigError,
+  buildAlipayAIPayPaymentNeededHeader,
   buildWeiXinAIPayPreorderRequest,
   encodeWeiXinAIPaymentRequired,
+  parseAlipayAIPayPaymentProofHeader,
   resolveX402Network,
   signWeiXinAIPayPreorder,
   x402MastraTool,
@@ -165,6 +169,167 @@ const signString = `${timestamp}\n${nonceStr}\n${paymentRequired}\n`;
 
 SDK 会计算该字符串的 SM3 digest，用 SM2 对 digest 签名，并将签名字节做
 Base64 编码。
+
+## `AlipayAIPayClient`
+
+实现支付宝 AI 按量付费（Alipay Agent 支付的基于 402 的 A2M 方案）的商家侧
+流程：为 `402 Payment Required` 响应构建带签名的 `Payment-Needed` 账单、通过
+支付宝 OpenAPI 网关验证 `Payment-Proof` 支付凭证，并在资源交付后发送履约
+回执。
+
+```ts
+const client = new AlipayAIPayClient({
+  appId: process.env.ALIPAY_APP_ID!,
+  privateKey: process.env.ALIPAY_APP_PRIVATE_KEY!,
+  alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY,
+});
+```
+
+`privateKey` 是支付宝应用 RSA 私钥，可以是 PEM 字符串，也可以是从支付宝
+控制台复制的裸 Base64 PKCS#8/PKCS#1 内容（也接受 Node `KeyObject`）。该私钥
+应只保存在服务端。
+
+### `AlipayAIPayClientOptions`
+
+```ts
+interface AlipayAIPayClientOptions {
+  appId: string;
+  privateKey: string | KeyObject;
+  alipayPublicKey?: string | KeyObject;
+  appAuthToken?: string;
+  gatewayEndpoint?: string;
+  fetch?: typeof fetch;
+  logLevel?: LogLevel;
+  logger?: Logger;
+}
+```
+
+- `appId`：支付宝应用 ID。会作为 `app_id` 发送，同时是 `Payment-Needed`
+  账单中 `seller_app_id` 的默认值。
+- `privateKey`：应用 RSA 私钥，用于账单和网关请求的 RSA2（SHA256withRSA）
+  签名。
+- `alipayPublicKey`：支付宝公钥。提供后会验证网关响应签名，验签失败抛出
+  `AlipayAIPayResponseError`。
+- `appAuthToken`：第三方代调用的授权 token，会作为 `app_auth_token` 发送。
+- `gatewayEndpoint`：支付宝 OpenAPI 网关，默认
+  `https://openapi.alipay.com/gateway.do`。
+- `fetch`、`logLevel`、`logger`：语义与其他 client 一致。
+
+### `buildPaymentNeededHeader(input)`
+
+为 `402 Payment Required` 响应构建 Base64URL（无 padding）编码的
+`Payment-Needed` header。账单中的 `seller_signature` 是对 `amount`、
+`currency`、`goods_name`、`out_trade_no`、`pay_before`、`resource_id`、
+`seller_id`、`service_id` 按 key 字典序拼接 `key=value&...` 后的 RSA2 签名。
+加签只在本地完成，不会请求支付宝服务端。
+
+```ts
+const { header, paymentNeeded } = client.buildPaymentNeededHeader({
+  outTradeNo: "ORDER_1739836600000_abc123",
+  amount: "0.01",
+  resourceId: "/market/antgroup/trend",
+  payBefore: "2026-03-25T12:00:00+08:00",
+  sellerId: "2088123456789012",
+  sellerName: "测试商家",
+  goodsName: "AI 生成内容服务",
+  serviceId: "service_ai_content_001",
+});
+
+// 返回 HTTP 402，并设置 `Payment-Needed: ${header}`
+```
+
+`currency` 默认 `"CNY"`，`seller_unique_id_key` 固定为 `"seller_id"`，
+`sellerAppId` 默认使用 client 的 `appId`（第三方代调用时需显式传入三方应用的
+app_id）。
+
+### `parsePaymentProofHeader(header)`
+
+解码 `Payment-Proof` 请求头（标准 Base64 或 Base64URL，带不带 padding 均可）
+并校验分层结构。
+
+```ts
+const proof = client.parsePaymentProofHeader(request.headers["payment-proof"]);
+
+proof.paymentProof; // protocol.payment_proof
+proof.tradeNo; // protocol.trade_no
+proof.clientSession; // method.client_session，可选
+```
+
+格式非法时抛出 `AlipayAIPayRequestError`。
+
+### `verifyPayment(input, options?)`
+
+发送签名后的网关请求调用 `alipay.aipay.agent.payment.verify`。可以直接传入
+解析后的 `Payment-Proof` 对象。
+
+```ts
+const result = await client.verifyPayment(proof, {
+  expect: {
+    amount: "0.01",
+    outTradeNo: order.outTradeNo,
+    resourceId: "/market/antgroup/trend",
+  },
+});
+
+if (!result.verified) {
+  // 返回新的 402 Payment-Needed 账单
+}
+```
+
+```ts
+interface AlipayAIPayVerifyPaymentOptions {
+  signal?: AbortSignal;
+  timestamp?: string;
+  gatewayEndpoint?: string;
+  appAuthToken?: string;
+  expect?: {
+    amount?: string;
+    outTradeNo?: string;
+    resourceId?: string;
+  };
+}
+
+interface AlipayAIPayPaymentVerifyResult {
+  active: boolean;
+  amount: string;
+  outTradeNo: string;
+  resourceId: string;
+  tradeNo: string;
+  verified: boolean;
+  mismatches: string[];
+  rawResponse: AlipayAIPayPaymentVerifyWireResponse;
+}
+```
+
+只有当 `active` 为 `true` 且提供的每个 `expect` 字段都与网关响应一致时，
+`verified` 才为 `true`（`expect` 按字符串精确比较）。业务失败（例如
+`PAYMENT_PROOF_NOT_FOUND`）会抛出 `AlipayAIPayResponseError`，`details` 中
+带有 `code`、`subCode`、`subMsg`。`trade_no` 的防重复履约仍需由商家侧
+持久化保证。
+
+### `confirmFulfillment(tradeNo, options?)`
+
+资源交付后调用 `alipay.aipay.agent.fulfillment.confirm`。可以直接传交易号
+字符串，也可以传 `{ tradeNo }`。
+
+```ts
+await client.confirmFulfillment(result.tradeNo);
+```
+
+### Request Builders
+
+如果由其他 HTTP 层负责发送网关请求，可以使用底层 helper：
+`buildAlipayAIPayGatewayRequest()` 为任意 OpenAPI method 返回签名后的表单
+参数、body 和 sign content；`signAlipayAIPayBill()` 和
+`alipayAIPayBillSignContent()` 暴露账单加签；
+`parseAlipayAIPayGatewayResponse()` 解析并按需验签网关 `Response`；
+`alipayAIPayGatewayTimestamp()` 生成网关要求的 UTC+8
+`yyyy-MM-dd HH:mm:ss` 时间戳。
+
+错误类型与其他 client 保持同样的层级：`AlipayAIPayError` 是基类，
+`AlipayAIPayConfigError` 覆盖配置和密钥错误，`AlipayAIPayRequestError` 覆盖
+请求构建和传输失败，`AlipayAIPayResponseError` 携带 HTTP `status` 以及网关
+`code`/`sub_code` 详情。
 
 ## `X402Client`
 
@@ -710,5 +875,5 @@ friendly name 和不支持的原始 Solana CAIP-2 值会抛出 `X402ConfigError`
 包也支持 CommonJS 使用方式：
 
 ```js
-const { X402Client, x402tool } = require("@averyso/alpha");
+const { AlipayAIPayClient, X402Client, x402tool } = require("@averyso/alpha");
 ```
