@@ -15,10 +15,10 @@
     "@ai-sdk/gateway": "^3.0.127",
     "@ai-sdk/react": "^3.0.201",
     "@averyso/alpha": "workspace:*",
-    "@mastra/ai-sdk": "^1.4.4",
-    "@mastra/core": "^1.41.0",
+    "@mastra/ai-sdk": "^1.6.2",
+    "@mastra/core": "^1.51.0",
     "ai": "^6.0.199",
-    "next": "^16.2.9",
+    "next": "^16.2.10",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "zod": "^4.4.3"
