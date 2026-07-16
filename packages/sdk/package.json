@@ -113,17 +113,17 @@
     "viem": "^2.52.2"
   },
   "devDependencies": {
-    "@arethetypeswrong/core": "^0.18.3",
+    "@arethetypeswrong/core": "^0.18.5",
     "@types/express": "^5.0.6",
     "@vitest/coverage-v8": "^3.2.4",
     "ai": "^6.0.199",
     "express": "^5.2.1",
-    "hono": "^4.12.25",
+    "hono": "^4.12.30",
     "next": "^16.2.9",
     "publint": "^0.3.21",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "tsdown": "^0.22.2",
+    "tsdown": "^0.22.8",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
