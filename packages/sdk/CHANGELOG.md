@@ -1,5 +1,12 @@
 # @averyso/alpha
 
+## 1.1.0
+
+### Minor Changes
+
+- 9aaec11: Add an Alipay AI pay-per-use (AI 按量付费) merchant client with signed 402 Payment-Needed bill building, Payment-Proof parsing, payment verification, fulfillment confirmation, RSA2 signing helpers, and optional gateway response signature verification.
+- 82c7555: Add a unified provider and direction payment runtime with x402 inbound and outbound support, Alipay inbound fulfillment and replay protection, WeiXin outbound contexts, and Express, Hono, and Next.js framework adapters.
+
 ## 1.0.1
 
 ### Patch Changes
