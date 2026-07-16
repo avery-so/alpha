@@ -15,6 +15,8 @@ Avery account, Avery API key, Avery-hosted service, or registration.
 
 ```ts
 import {
+  AlipayAIPayClient,
+  AlipayAIPayConfigError,
   X402Client,
   X402ConfigError,
   X402Error,
@@ -22,8 +24,10 @@ import {
   X402PaymentError,
   WeiXinAIPayClient,
   WeiXinAIPayConfigError,
+  buildAlipayAIPayPaymentNeededHeader,
   buildWeiXinAIPayPreorderRequest,
   encodeWeiXinAIPaymentRequired,
+  parseAlipayAIPayPaymentProofHeader,
   resolveX402Network,
   signWeiXinAIPayPreorder,
   x402MastraTool,
@@ -166,6 +170,172 @@ const signString = `${timestamp}\n${nonceStr}\n${paymentRequired}\n`;
 
 The SDK computes the SM3 digest of that string, signs the digest with SM2, and
 Base64-encodes the signature bytes.
+
+## `AlipayAIPayClient`
+
+Implements the merchant side of Alipay AI pay-per-use (AI按量付费), the
+402-based A2M flow of Alipay Agent Payment: build the signed `Payment-Needed`
+bill for `402 Payment Required` responses, verify `Payment-Proof` credentials
+through the Alipay OpenAPI gateway, and confirm fulfillment after delivering
+the resource.
+
+```ts
+const client = new AlipayAIPayClient({
+  appId: process.env.ALIPAY_APP_ID!,
+  privateKey: process.env.ALIPAY_APP_PRIVATE_KEY!,
+  alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY,
+});
+```
+
+`privateKey` is the Alipay application RSA private key, as a PEM string or the
+bare Base64 PKCS#8/PKCS#1 body copied from the Alipay console (a Node
+`KeyObject` is also accepted). Keep it server-side.
+
+### `AlipayAIPayClientOptions`
+
+```ts
+interface AlipayAIPayClientOptions {
+  appId: string;
+  privateKey: string | KeyObject;
+  alipayPublicKey?: string | KeyObject;
+  appAuthToken?: string;
+  gatewayEndpoint?: string;
+  fetch?: typeof fetch;
+  logLevel?: LogLevel;
+  logger?: Logger;
+}
+```
+
+- `appId`: Alipay application ID. Sent as `app_id` and used as the default
+  `seller_app_id` in `Payment-Needed` bills.
+- `privateKey`: Application RSA private key used for RSA2 (SHA256withRSA)
+  signing of bills and gateway requests.
+- `alipayPublicKey`: Alipay public key. When provided, gateway response
+  signatures are verified and a failed verification throws
+  `AlipayAIPayResponseError`.
+- `appAuthToken`: Third-party agent authorization token. Sent as
+  `app_auth_token` when calling on behalf of a merchant.
+- `gatewayEndpoint`: Alipay OpenAPI gateway. Defaults to
+  `https://openapi.alipay.com/gateway.do`.
+- `fetch`, `logLevel`, `logger`: Same semantics as the other clients.
+
+### `buildPaymentNeededHeader(input)`
+
+Builds the Base64URL-encoded (unpadded) `Payment-Needed` header for a
+`402 Payment Required` response. The bill's `seller_signature` is an RSA2
+signature over the sorted `key=value&...` string of `amount`, `currency`,
+`goods_name`, `out_trade_no`, `pay_before`, `resource_id`, `seller_id`, and
+`service_id`. Signing happens locally; no gateway call is made.
+
+```ts
+const { header, paymentNeeded } = client.buildPaymentNeededHeader({
+  outTradeNo: "ORDER_1739836600000_abc123",
+  amount: "0.01",
+  resourceId: "/market/antgroup/trend",
+  payBefore: "2026-03-25T12:00:00+08:00",
+  sellerId: "2088123456789012",
+  sellerName: "Demo Seller",
+  goodsName: "AI content",
+  serviceId: "service_ai_content_001",
+});
+
+// respond with HTTP 402 and `Payment-Needed: ${header}`
+```
+
+`currency` defaults to `"CNY"`, `seller_unique_id_key` is always
+`"seller_id"`, and `sellerAppId` defaults to the client `appId` (set it
+explicitly when calling as a third-party application).
+
+### `parsePaymentProofHeader(header)`
+
+Decodes the `Payment-Proof` request header (standard Base64 or Base64URL,
+padded or not) and validates the layered payload.
+
+```ts
+const proof = client.parsePaymentProofHeader(request.headers["payment-proof"]);
+
+proof.paymentProof; // protocol.payment_proof
+proof.tradeNo; // protocol.trade_no
+proof.clientSession; // method.client_session, optional
+```
+
+Malformed headers throw `AlipayAIPayRequestError`.
+
+### `verifyPayment(input, options?)`
+
+Calls `alipay.aipay.agent.payment.verify` with a signed gateway request. The
+parsed `Payment-Proof` object can be passed directly.
+
+```ts
+const result = await client.verifyPayment(proof, {
+  expect: {
+    amount: "0.01",
+    outTradeNo: order.outTradeNo,
+    resourceId: "/market/antgroup/trend",
+  },
+});
+
+if (!result.verified) {
+  // respond with a fresh 402 Payment-Needed bill
+}
+```
+
+```ts
+interface AlipayAIPayVerifyPaymentOptions {
+  signal?: AbortSignal;
+  timestamp?: string;
+  gatewayEndpoint?: string;
+  appAuthToken?: string;
+  expect?: {
+    amount?: string;
+    outTradeNo?: string;
+    resourceId?: string;
+  };
+}
+
+interface AlipayAIPayPaymentVerifyResult {
+  active: boolean;
+  amount: string;
+  outTradeNo: string;
+  resourceId: string;
+  tradeNo: string;
+  verified: boolean;
+  mismatches: string[];
+  rawResponse: AlipayAIPayPaymentVerifyWireResponse;
+}
+```
+
+`verified` is `true` only when `active` is `true` and every provided `expect`
+field matches the gateway response (`expect` values are compared as exact
+strings). Business failures such as `PAYMENT_PROOF_NOT_FOUND` throw
+`AlipayAIPayResponseError` with `code`, `subCode`, and `subMsg` in `details`.
+Deduplicating `trade_no` against replayed fulfillment stays your
+responsibility.
+
+### `confirmFulfillment(tradeNo, options?)`
+
+Calls `alipay.aipay.agent.fulfillment.confirm` after the resource has been
+delivered. Accepts the trade number directly or as `{ tradeNo }`.
+
+```ts
+await client.confirmFulfillment(result.tradeNo);
+```
+
+### Request Builders
+
+When another HTTP layer sends the gateway call, use the lower-level helpers:
+`buildAlipayAIPayGatewayRequest()` returns the signed form parameters, body,
+and sign content for any OpenAPI method; `signAlipayAIPayBill()` and
+`alipayAIPayBillSignContent()` expose bill signing;
+`parseAlipayAIPayGatewayResponse()` parses and optionally signature-verifies a
+gateway `Response`. `alipayAIPayGatewayTimestamp()` renders the UTC+8
+`yyyy-MM-dd HH:mm:ss` timestamp the gateway expects.
+
+Errors follow the same family layout as the other clients:
+`AlipayAIPayError` is the base class, `AlipayAIPayConfigError` covers invalid
+configuration and keys, `AlipayAIPayRequestError` covers request building and
+transport failures, and `AlipayAIPayResponseError` carries the HTTP `status`
+plus gateway `code`/`sub_code` details.
 
 ## `X402Client`
 
@@ -741,5 +911,5 @@ results include a `paymentResponse: SettleResponse`.
 The package also supports CommonJS consumers:
 
 ```js
-const { X402Client, x402tool } = require("@averyso/alpha");
+const { AlipayAIPayClient, X402Client, x402tool } = require("@averyso/alpha");
 ```

@@ -1,7 +1,8 @@
 # @averyso/alpha
 
 Avery SDK is a TypeScript SDK for building capped x402 payment tools, direct
-x402 clients, and server-side WeiXinAI Pay preorder requests for AI agents.
+x402 clients, and server-side WeiXinAI Pay and Alipay AI pay-per-use flows for
+AI agents.
 
 Use `@averyso/alpha` to turn x402-protected paid HTTP endpoints into safe,
 capped, model-callable tools for server-side AI agents. The same SDK also gives
@@ -14,6 +15,7 @@ Product pillars:
 - Mastra-compatible tools with `x402MastraTool()`.
 - Pay-per-request x402 HTTP access with `X402Client`.
 - WeiXinAI Pay preorder request signing with `WeiXinAIPayClient`.
+- Alipay AI pay-per-use (AI按量付费) merchant flows with `AlipayAIPayClient`.
 - Payment exposure control with `maxAmount`.
 - Server-side private key, RPC URL, and signing boundaries.
 - EVM and Solana network support.
@@ -66,6 +68,53 @@ the `0x` prefix. The default endpoint is
 `https://payapp.weixin.qq.com/palmpayminiapp/clawagentpay/preorder`, and
 `developer_platform` defaults to `"WXPAY"`. Signatures are DER-encoded by
 default; set `signatureEncoding: "raw"` to emit raw `r || s` signatures.
+
+## Alipay AI Pay-Per-Use
+
+Use `AlipayAIPayClient` to run the merchant side of Alipay AI pay-per-use
+(AI按量付费): build the signed `Payment-Needed` bill for `402 Payment
+Required` responses, verify `Payment-Proof` credentials through
+`alipay.aipay.agent.payment.verify`, and confirm fulfillment through
+`alipay.aipay.agent.fulfillment.confirm`.
+
+```ts
+import { AlipayAIPayClient } from "@averyso/alpha";
+
+const alipay = new AlipayAIPayClient({
+  appId: process.env.ALIPAY_APP_ID!,
+  privateKey: process.env.ALIPAY_APP_PRIVATE_KEY!,
+  alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY,
+});
+
+// 402 response bill
+const { header } = alipay.buildPaymentNeededHeader({
+  outTradeNo: "ORDER_1739836600000_abc123",
+  amount: "0.01",
+  resourceId: "/market/antgroup/trend",
+  payBefore: "2026-03-25T12:00:00+08:00",
+  sellerId: "2088123456789012",
+  sellerName: "Demo Seller",
+  goodsName: "AI content",
+  serviceId: "service_ai_content_001",
+});
+
+// paid retry
+const proof = alipay.parsePaymentProofHeader(paymentProofHeader);
+const verification = await alipay.verifyPayment(proof, {
+  expect: { amount: "0.01", resourceId: "/market/antgroup/trend" },
+});
+
+if (verification.verified) {
+  await alipay.confirmFulfillment(verification.tradeNo);
+}
+```
+
+`privateKey` is the Alipay application RSA private key (PEM or the bare Base64
+key body from the Alipay console). Bills and gateway requests are signed with
+RSA2 (SHA256withRSA); configure `alipayPublicKey` to also verify gateway
+response signatures. `verifyPayment` marks the result `verified` only when the
+credential is `active` and every `expect` field matches. Pass `appAuthToken`
+to call on behalf of a merchant as a third-party application.
 
 ## Agent Payment Tools
 
@@ -277,5 +326,11 @@ request, and expose the settlement response in
 ## CommonJS
 
 ```js
-const { WeiXinAIPayClient, X402Client, x402MastraTool, x402tool } = require("@averyso/alpha");
+const {
+  AlipayAIPayClient,
+  WeiXinAIPayClient,
+  X402Client,
+  x402MastraTool,
+  x402tool,
+} = require("@averyso/alpha");
 ```
