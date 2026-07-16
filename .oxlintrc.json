@@ -151,6 +151,8 @@
         "max-lines": "off",
         "no-duplicate-imports": "off",
         "no-ternary": "off",
+        "promise/avoid-new": "off",
+        "promise/prefer-await-to-callbacks": "off",
         "require-await": "off"
       }
     }

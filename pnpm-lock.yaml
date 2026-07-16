@@ -303,9 +303,18 @@ importers:
       '@x402/evm':
         specifier: ^2.14.0
         version: 2.14.0(typescript@5.9.3)
+      '@x402/express':
+        specifier: 2.14.0
+        version: 2.14.0(express@5.2.1)(typescript@5.9.3)
       '@x402/fetch':
         specifier: ^2.14.0
         version: 2.14.0
+      '@x402/hono':
+        specifier: 2.14.0
+        version: 2.14.0(hono@4.12.25)(typescript@5.9.3)
+      '@x402/next':
+        specifier: 2.14.0
+        version: 2.14.0(next@16.2.9(@opentelemetry/api@1.9.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.9.3)
       '@x402/svm':
         specifier: ^2.14.0
         version: 2.14.0(@solana/kit@6.9.0(typescript@5.9.3))(@solana/sysvars@6.9.0(typescript@5.9.3))
@@ -319,15 +328,33 @@ importers:
       '@arethetypeswrong/core':
         specifier: ^0.18.3
         version: 0.18.3
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@vitest/coverage-v8':
         specifier: ^3.2.4
         version: 3.2.6(vitest@3.2.6(@types/debug@4.1.13)(@types/node@24.13.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
       ai:
         specifier: ^6.0.199
         version: 6.0.199(zod@4.4.3)
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
+      hono:
+        specifier: ^4.12.25
+        version: 4.12.25
+      next:
+        specifier: ^16.2.9
+        version: 16.2.9(@opentelemetry/api@1.9.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       publint:
         specifier: ^0.3.21
         version: 0.3.21
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
       tsdown:
         specifier: ^0.22.2
         version: 0.22.2(@arethetypeswrong/core@0.18.3)(publint@0.3.21)(typescript@5.9.3)
@@ -1882,6 +1909,20 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
+  '@signinwithethereum/siwe-parser@4.2.0':
+    resolution: {integrity: sha512-e3edh8XpZrEjbzVYc0BZ4ySFOa8RKTZOQTafSf1E6ejCB5XcBH93jEpYmjzry1EEocgMNq4KlB3YunsFNCXakQ==}
+
+  '@signinwithethereum/siwe@4.2.0':
+    resolution: {integrity: sha512-6W+oyKgMFUZRJI4o9P9mTMzrokkXfu3tq1/CfOJj9QrMqyPqujJqv1xnxUAqDQwWVyCA8TMg0Fxk/+gXrDg2Nw==}
+    peerDependencies:
+      ethers: ^5.7.0 || ^6.13.0
+      viem: ^2.7.0
+    peerDependenciesMeta:
+      ethers:
+        optional: true
+      viem:
+        optional: true
+
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
@@ -2434,8 +2475,14 @@ packages:
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
 
+  '@types/body-parser@1.19.6':
+    resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
+
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
+
+  '@types/connect@3.4.38':
+    resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
   '@types/conventional-commits-parser@5.0.2':
     resolution: {integrity: sha512-BgT2szDXnVypgpNxOK8aL5SGjUdaQbC++WZNjF1Qge3Og2+zhHj+RWhmehLhYyvQwqAmvezruVfOf8+3m74W+g==}
@@ -2449,8 +2496,17 @@ packages:
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
+  '@types/express-serve-static-core@5.1.2':
+    resolution: {integrity: sha512-d3KvEXBSo/lOAMc2u6fkyDHBvetBHeqD7wm/AcXfLpSOQwlmG9D/aQ0SFswVjv05p7ullQS7Mjohj6/VdbZuTg==}
+
+  '@types/express@5.0.6':
+    resolution: {integrity: sha512-sKYVuV7Sv9fbPIt/442koC7+IIwK5olP1KWeD88e/idgoJqDm3JV/YUiPwkoKK92ylff2MGxSz1CSjsXelx0YA==}
+
   '@types/hast@3.0.4':
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
+
+  '@types/http-errors@2.0.5':
+    resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
 
   '@types/jsesc@2.5.1':
     resolution: {integrity: sha512-9VN+6yxLOPLOav+7PwjZbxiID2bVaeq0ED4qSQmdQTdjnXJSaCVKTR58t15oqH1H5t8Ng2ZX1SabJVoN9Q34bw==}
@@ -2476,6 +2532,12 @@ packages:
   '@types/node@24.13.1':
     resolution: {integrity: sha512-RSpUJGmvsJ1ZeBehQZFhIdpsz+bIpES0nIQXko4Ybq+N+kX6XvOq3Jo+iJ82FWLdblFq85AsMikd3m35jgezYg==}
 
+  '@types/qs@6.15.1':
+    resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
+
+  '@types/range-parser@1.2.7':
+    resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
+
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
@@ -2483,6 +2545,12 @@ packages:
 
   '@types/react@19.2.17':
     resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
+
+  '@types/send@1.2.1':
+    resolution: {integrity: sha512-arsCikDvlU99zl1g69TcAB3mzZPpxgw0UQnaHeC1Nwb015xp8bknZv5rIfri9xTOcMuaVgvabfIRA7PSZVuZIQ==}
+
+  '@types/serve-static@2.2.0':
+    resolution: {integrity: sha512-8mam4H1NHLtu7nmtalF7eyBH14QyOASmcxHhSfEoRyr0nP/YdoesEtU+uSRvMe96TW/HPTtkoKqQLl53N7UXMQ==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -2652,8 +2720,38 @@ packages:
   '@x402/evm@2.14.0':
     resolution: {integrity: sha512-Qrm0+hN1gMK1vrX4vW4sdcx5txYTx8J2uDNulcNoIdtz15kTU5hjNUyZaCpI3i6x0MXnUBGfyar9Ut9uoAoPMw==}
 
+  '@x402/express@2.14.0':
+    resolution: {integrity: sha512-dkM4A1EanDciS2iJwxl5B/Qsz+ENWmL5O8jt5i+hRc8w+rQ6Loj04C4cIN3RCAIwmD91NTCmivGsIJ+4WrdEwQ==}
+    peerDependencies:
+      '@x402/paywall': ^2.14.0
+      express: ^4.0.0 || ^5.0.0
+    peerDependenciesMeta:
+      '@x402/paywall':
+        optional: true
+
+  '@x402/extensions@2.14.0':
+    resolution: {integrity: sha512-2zu8hxf0j4BRvSWNPRKziQLdubnQpzzmU9xopKK5ZyXa434hvmGEUPMBOA2NIYvaTkyZjQH3JZ3GPDyzjBvFqA==}
+
   '@x402/fetch@2.14.0':
     resolution: {integrity: sha512-GSCnxdrbmtuKeki2MTy2vnJq4e6PrA7XfF1yX23VxKvASIYaXUioW1HtRzNYU7imeMe13YcwefRH1jO7Ei7Tyg==}
+
+  '@x402/hono@2.14.0':
+    resolution: {integrity: sha512-0R2gUah8euTR1OfgYwCf+ho3HSKe0Qijb2SBwyVXvO5bgDmy4ncdEv+lUcF+SvX+Fh2/NVAqQFL7JP7STGsPBA==}
+    peerDependencies:
+      '@x402/paywall': ^2.14.0
+      hono: ^4.0.0
+    peerDependenciesMeta:
+      '@x402/paywall':
+        optional: true
+
+  '@x402/next@2.14.0':
+    resolution: {integrity: sha512-Soen4UWKDVoIoi3Z903mqhPFoEUGaGmP62D+uVMZxiNQusg0pgfThl5lYJJ6r4uxDPVrt/WWPWlhXmCkuZkPKQ==}
+    peerDependencies:
+      '@x402/paywall': ^2.14.0
+      next: '>=16.2.6'
+    peerDependenciesMeta:
+      '@x402/paywall':
+        optional: true
 
   '@x402/svm@2.14.0':
     resolution: {integrity: sha512-doMYoY5hLpD+CowihYDOi0IJfcCIG2BTDe89a0v4GAvpF3mFn5ewIPgsz6VE249sK2vgBEp3nTtb98kswC2nZw==}
@@ -2727,6 +2825,9 @@ packages:
   ansis@4.3.1:
     resolution: {integrity: sha512-BJ8/l4R5LRE7hW9WdSuGYrLSHi2ynxeFpDFbH0K/CgNeY/tyhk+vO6TYxXC5r5CpUhNVX310xzPsN/H9lCdfOA==}
     engines: {node: '>=14'}
+
+  apg-js@4.4.0:
+    resolution: {integrity: sha512-fefmXFknJmtgtNEXfPwZKYkMFX4Fyeyz+fNF6JWp87biGOPslJbCBVU158zvKRZfHBKnJDy8CMM40oLFGkXT8Q==}
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -3353,7 +3454,7 @@ packages:
   git-raw-commits@4.0.0:
     resolution: {integrity: sha512-ICsMM1Wk8xSGMowkOmPrzo2Fgmfo4bMHLNX6ytHjajRJUqvHOw/TFapQ+QG75c3X/tTDDhOSRPGC52dDbNM8FQ==}
     engines: {node: '>=16'}
-    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   glob-parent@5.1.2:
@@ -3600,6 +3701,9 @@ packages:
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
+
+  jose@5.10.0:
+    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
 
   jose@6.2.3:
     resolution: {integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==}
@@ -4759,6 +4863,9 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  tweetnacl@1.0.3:
+    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
 
   type-is@2.1.0:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
@@ -6551,6 +6658,17 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
+  '@signinwithethereum/siwe-parser@4.2.0':
+    dependencies:
+      '@noble/hashes': 1.8.0
+      apg-js: 4.4.0
+
+  '@signinwithethereum/siwe@4.2.0(viem@2.52.2(typescript@5.9.3)(zod@4.4.3))':
+    dependencies:
+      '@signinwithethereum/siwe-parser': 4.2.0
+    optionalDependencies:
+      viem: 2.52.2(typescript@5.9.3)(zod@4.4.3)
+
   '@sindresorhus/merge-streams@4.0.0': {}
 
   '@sindresorhus/slugify@2.2.1':
@@ -7245,10 +7363,19 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@types/body-parser@1.19.6':
+    dependencies:
+      '@types/connect': 3.4.38
+      '@types/node': 24.13.1
+
   '@types/chai@5.2.3':
     dependencies:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
+
+  '@types/connect@3.4.38':
+    dependencies:
+      '@types/node': 24.13.1
 
   '@types/conventional-commits-parser@5.0.2':
     dependencies:
@@ -7262,9 +7389,24 @@ snapshots:
 
   '@types/estree@1.0.9': {}
 
+  '@types/express-serve-static-core@5.1.2':
+    dependencies:
+      '@types/node': 24.13.1
+      '@types/qs': 6.15.1
+      '@types/range-parser': 1.2.7
+      '@types/send': 1.2.1
+
+  '@types/express@5.0.6':
+    dependencies:
+      '@types/body-parser': 1.19.6
+      '@types/express-serve-static-core': 5.1.2
+      '@types/serve-static': 2.2.0
+
   '@types/hast@3.0.4':
     dependencies:
       '@types/unist': 3.0.3
+
+  '@types/http-errors@2.0.5': {}
 
   '@types/jsesc@2.5.1': {}
 
@@ -7289,6 +7431,10 @@ snapshots:
     dependencies:
       undici-types: 7.18.2
 
+  '@types/qs@6.15.1': {}
+
+  '@types/range-parser@1.2.7': {}
+
   '@types/react-dom@19.2.3(@types/react@19.2.17)':
     dependencies:
       '@types/react': 19.2.17
@@ -7296,6 +7442,15 @@ snapshots:
   '@types/react@19.2.17':
     dependencies:
       csstype: 3.2.3
+
+  '@types/send@1.2.1':
+    dependencies:
+      '@types/node': 24.13.1
+
+  '@types/serve-static@2.2.0':
+    dependencies:
+      '@types/http-errors': 2.0.5
+      '@types/node': 24.13.1
 
   '@types/unist@3.0.3': {}
 
@@ -7491,9 +7646,59 @@ snapshots:
       - typescript
       - utf-8-validate
 
+  '@x402/express@2.14.0(express@5.2.1)(typescript@5.9.3)':
+    dependencies:
+      '@x402/core': 2.14.0
+      '@x402/extensions': 2.14.0(typescript@5.9.3)
+      express: 5.2.1
+    transitivePeerDependencies:
+      - bufferutil
+      - ethers
+      - typescript
+      - utf-8-validate
+
+  '@x402/extensions@2.14.0(typescript@5.9.3)':
+    dependencies:
+      '@noble/curves': 1.9.1
+      '@scure/base': 1.2.6
+      '@signinwithethereum/siwe': 4.2.0(viem@2.52.2(typescript@5.9.3)(zod@4.4.3))
+      '@x402/core': 2.14.0
+      ajv: 8.20.0
+      jose: 5.10.0
+      tweetnacl: 1.0.3
+      viem: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - bufferutil
+      - ethers
+      - typescript
+      - utf-8-validate
+
   '@x402/fetch@2.14.0':
     dependencies:
       '@x402/core': 2.14.0
+
+  '@x402/hono@2.14.0(hono@4.12.25)(typescript@5.9.3)':
+    dependencies:
+      '@x402/core': 2.14.0
+      '@x402/extensions': 2.14.0(typescript@5.9.3)
+      hono: 4.12.25
+    transitivePeerDependencies:
+      - bufferutil
+      - ethers
+      - typescript
+      - utf-8-validate
+
+  '@x402/next@2.14.0(next@16.2.9(@opentelemetry/api@1.9.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.9.3)':
+    dependencies:
+      '@x402/core': 2.14.0
+      '@x402/extensions': 2.14.0(typescript@5.9.3)
+      next: 16.2.9(@opentelemetry/api@1.9.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+    transitivePeerDependencies:
+      - bufferutil
+      - ethers
+      - typescript
+      - utf-8-validate
 
   '@x402/svm@2.14.0(@solana/kit@6.9.0(typescript@5.9.3))(@solana/sysvars@6.9.0(typescript@5.9.3))':
     dependencies:
@@ -7578,6 +7783,8 @@ snapshots:
   ansi-styles@6.2.3: {}
 
   ansis@4.3.1: {}
+
+  apg-js@4.4.0: {}
 
   argparse@1.0.10:
     dependencies:
@@ -8378,6 +8585,8 @@ snapshots:
   jiti@2.6.1: {}
 
   jiti@2.7.0: {}
+
+  jose@5.10.0: {}
 
   jose@6.2.3: {}
 
@@ -9736,6 +9945,8 @@ snapshots:
       - vue-tsc
 
   tslib@2.8.1: {}
+
+  tweetnacl@1.0.3: {}
 
   type-is@2.1.0:
     dependencies:

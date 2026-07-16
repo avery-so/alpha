@@ -36,6 +36,19 @@
   "type": "module",
   "sideEffects": false,
   "types": "./dist/index.d.mts",
+  "typesVersions": {
+    "*": {
+      "express": [
+        "./dist/express.d.mts"
+      ],
+      "hono": [
+        "./dist/hono.d.mts"
+      ],
+      "next": [
+        "./dist/next.d.mts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": {
@@ -45,6 +58,36 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
+      }
+    },
+    "./express": {
+      "import": {
+        "types": "./dist/express.d.mts",
+        "default": "./dist/express.mjs"
+      },
+      "require": {
+        "types": "./dist/express.d.cts",
+        "default": "./dist/express.cjs"
+      }
+    },
+    "./hono": {
+      "import": {
+        "types": "./dist/hono.d.mts",
+        "default": "./dist/hono.mjs"
+      },
+      "require": {
+        "types": "./dist/hono.d.cts",
+        "default": "./dist/hono.cjs"
+      }
+    },
+    "./next": {
+      "import": {
+        "types": "./dist/next.d.mts",
+        "default": "./dist/next.mjs"
+      },
+      "require": {
+        "types": "./dist/next.d.cts",
+        "default": "./dist/next.cjs"
       }
     },
     "./package.json": "./package.json"
@@ -61,24 +104,45 @@
     "@solana/kit": "^6.9.0",
     "@x402/core": "^2.14.0",
     "@x402/evm": "^2.14.0",
+    "@x402/express": "2.14.0",
     "@x402/fetch": "^2.14.0",
+    "@x402/hono": "2.14.0",
+    "@x402/next": "2.14.0",
     "@x402/svm": "^2.14.0",
     "sm-crypto": "0.4.0",
     "viem": "^2.52.2"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.3",
+    "@types/express": "^5.0.6",
     "@vitest/coverage-v8": "^3.2.4",
     "ai": "^6.0.199",
+    "express": "^5.2.1",
+    "hono": "^4.12.25",
+    "next": "^16.2.9",
     "publint": "^0.3.21",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "tsdown": "^0.22.2",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "ai": "^6.0.0"
+    "ai": "^6.0.0",
+    "express": "^4.0.0 || ^5.0.0",
+    "hono": "^4.0.0",
+    "next": ">=16.2.6"
   },
   "peerDependenciesMeta": {
     "ai": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    },
+    "next": {
       "optional": true
     }
   },

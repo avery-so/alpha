@@ -6,7 +6,7 @@ export default defineConfig({
   },
   clean: true,
   dts: true,
-  entry: ["src/index.ts"],
+  entry: ["src/index.ts", "src/express.ts", "src/hono.ts", "src/next.ts"],
   format: ["esm", "cjs"],
   hash: false,
   outDir: "dist",
