@@ -15,7 +15,7 @@
     "@ai-sdk/react": "^3.0.201",
     "@averyso/alpha": "workspace:*",
     "ai": "^6.0.199",
-    "next": "^16.2.9",
+    "next": "^16.2.10",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "zod": "^4.4.3"
