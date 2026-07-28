@@ -1,4 +1,8 @@
-import { buildAlipayAIPayPaymentNeededHeader, parseAlipayAIPayPaymentProofHeader } from "./bill.js";
+import {
+  assertAlipayAIPayBill,
+  buildAlipayAIPayPaymentNeededHeader,
+  parseAlipayAIPayPaymentProofHeader,
+} from "./bill.js";
 import {
   assertFulfillmentConfirmWireResponse,
   assertPaymentVerifyWireResponse,
@@ -19,6 +23,7 @@ import {
   ALIPAY_AI_PAY_FULFILLMENT_CONFIRM_METHOD,
   ALIPAY_AI_PAY_GATEWAY_ENDPOINT,
   ALIPAY_AI_PAY_PAYMENT_VERIFY_METHOD,
+  type AlipayAIPayBillInput,
   type AlipayAIPayClientBillInput,
   type AlipayAIPayClientOptions,
   type AlipayAIPayFulfillmentConfirmResult,
@@ -74,15 +79,19 @@ export class AlipayAIPayClient {
   }
 
   buildPaymentNeededHeader(input: AlipayAIPayClientBillInput): AlipayAIPayPaymentNeededResult {
-    return buildAlipayAIPayPaymentNeededHeader(
-      {
-        ...input,
-        sellerAppId: input.sellerAppId ?? this.#appId,
-      },
-      {
-        privateKey: this.#privateKey,
-      },
-    );
+    return buildAlipayAIPayPaymentNeededHeader(this.#resolveBill(input), {
+      privateKey: this.#privateKey,
+    });
+  }
+
+  /**
+   * Throw `AlipayAIPayConfigError` if the bill is missing a required field.
+   *
+   * Unlike `buildPaymentNeededHeader()`, this performs no RSA signing, so it is
+   * safe to call on every request to surface a malformed bill early.
+   */
+  assertBill(input: AlipayAIPayClientBillInput): void {
+    assertAlipayAIPayBill(this.#resolveBill(input));
   }
 
   parsePaymentProofHeader(header: string): AlipayAIPayPaymentProof {
@@ -152,6 +161,13 @@ export class AlipayAIPayClient {
     return {
       rawResponse: wire,
       tradeNo: wire.trade_no,
+    };
+  }
+
+  #resolveBill(input: AlipayAIPayClientBillInput): AlipayAIPayBillInput {
+    return {
+      ...input,
+      sellerAppId: input.sellerAppId ?? this.#appId,
     };
   }
 

@@ -43,6 +43,17 @@ export function signAlipayAIPayBill(
   return signAlipayAIPayRsa2(alipayAIPayBillSignContent(input), options.privateKey);
 }
 
+/**
+ * Validate every required bill field without signing anything.
+ *
+ * Signing a bill costs an RSA operation, so callers that only need to know
+ * whether a bill is well-formed should use this instead of building a full
+ * Payment-Needed header.
+ */
+export function assertAlipayAIPayBill(input: AlipayAIPayBillInput): void {
+  normalizeBillInput(input);
+}
+
 export function buildAlipayAIPayPaymentNeeded(
   input: AlipayAIPayBillInput,
   options: AlipayAIPayBillSigningOptions,

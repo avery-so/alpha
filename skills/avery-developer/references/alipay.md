@@ -108,7 +108,8 @@ You only need these details when debugging a signature mismatch or reimplementin
 
 For a matched route, in strict order:
 
-1. **No/blank `Payment-Proof`** → build the bill, sign it, return **402** with the `Payment-Needed` header.
+0. **The bill is resolved and validated.** A missing or blank required field throws `AlipayAIPayConfigError` immediately, whether or not a proof was sent. The RSA signature behind the challenge is _not_ computed here — it is deferred to the branches below that actually return 402, so a paid request never pays for a signature it discards.
+1. **No/blank `Payment-Proof`** → sign the bill, return **402** with the `Payment-Needed` header.
 2. **Unparseable proof** → same 402 challenge (logged at `warn`).
 3. **`verifyPayment` fails or `verified === false`** → same 402 challenge. `verified` requires both `active === true` **and** zero expectation mismatches.
 4. **Replay claim.** `replayStore.claim({ provider, tradeNo, route })` must return `"claimed"` to proceed. `"in_progress"` and `"completed"` short-circuit — the caller does not get a second response for one payment.
@@ -264,7 +265,9 @@ const client = new AlipayAIPayClient({
   alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY!,
 });
 
-// 1. challenge
+// 1. challenge — only sign when you are actually going to return 402.
+//    assertBill() validates the same fields without the RSA cost.
+client.assertBill(bill);
 const { header, paymentNeeded } = client.buildPaymentNeededHeader(bill);
 
 // 2. parse the buyer's proof

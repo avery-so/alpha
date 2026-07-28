@@ -3,7 +3,7 @@ import { generateKeyPairSync } from "node:crypto";
 import { base64 } from "@scure/base";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AlipayAIPayClient, createAlphaPayment } from "../../src/index.js";
+import { AlipayAIPayClient, AlipayAIPayConfigError, createAlphaPayment } from "../../src/index.js";
 import { getAlphaRuntimeState, handleRuntimeAlipayRequest } from "../../src/middleware/runtime.js";
 import type { AlipayAIPayPaymentVerifyResult, AlphaReplayStore, Logger } from "../../src/index.js";
 
@@ -131,6 +131,60 @@ describe("Alipay inbound challenge and verification", () => {
     await expect(response.json()).resolves.toEqual({ error: "payment_required" });
     expect(handler).not.toHaveBeenCalled();
     expect(harness.verifyPayment).not.toHaveBeenCalled();
+  });
+
+  it("does not sign a challenge when the caller already holds a valid proof", async () => {
+    const harness = createHarness({ replay: replayStore() });
+    const buildPaymentNeededHeader = vi.spyOn(harness.client, "buildPaymentNeededHeader");
+    const handler = vi.fn(async () => Response.json({ secret: true }));
+    const response = await handleRuntimeAlipayRequest(harness.state, request(), handler);
+
+    expect(response.status).toBe(200);
+    expect(handler).toHaveBeenCalledOnce();
+    expect(buildPaymentNeededHeader).not.toHaveBeenCalled();
+  });
+
+  it("signs the challenge once when several 402 branches need it", async () => {
+    const harness = createHarness({ replay: replayStore() });
+    const buildPaymentNeededHeader = vi.spyOn(harness.client, "buildPaymentNeededHeader");
+    const handler = vi.fn(async () => Response.json({ secret: true }));
+    const response = await handleRuntimeAlipayRequest(
+      harness.state,
+      request("/paid", "not-a-valid-proof-header"),
+      handler,
+    );
+
+    expect(response.status).toBe(402);
+    expect(response.headers.get("payment-needed")).toMatch(/^[\w-]+$/u);
+    expect(buildPaymentNeededHeader).toHaveBeenCalledOnce();
+  });
+
+  it("reports a malformed bill as a config error whether or not a proof is sent", async () => {
+    const gateway = vi.fn(async () => new Response("{}"));
+    const client = new AlipayAIPayClient({
+      appId: "app-id",
+      fetch: gateway as unknown as typeof fetch,
+      logLevel: "silent",
+      privateKey,
+    });
+    const runtime = createAlphaPayment({
+      client,
+      direction: "inbound",
+      logLevel: "silent",
+      provider: "alipay",
+      routes: { "GET /paid": { bill: { ...bill, amount: "   " } } },
+    });
+    const state = getAlphaRuntimeState(runtime);
+    const handler = vi.fn(async () => Response.json({ secret: true }));
+
+    await expect(
+      handleRuntimeAlipayRequest(state, request("/paid", null), handler),
+    ).rejects.toThrow(AlipayAIPayConfigError);
+    await expect(handleRuntimeAlipayRequest(state, request(), handler)).rejects.toThrow(
+      AlipayAIPayConfigError,
+    );
+    expect(handler).not.toHaveBeenCalled();
+    expect(gateway).not.toHaveBeenCalled();
   });
 
   it.each(["not-base64", proofHeader({ payment_proof: "" })])(

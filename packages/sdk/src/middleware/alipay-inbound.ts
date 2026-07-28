@@ -63,11 +63,20 @@ export async function handleAlipayInboundRequest(
     route: concreteRoute,
   };
   const bill = await resolveBill(route.config, requestContext);
-  const challenge = state.client.buildPaymentNeededHeader(bill).header;
+
+  // Validate the bill on every request so a malformed one always fails as a config error.
+  // Defer the RSA signing behind it: a caller holding a valid proof never needs the challenge.
+  state.client.assertBill(bill);
+
+  let signedChallenge: string | undefined;
+  const challenge = (): string => {
+    signedChallenge ??= state.client.buildPaymentNeededHeader(bill).header;
+    return signedChallenge;
+  };
   const proofHeader = request.headers.get(ALIPAY_AI_PAY_PAYMENT_PROOF_HEADER);
 
   if (proofHeader === null || proofHeader.trim().length === 0) {
-    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge));
+    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge()));
   }
 
   let proof;
@@ -82,7 +91,7 @@ export async function handleAlipayInboundRequest(
         status: 402,
       }),
     );
-    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge));
+    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge()));
   }
 
   let verification;
@@ -104,11 +113,11 @@ export async function handleAlipayInboundRequest(
         status: 402,
       }),
     );
-    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge));
+    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge()));
   }
 
   if (!verification.verified) {
-    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge));
+    return logAndReturn(state, concreteRoute, startedAt, paymentRequired(challenge()));
   }
 
   const replayInput = {
