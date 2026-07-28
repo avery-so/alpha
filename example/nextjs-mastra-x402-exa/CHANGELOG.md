@@ -1,5 +1,13 @@
 # @averyso/example-nextjs-mastra-x402-exa
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [f129563]
+- Updated dependencies [a225a4a]
+  - @averyso/alpha@1.2.0
+
 ## 0.0.3
 
 ### Patch Changes
