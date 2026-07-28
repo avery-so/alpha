@@ -1,5 +1,12 @@
 # @averyso/example-tanstack-start-ai-x402-exa
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [ac8e5d6]
+  - @averyso/alpha@1.2.2
+
 ## 0.0.5
 
 ### Patch Changes
