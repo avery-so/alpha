@@ -1,47 +1,64 @@
 ---
 name: avery-developer
-description: Build AI agents that pay for x402-protected HTTP APIs with the Avery SDK (@averyso/alpha). Use this skill whenever the user works with @averyso/alpha, the Avery SDK, `x402tool`, or `X402Client`; whenever they want an AI agent or a Vercel AI SDK tool to call a paid, pay-per-request, x402, or "402 Payment Required" endpoint; or whenever they mention agent payments, machine/autonomous payments, monetized APIs, per-call spend caps for agents, or wiring crypto/stablecoin (e.g. USDC) payments into a model's tool calls — even if they do not name the SDK explicitly. Covers client setup, building paid tools, network/wallet config, spend controls, error handling, and Next.js integration.
+description: Build and monetize paid HTTP APIs and AI agents with the Avery SDK (@averyso/alpha) across three payment rails — x402 (crypto/stablecoin), Alipay AI Pay (支付宝 AI 按量付费), and WeiXin AI Pay (微信 AI 支付). Use this skill whenever the user works with @averyso/alpha, the Avery SDK, `X402Client`, `x402tool`, `x402MastraTool`, `createAlphaPayment`, `withAlphaNext`, `withAlphaExpress`, `withAlphaHono`, `AlipayAIPayClient`, or `WeiXinAIPayClient`; whenever they want an AI agent (Vercel AI SDK or Mastra) to call a paid, pay-per-request, x402, or "402 Payment Required" endpoint; whenever they want to charge for their own API, add a paywall to a route, verify a payment proof, settle/confirm fulfillment, or handle `Payment-Needed`/`Payment-Proof` headers; and whenever they mention agent payments, machine/autonomous payments, monetized APIs, per-call spend caps, 支付宝/微信 AI 付费接入, RSA2 or SM2/SM3 payment signing, or wiring crypto/stablecoin (e.g. USDC) payments into a model's tool calls — even if they do not name the SDK explicitly. Covers client setup, paid tools, paywall middleware, network/wallet config, spend controls, replay protection, error handling, testing, and Next.js/Express/Hono integration.
 ---
 
 # Avery SDK Developer
 
-Avery SDK (`@averyso/alpha`) lets an AI agent call **x402-protected HTTP endpoints** — APIs that respond `402 Payment Required` and expect an on-chain payment before returning data. The SDK runs the payment on the **server**: it discovers the endpoint's payment requirements, signs payment from a configured wallet, retries the request, and returns a typed result. The model only ever supplies structured tool input; it never sees keys or signs anything.
+Avery SDK (`@averyso/alpha`) connects HTTP requests to money, in both directions:
 
-Use this skill to help developers go from "I have a paid x402 API" to "my agent can call it safely, within a budget."
+- **Outbound (you pay).** An agent or your server calls a paid endpoint, and the SDK settles the payment before returning the response.
+- **Inbound (you get paid).** Your own route demands payment, and the SDK issues the challenge, verifies the proof, and only then releases the resource.
 
-## The two entry points
+It supports three rails: **x402** (on-chain, crypto/stablecoin), **Alipay AI Pay** (支付宝 AI 按量付费), and **WeiXin AI Pay** (微信 AI 支付). Everything runs server-side on Node.js `>=20.19.0`.
 
-Pick based on **who decides to make the request**:
+## Pick your path
 
-- **`x402tool()`** — the _model_ decides. Wraps a paid endpoint as a Vercel AI SDK-compatible tool. Use this for agent payments: the LLM calls the tool with structured input, the SDK pays and returns a result. **This is the primary, most common path.**
-- **`X402Client.call()`** — your _application code_ decides. A direct paid HTTP call you branch on yourself. Use this when there is no model in the loop, or your server fully controls the request.
+Answer two questions — _who pays_ and _which rail_ — then jump to the matching section.
 
-Both share one `X402Client` instance that holds the wallet, network, and default spend cap.
+| Goal                                      | Rail   | API                               | Section                                            |
+| ----------------------------------------- | ------ | --------------------------------- | -------------------------------------------------- |
+| Let an LLM call a paid API and pay for it | x402   | `x402tool()` / `x402MastraTool()` | [Path A](#path-a--an-agent-pays-for-an-x402-api)   |
+| Your own server code calls a paid API     | x402   | `X402Client.call()`               | [Path A](#path-a--an-agent-pays-for-an-x402-api)   |
+| Charge crypto for your own route          | x402   | `createAlphaPayment` inbound      | [Path B](#path-b--charge-for-your-own-api-inbound) |
+| Charge CNY for your own route, 支付宝     | Alipay | `createAlphaPayment` inbound      | [Path B](#path-b--charge-for-your-own-api-inbound) |
+| Pay a WeiXin AI Pay bill as a developer   | WeiXin | `WeiXinAIPayClient.preorder()`    | [Path C](#path-c--weixin-ai-pay-preorder-outbound) |
 
-## Mental model (read before writing code)
+### Capability matrix — check this before designing
 
-- **Server-only.** The SDK is Node-only and signs payments with a private key. Never construct `X402Client` in the browser, a client component, or a bundled frontend. In Next.js route handlers, set `export const runtime = "nodejs"`.
-- **No Avery account, API key, or hosted service is required.** Payment is local x402 signing with the developer's own wallet, RPC URL, and target endpoint. Do not invent an `apiKey`, login, or `facilitator` option — none exist. The resource server (the endpoint owner) controls settlement; the buyer side (this SDK) does not.
-- **`maxAmount` is a `bigint` of atomic units, not a decimal.** `100_000n` means `0.1` USDC for a 6-decimal token — never `100_000` USDC and never `0.1`. The endpoint's payment requirement chooses the asset and decimals. Always use the `bigint` literal suffix `n`.
-- **The configured network must match what the endpoint advertises.** A mismatch yields a `payment_required` result, not a payment. Let the endpoint's requirements drive the network choice.
-- **Import only from `@averyso/alpha`.** Never import from `packages/sdk/src/...` or other internal paths.
+One runtime owns **one provider and one direction**. Unsupported combinations throw `AlphaPaymentConfigError` at construction, not at request time:
 
-## Install
+| Provider | `inbound` (you get paid) | `outbound` (you pay)    |
+| -------- | ------------------------ | ----------------------- |
+| `x402`   | Supported                | Supported               |
+| `alipay` | Supported                | **Configuration error** |
+| `weixin` | **Configuration error**  | Supported               |
+
+This is a deliberate reflection of each rail's role, not a gap to work around. Alipay AI Pay positions the SDK as the _seller_ (sign the bill, verify the proof, confirm fulfillment). WeiXin AI Pay positions it as the _developer_ paying a bill (sign a preorder). If a user asks for "收款用微信" or "用支付宝去付费", say plainly that the SDK does not cover that direction yet rather than inventing an API.
+
+## Rules that apply to every path
+
+- **Server-only, always.** Every client signs with a private key. Never construct one in the browser, a client component, or bundled frontend code. In Next.js, set `export const runtime = "nodejs"` on the route.
+- **No Avery account, API key, or hosted service exists.** Credentials belong to the rail: your own wallet + RPC for x402, your Alipay app private key + Alipay public key, your WeiXin developer ID + SM2 key. Never invent an `apiKey` or Avery login.
+- **Import only from `@averyso/alpha`** (or its `/next`, `/express`, `/hono` subpaths). Never from `packages/sdk/src/...`.
+- **Money is never a plain number.** x402 uses `bigint` atomic units (`100_000n`); Alipay uses a decimal **string** (`"0.01"` CNY); WeiXin amounts are integers in fen inside the upstream payload. Mixing these up is the single most common bug.
+- **Keep payment material out of logs and out of model context** — private keys, signatures, `Payment-Proof`/`Payment-Needed` headers, `PAYMENT-*` headers, raw gateway responses.
+
+## Path A — an agent pays for an x402 API
+
+Two entry points share one `X402Client` (wallet, network, default cap). Pick based on **who decides to make the request**:
+
+- **`x402tool()`** — the _model_ decides. Wraps a paid endpoint as a Vercel AI SDK tool. The primary agent path. For Mastra, use `x402MastraTool()` (see `references/mastra.md`).
+- **`X402Client.call()`** — your _application code_ decides.
+
+### Install
 
 ```sh
 pnpm add @averyso/alpha
-# the agent path also needs the Vercel AI SDK:
-pnpm add ai
+pnpm add ai          # only for the Vercel AI SDK tool path
 ```
 
-```ts
-import { X402Client, X402Networks, x402tool } from "@averyso/alpha";
-import { jsonSchema } from "ai";
-```
-
-CommonJS (`const { X402Client, x402tool } = require("@averyso/alpha")`) is supported.
-
-## Step 1 — Create the client
+### Step 1 — create the client
 
 ```ts
 import { X402Client, X402Networks } from "@averyso/alpha";
@@ -53,11 +70,12 @@ const client = new X402Client(process.env.X402_PRIVATE_KEY!, {
 });
 ```
 
-- **First argument is the private key.** EVM networks need a 32-byte hex key (`0x`-prefixed or not). Solana networks need a base58-encoded 64-byte secret key. Keep it in an env var, server-side only.
-- **`network`** accepts an `X402Networks` constant (preferred), a friendly name (`"Base Sepolia"`), a slug (`"base-sepolia"`), or a raw CAIP-2 string (`"eip155:84532"`). `client.network` always reads back as normalized CAIP-2. For first tests, `Base Sepolia` is the well-supported default. See `references/networks.md` for the full table, wallet setup, funding, and atomic-unit conversion.
-- **`rpcUrl`** is optional but should be set explicitly in production.
+- **First argument is the private key.** EVM networks need a 32-byte hex key (`0x`-prefixed or not); Solana networks need a base58-encoded 64-byte secret key. Env var, server-side only.
+- **`network`** accepts an `X402Networks` constant (preferred), a friendly name (`"Base Sepolia"`), a slug (`"base-sepolia"`), or raw CAIP-2 (`"eip155:84532"`). `client.network` reads back as normalized CAIP-2. See `references/networks.md`.
+- **`maxAmount` is a `bigint` of atomic units.** `100_000n` is `0.1` USDC at 6 decimals — never `100_000` USDC, never `0.1`.
+- **The configured network must match what the endpoint advertises.** A mismatch yields a `payment_required` result, not a payment.
 
-## Step 2 — Build a paid tool with `x402tool()`
+### Step 2 — build a paid tool
 
 ```ts
 import { jsonSchema } from "ai";
@@ -75,19 +93,14 @@ export const tools = {
       additionalProperties: false,
     }),
     endpoint: "https://api.example.com/weather",
-    maxAmount: 50_000n, // tool-level cap; overrides the client default for this tool
+    maxAmount: 50_000n, // tool-level cap; overrides the client default
   }),
 };
 ```
 
-How tool input becomes an HTTP request when you do **not** pass a `request` function:
+Without a `request` function, tool input maps automatically: `GET`/`HEAD`/`DELETE` → **query params**; `POST`/`PUT`/`PATCH` → **JSON body**. `GET` is the default. Always give a strict `inputSchema` (`additionalProperties: false`, explicit `required`) — it is the first line of defense against malformed or injected input.
 
-- `GET`, `HEAD`, `DELETE` → input object becomes **query parameters** (`{ city: "Paris" }` → `?city=Paris`). `GET` is the default method.
-- `POST`, `PUT`, `PATCH` → input object becomes a **JSON body**.
-
-The type parameter `x402tool<Input>` types the model's input. Always give a strict `inputSchema` (`additionalProperties: false`, explicit `required`) — it is your first line of defense against malformed or injected input.
-
-### Dynamic endpoints and request overrides
+Dynamic endpoints and overrides:
 
 ```ts
 // endpoint as a function of input:
@@ -105,11 +118,9 @@ request: (input) => ({
 }),
 ```
 
-Prefer static endpoint URLs, or build dynamic URLs only from allowlisted hosts/paths. Do not forward user/model-controlled headers unless each one is explicitly allowed.
+Prefer static endpoint URLs, or build dynamic ones only from allowlisted hosts and paths. Do not forward model-controlled headers unless each one is explicitly allowed.
 
-### Return model-friendly output with `execute`
-
-Without `execute`, the tool returns the full raw `EndpointResult` to the model — including payment payloads and headers. **Add `execute` to hand the model a small, safe object** and keep secrets out of its context:
+**Add `execute` to hand the model a small, safe object.** Without it, the tool returns the raw `EndpointResult` — including payment payloads and headers — straight into model context:
 
 ```ts
 execute: ({ endpoint }) => {
@@ -120,26 +131,22 @@ execute: ({ endpoint }) => {
 },
 ```
 
-`execute` receives `{ endpoint, input }` where `endpoint` is the `EndpointResult`.
-
-## Step 3 — Hand the tools to the model
+### Step 3 — hand the tools to the model
 
 ```ts
 import { generateText, stepCountIs } from "ai";
 
 const response = await generateText({
-  model, // from your AI SDK provider / Vercel AI Gateway
+  model,
   tools,
   stopWhen: stepCountIs(6), // bound the agent loop — see spend controls
   prompt: "What is the weather in Lisbon?",
 });
 ```
 
-For a complete streaming chat route + UI, see `references/nextjs.md`.
+### Step 4 — handle the result
 
-## Step 4 — Handle the result
-
-When you call `X402Client.call()` directly (or read `endpoint` inside `execute`), branch on `kind` first:
+`call()` is non-throwing by default. Branch on `kind` first:
 
 ```ts
 const result = await client.call(
@@ -157,36 +164,195 @@ switch (result.kind) {
 }
 ```
 
-Prefer this default result flow for agent tools. Use `throwOnError: true` only when you want a centralized exception path in a route handler (it throws `X402PaymentError`). Full kind-by-kind table, retry rules, and error classes are in `references/error-handling.md`.
+Use `throwOnError: true` only when you want a centralized exception path (throws `X402PaymentError`). Full table in `references/error-handling.md`.
+
+## Path B — charge for your own API (inbound)
+
+`createAlphaPayment()` builds one reusable runtime; a framework adapter binds it to routes.
+
+```sh
+pnpm add @averyso/alpha express   # or hono, or next
+```
+
+```ts
+import { createAlphaPayment } from "@averyso/alpha";
+import { withAlphaNext } from "@averyso/alpha/next"; // or /express, /hono
+```
+
+The root entry is framework-independent; framework code lives in the subpath exports.
+
+### x402 inbound
+
+Needs protected routes plus **either** a preconfigured `x402ResourceServer` **or** a facilitator with scheme registration. There is no implicit facilitator URL, and combining `server` with `facilitator`/`schemes` is rejected.
+
+```ts
+export const payment = createAlphaPayment({
+  provider: "x402",
+  direction: "inbound",
+  facilitator: { url: process.env.X402_FACILITATOR_URL! },
+  schemes: "auto",
+  network: ["base-sepolia"], // optional allowlist only; never replaces accepts[].network
+  routes: {
+    "GET /api/report": {
+      accepts: {
+        scheme: "exact",
+        network: "Base Sepolia",
+        price: "$0.01",
+        payTo: process.env.X402_PAY_TO!,
+      },
+      description: "Generate one report",
+      mimeType: "application/json",
+    },
+  },
+});
+```
+
+Alpha delegates x402 verification, settlement, and facilitator traffic to the official `@x402/express|hono|next` packages — it does not implement a second protocol stack.
+
+### Alipay inbound (支付宝 AI 按量付费)
+
+```ts
+const payment = createAlphaPayment({
+  provider: "alipay",
+  direction: "inbound",
+  client: {
+    appId: process.env.ALIPAY_APP_ID!,
+    privateKey: process.env.ALIPAY_APP_PRIVATE_KEY!,
+    alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY,
+  },
+  replayStore, // required in production
+  routes: {
+    "GET /api/report": {
+      bill: async ({ request }) => ({
+        outTradeNo: await reserveOrder(request),
+        amount: "0.01", // decimal STRING in CNY
+        resourceId: "/api/report",
+        payBefore: new Date(Date.now() + 5 * 60_000).toISOString(),
+        sellerId: process.env.ALIPAY_SELLER_ID!,
+        sellerName: "Example Seller",
+        goodsName: "AI report",
+        serviceId: "report-v1",
+      }),
+      maxResponseBytes: 1024 * 1024,
+    },
+  },
+});
+```
+
+Three constraints that break builds if missed:
+
+1. **Alipay requires the `withAlpha*` wrapper, never the plain middleware.** `alphaExpressMiddleware(payment)` throws for an alipay runtime, because the response must be buffered until fulfillment is confirmed.
+2. **`amount` is a decimal string**, and the verification step compares it against the bill exactly — a `"0.010"` vs `"0.01"` drift fails verification.
+3. **Ship a `replayStore` before production.** Without one the runtime logs a warning and runs unprotected; a paid `tradeNo` could be replayed for a second free response.
+
+Full flow, replay semantics, failure modes, and a store implementation are in `references/alipay.md`.
+
+### Binding to a framework
+
+```ts
+// Next.js App Router — app/api/report/route.ts
+export const runtime = "nodejs";
+export const GET = withAlphaNext(payment, async (_request, context) =>
+  Response.json({ report: await buildReport() }),
+);
+```
+
+```ts
+// Express — the wrapper form works for every provider
+app.get(
+  "/api/report",
+  withAlphaExpress(payment, async (request, context) =>
+    Response.json({ report: await buildReport(request.signal) }),
+  ),
+);
+```
+
+```ts
+// Hono
+app.get(
+  "/api/report",
+  withAlphaHono(payment, async (_request, context) =>
+    Response.json({ report: await buildReport() }),
+  ),
+);
+```
+
+Payment context arrives as a **callback argument**, not as a mutated request. With `alphaExpressMiddleware()`/`alphaHonoMiddleware()` (x402 only), read it via `getAlphaPaymentContext(req)` / `getAlphaPaymentContext(c)` instead. Details and outbound contexts: `references/payment-middleware.md`.
+
+## Path C — WeiXin AI Pay preorder (outbound)
+
+The SDK signs a preorder with **SM2-with-SM3** (`WEIXINAIPAY-SM2-WITH-SM3`) and exchanges an upstream `payment_required` payload for a `paymentCode`.
+
+```ts
+import { WeiXinAIPayClient } from "@averyso/alpha";
+
+const weixin = new WeiXinAIPayClient({
+  developerId: process.env.WEIXIN_AI_DEVELOPER_ID!,
+  publicKeyId: process.env.WEIXIN_AI_PUBLIC_KEY_ID!,
+  privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!, // 32-byte hex, optional 0x
+});
+
+const { paymentCode } = await weixin.preorder(paymentRequired);
+```
+
+`paymentRequired` is the payload from the upstream 402 challenge, passed through unchanged — the SDK Base64-encodes and signs it, it does not author it. Unlike x402, this client **throws** (`WeiXinAIPayConfigError` / `WeiXinAIPayRequestError` / `WeiXinAIPayResponseError`) instead of returning a result union, so wrap calls in `try`/`catch`. Key format, sign-string layout, and `signatureEncoding` are in `references/weixin.md`.
 
 ## Spend safety — non-negotiable for production
 
-`maxAmount` caps **one** payment. It is **not** a user budget, daily limit, or approval system. An agent in a loop can call a capped tool many times. For anything beyond a demo, layer server-side controls:
+`maxAmount` caps **one** payment. It is not a user budget, daily limit, or approval system. An agent in a loop can call a capped tool many times.
 
 - **Cap precedence** (most specific wins): `x402tool({ maxAmount })` → `client.call(..., { maxAmount })` → client default → SDK default `100_000n`.
-- **Bound the loop**: AI SDK `stopWhen: stepCountIs(n)`, plus per-conversation/user/window paid-call counters.
+- **Bound the loop**: `stopWhen: stepCountIs(n)`, plus per-conversation/user/window paid-call counters.
 - **Budget ledger** outside the SDK with reserve/commit/refund so concurrent calls can't race the same budget.
-- **Approvals**: set `needsApproval` on high-risk or first-time paid tools to pause for human/app authorization.
-- **Treat paid tools as privileged**: validate input with strict schemas, allowlist endpoints/hosts/headers, keep keys and payment payloads out of model context.
+- **Approvals**: `needsApproval` on high-risk or first-time paid tools.
+- **Treat paid tools as privileged**: strict schemas, allowlisted endpoints/hosts/headers, no payment payloads in model context.
 
-These patterns, with code, are in `references/spend-controls.md`. Read it before shipping a real payment agent.
+Code for all of these: `references/spend-controls.md`. Read it before shipping a real payment agent.
 
 ## Reference files
 
-Load these as needed — don't read them all up front:
+Load on demand — don't read them all up front:
 
-- `references/api.md` — full API surface: `X402ClientOptions`, `X402CallOptions`, the complete `X402ToolConfig`, `EndpointResult` union and fields, endpoint types, error classes, logging.
-- `references/networks.md` — built-in network table, wallet/key formats, funding/faucets, `maxAmount` atomic-unit conversion, RPC and mainnet checklist.
-- `references/spend-controls.md` — cap precedence, budget ledger, loop controls, approvals, human confirmation, prompt-injection defenses.
-- `references/error-handling.md` — `EndpointResult.kind` table with user message + developer action + retry guidance, `throwOnError`, retry strategy.
-- `references/nextjs.md` — full Next.js App Router streaming chat example (route handler + client UI).
+| File                               | Read it when                                                                            |
+| ---------------------------------- | --------------------------------------------------------------------------------------- |
+| `references/api.md`                | You need exact option/field names for the x402 client, tool config, or `EndpointResult` |
+| `references/networks.md`           | Choosing a network, formatting keys, funding a wallet, converting atomic units          |
+| `references/spend-controls.md`     | Shipping to production: budget ledgers, loop limits, approvals, injection defenses      |
+| `references/error-handling.md`     | Mapping a result kind or thrown error to a retry decision and user message              |
+| `references/payment-middleware.md` | Building inbound paywalls or outbound contexts with any framework adapter               |
+| `references/alipay.md`             | Anything Alipay: bill fields, signing, verify/confirm, replay store, failure modes      |
+| `references/weixin.md`             | Anything WeiXin: SM2/SM3 signing, key format, preorder wire shape, errors               |
+| `references/mastra.md`             | The agent uses Mastra instead of the Vercel AI SDK                                      |
+| `references/nextjs.md`             | Building the full Next.js App Router streaming chat                                     |
+| `references/testing.md`            | Writing tests, or running any of this without touching a real network                   |
 
 ## Common mistakes to avoid
 
-- Passing `maxAmount` as a number or decimal (`50000`, `0.05`) instead of a `bigint` atomic value (`50_000n`).
-- Constructing `X402Client` or exposing the private key on the client side.
-- Inventing an Avery API key, account, login, or `facilitator` option.
+**Cross-rail**
+
+- Constructing any client, or exposing a key, on the client side.
+- Inventing an Avery API key, account, login, or `facilitator` option for the buyer side.
+- Building a runtime for an unsupported provider/direction pair (alipay outbound, weixin inbound).
+- Logging `Payment-Proof`, `Payment-Needed`, `PAYMENT-*`, signatures, or raw gateway responses.
+- Reusing one runtime for two providers instead of scoping one runtime per provider and direction.
+
+**x402**
+
+- Passing `maxAmount` as a number or decimal (`50000`, `0.05`) instead of `bigint` atomic units (`50_000n`).
 - Configuring a network that doesn't match the endpoint's advertised requirements, then expecting a payment instead of `payment_required`.
-- Returning the raw `EndpointResult` to the model when the response can carry payment details — use `execute`.
-- Relying on `maxAmount` alone for spend safety with no loop/budget controls.
-- Importing from internal `packages/sdk/src/...` paths instead of `@averyso/alpha`.
+- Returning the raw `EndpointResult` to the model instead of narrowing it in `execute`.
+- Relying on `maxAmount` alone with no loop or budget controls.
+
+**Alipay**
+
+- Using `alphaExpressMiddleware()`/`alphaHonoMiddleware()` for an alipay runtime instead of `withAlphaExpress()`/`withAlphaHono()`.
+- Passing `amount` as a number, or letting the bill drift between the challenge and the verification.
+- Going to production without a durable `replayStore`, or writing one backed by an in-process `Map`.
+- Streaming (SSE, chunked) an Alipay-protected response — it must be a complete, buffered `Response` under `maxResponseBytes`.
+- Treating a fulfillment-confirmation timeout as failure and retrying blindly; it is uncertain payment state and needs reconciliation.
+
+**WeiXin**
+
+- Passing a PEM or base64 key instead of 32-byte hex.
+- Expecting a non-throwing result union like x402's — this client throws.
+- Hand-building the `payment_required` payload instead of forwarding the upstream challenge.

@@ -24,6 +24,30 @@
       "expected_output": "Explains payment_required = no compatible payment selected (network mismatch, amount over maxAmount, wrong asset, unsupported requirements), and that it's NOT transient so don't blindly retry. Shows branching on result.kind for all variants (success/payment_required/settle_failed/passthrough/error).",
       "files": [],
       "assertions": []
+    },
+    {
+      "id": 3,
+      "name": "alipay-paywall-route",
+      "prompt": "我想给我的 Next.js API 路由 /api/report 加上支付宝 AI 按量付费，每次调用收 1 分钱。用 @averyso/alpha 怎么接？",
+      "expected_output": "Uses createAlphaPayment({ provider: 'alipay', direction: 'inbound' }) with a routes map keyed 'GET /api/report', a bill with amount as the decimal string \"0.01\", and binds it with withAlphaNext plus export const runtime = 'nodejs'. Should mention the replayStore is needed for production and that alipayPublicKey enables gateway response verification. Must not use alphaExpressMiddleware/alphaHonoMiddleware for alipay, and must not stream the response.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 4,
+      "name": "weixin-preorder-key-format",
+      "prompt": "I'm calling WeiXinAIPayClient.preorder() with @averyso/alpha and it keeps throwing WeiXinAIPayConfigError about the privateKey. I'm passing the PEM file contents from WeiXin. What's wrong, and how should I be handling errors from this client generally?",
+      "expected_output": "Explains privateKey must be a 32-byte hex SM2 scalar (optional 0x prefix), not PEM/base64/DER, and that it must be converted. Explains this client throws rather than returning a result union, so calls need try/catch, and distinguishes WeiXinAIPayConfigError (fix config, don't retry) from WeiXinAIPayRequestError (transport, retry with backoff) and WeiXinAIPayResponseError (has .status).",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 5,
+      "name": "unsupported-direction",
+      "prompt": "用 @averyso/alpha，我想让服务端主动去支付宝付款（outbound），同时用微信收款（inbound）。这两个怎么配置？",
+      "expected_output": "States plainly that neither combination is supported: alipay is inbound-only and weixin is outbound-only, and createAlphaPayment throws AlphaPaymentConfigError at construction for the other pairs. Should not invent APIs or suggest workarounds that don't exist; may point to what IS supported (alipay inbound, weixin outbound, x402 both directions).",
+      "files": [],
+      "assertions": []
     }
   ]
 }
