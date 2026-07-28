@@ -1,5 +1,12 @@
 # @averyso/example-nextjs-ai-x402-base-sepolia-paid-content
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [fcc553d]
+  - @averyso/alpha@1.2.1
+
 ## 0.0.4
 
 ### Patch Changes
