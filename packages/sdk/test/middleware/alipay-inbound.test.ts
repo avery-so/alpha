@@ -412,7 +412,7 @@ describe("Alipay inbound route validation", () => {
     [{ "GET paid": { bill } }, "METHOD /path"],
     [{ "GET /paid": { bill, maxResponseBytes: 0 } }, "positive safe integer"],
   ])("rejects invalid route configuration", (routes, message) => {
-    const client = new AlipayAIPayClient({ appId: "app-id", privateKey });
+    const client = new AlipayAIPayClient({ appId: "app-id", logLevel: "silent", privateKey });
 
     expect(() =>
       createAlphaPayment({

@@ -113,6 +113,41 @@ describe("AlipayAIPayClient constructor", () => {
       () => new AlipayAIPayClient({ appId: APP_ID, privateKey: merchantPrivateKeyPem }),
     ).toThrow("A fetch implementation is required.");
   });
+
+  it("warns when no alipayPublicKey disables response verification", () => {
+    const logger = {
+      debug: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+    };
+
+    const unverified = new AlipayAIPayClient({
+      appId: APP_ID,
+      fetch: vi.fn() as unknown as typeof fetch,
+      logger,
+      privateKey: merchantPrivateKeyPem,
+    });
+
+    expect(unverified).toBeInstanceOf(AlipayAIPayClient);
+    expect(logger.warn).toHaveBeenCalledWith(
+      "Alipay AI Pay client has no alipayPublicKey; gateway response signatures are not verified.",
+      { appId: APP_ID },
+    );
+
+    logger.warn.mockClear();
+
+    const verified = new AlipayAIPayClient({
+      alipayPublicKey: alipayPublicKeyPem,
+      appId: APP_ID,
+      fetch: vi.fn() as unknown as typeof fetch,
+      logger,
+      privateKey: merchantPrivateKeyPem,
+    });
+
+    expect(verified).toBeInstanceOf(AlipayAIPayClient);
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
 });
 
 describe("AlipayAIPayClient Payment-Needed helper", () => {

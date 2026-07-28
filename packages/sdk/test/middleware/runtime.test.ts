@@ -16,7 +16,9 @@ import { getAlphaRuntimeState } from "../../src/middleware/runtime.js";
 import type { Logger } from "../../src/index.js";
 import { network, privateKey } from "../x402/fixtures.js";
 
-const { privateKey: alipayPrivateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+const { privateKey: alipayPrivateKey, publicKey: alipayPublicKey } = generateKeyPairSync("rsa", {
+  modulusLength: 2048,
+});
 const weiXinPrivateKey = "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 const x402Route = {
@@ -295,7 +297,7 @@ describe("AlphaPaymentRuntime.initialize", () => {
   it("warns only once when an Alipay replay store is not configured", async () => {
     const sink = logger();
     const runtime = createAlphaPayment({
-      client: { appId: "app-id", privateKey: alipayPrivateKey },
+      client: { alipayPublicKey, appId: "app-id", privateKey: alipayPrivateKey },
       direction: "inbound",
       logger: sink,
       provider: "alipay",

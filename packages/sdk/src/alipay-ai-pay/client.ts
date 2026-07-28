@@ -1,5 +1,12 @@
 import { buildAlipayAIPayPaymentNeededHeader, parseAlipayAIPayPaymentProofHeader } from "./bill.js";
 import {
+  assertFulfillmentConfirmWireResponse,
+  assertPaymentVerifyWireResponse,
+  collectExpectationMismatches,
+  optionalText,
+  requiredText,
+} from "./client-support.js";
+import {
   AlipayAIPayConfigError,
   AlipayAIPayRequestError,
   AlipayAIPayResponseError,
@@ -15,13 +22,10 @@ import {
   type AlipayAIPayClientBillInput,
   type AlipayAIPayClientOptions,
   type AlipayAIPayFulfillmentConfirmResult,
-  type AlipayAIPayFulfillmentConfirmWireResponse,
   type AlipayAIPayPaymentNeededResult,
   type AlipayAIPayPaymentProof,
   type AlipayAIPayPaymentVerifyResult,
-  type AlipayAIPayPaymentVerifyWireResponse,
   type AlipayAIPayRequestOptions,
-  type AlipayAIPayVerifyExpectation,
   type AlipayAIPayVerifyPaymentInput,
   type AlipayAIPayVerifyPaymentOptions,
 } from "./types.js";
@@ -57,6 +61,15 @@ export class AlipayAIPayClient {
 
     if (typeof this.#fetch !== "function") {
       throw new AlipayAIPayConfigError("A fetch implementation is required.");
+    }
+
+    if (this.#alipayPublicKey === undefined) {
+      this.#logger.warn(
+        "Alipay AI Pay client has no alipayPublicKey; gateway response signatures are not verified.",
+        {
+          appId: this.#appId,
+        },
+      );
     }
   }
 
@@ -208,89 +221,4 @@ export class AlipayAIPayClient {
       throw normalized;
     }
   }
-}
-
-function assertPaymentVerifyWireResponse(
-  node: Record<string, unknown>,
-  status: number,
-): AlipayAIPayPaymentVerifyWireResponse {
-  if (
-    !isNonEmptyString(node.trade_no) ||
-    !isNonEmptyString(node.amount) ||
-    !isNonEmptyString(node.resource_id) ||
-    !isNonEmptyString(node.out_trade_no) ||
-    typeof node.active !== "boolean"
-  ) {
-    throw new AlipayAIPayResponseError(
-      "Alipay AI Pay payment verify response was missing required business fields.",
-      status,
-      {
-        body: node,
-      },
-    );
-  }
-
-  return node as AlipayAIPayPaymentVerifyWireResponse;
-}
-
-function assertFulfillmentConfirmWireResponse(
-  node: Record<string, unknown>,
-  status: number,
-): AlipayAIPayFulfillmentConfirmWireResponse {
-  if (!isNonEmptyString(node.trade_no)) {
-    throw new AlipayAIPayResponseError(
-      "Alipay AI Pay fulfillment confirm response was missing trade_no.",
-      status,
-      {
-        body: node,
-      },
-    );
-  }
-
-  return node as AlipayAIPayFulfillmentConfirmWireResponse;
-}
-
-function collectExpectationMismatches(
-  wire: AlipayAIPayPaymentVerifyWireResponse,
-  expect: AlipayAIPayVerifyExpectation | undefined,
-): string[] {
-  if (expect === undefined) {
-    return [];
-  }
-
-  const mismatches: string[] = [];
-
-  if (expect.amount !== undefined && expect.amount !== wire.amount) {
-    mismatches.push("amount");
-  }
-
-  if (expect.outTradeNo !== undefined && expect.outTradeNo !== wire.out_trade_no) {
-    mismatches.push("out_trade_no");
-  }
-
-  if (expect.resourceId !== undefined && expect.resourceId !== wire.resource_id) {
-    mismatches.push("resource_id");
-  }
-
-  return mismatches;
-}
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0;
-}
-
-function requiredText(value: string, fieldName: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new AlipayAIPayConfigError(`Alipay AI Pay ${fieldName} is required.`);
-  }
-
-  return value;
-}
-
-function optionalText(value: string | undefined, fallback: string, fieldName: string): string {
-  if (value === undefined) {
-    return fallback;
-  }
-
-  return requiredText(value, fieldName);
 }
