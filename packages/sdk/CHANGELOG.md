@@ -1,5 +1,11 @@
 # @averyso/alpha
 
+## 1.3.0
+
+### Minor Changes
+
+- 3617d09: Add Alipay AI Pay Machine Pay outbound client and middleware runtime support.
+
 ## 1.2.2
 
 ### Patch Changes

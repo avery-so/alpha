@@ -1,6 +1,6 @@
 {
   "name": "@averyso/alpha",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "Node-only Avery SDK for TypeScript.",
   "keywords": [
     "agent",
