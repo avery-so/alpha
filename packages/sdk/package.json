@@ -100,7 +100,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@scure/base": "^1.2.6",
+    "@scure/base": "^2.2.0",
     "@solana/kit": "^6.9.0",
     "@x402/core": "^2.14.0",
     "@x402/evm": "^2.14.0",
