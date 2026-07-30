@@ -1,13 +1,26 @@
 # Alipay AI Pay (支付宝 AI 按量付费)
 
-The SDK implements the **seller side** of Alipay AI Pay: it signs a bill, issues the `Payment-Needed` challenge, verifies the buyer's `Payment-Proof` against the Alipay gateway, and confirms fulfillment after the resource is produced. There is no buyer-side (outbound) Alipay support — `direction: "outbound"` with `provider: "alipay"` throws `AlphaPaymentConfigError`.
+The SDK implements two deliberately separate Alipay AI Pay paths:
+
+- **Seller-side inbound**: sign a bill, issue the `Payment-Needed` challenge,
+  verify the buyer's `Payment-Proof` against the Alipay gateway, and confirm
+  fulfillment after the resource is produced.
+- **Buyer-side outbound Machine Pay**: send a normal HTTP request, delegate one
+  eligible 402 challenge to an application-provided payer, and retry once with
+  the resulting `Payment-Proof`.
+
+The two paths do not share `X402Client`, `EndpointResult`, bill parsing, or
+merchant gateway behavior.
 
 Two ways to use it:
 
 - **`createAlphaPayment({ provider: "alipay", direction: "inbound" })`** — the paywall runtime. Handles the whole challenge/verify/claim/confirm sequence for you. **Use this unless you have a reason not to.**
 - **`AlipayAIPayClient`** — the raw client, when you drive the sequence yourself (a non-HTTP transport, a custom framework, or an offline reconciliation job).
+- **`AlipayAIPayMachinePayClient`** or
+  **`createAlphaPayment({ provider: "alipay", direction: "outbound" })`** —
+  buyer-side Machine Pay. The host supplies the required payer policy.
 
-## Credentials
+## Inbound credentials
 
 | Option                | Required      | What it is                                                        |
 | --------------------- | ------------- | ----------------------------------------------------------------- |
@@ -24,6 +37,62 @@ Two ways to use it:
 > **Security: `alipayPublicKey` is optional in the type, but omitting it disables gateway response verification entirely.** Without it, `verifyPayment()` trusts whatever the transport returned — a forged `active: true` would be accepted. Always set it outside local development. The client logs a warning when it is missing.
 
 Never commit any of these. Keep them in env vars, server-side.
+
+## Outbound Machine Pay
+
+`AlipayAIPayMachinePayClient` is a raw Fetch API client for a buyer that calls
+a remote Alipay AI Pay endpoint. It returns a `Response`, not an x402
+`EndpointResult`.
+
+```ts
+import { AlipayAIPayMachinePayClient } from "@averyso/alpha";
+
+const client = new AlipayAIPayMachinePayClient({
+  payer: {
+    createPaymentProof: ({ paymentNeeded, request, signal }) =>
+      buyerPaymentPolicy.authorize({ paymentNeeded, request, signal }),
+  },
+});
+
+const response = await client.fetch("https://merchant.example.test/report", {
+  method: "POST",
+  body: JSON.stringify({ topic: "payments" }),
+});
+```
+
+The client always sends the original request first. It returns immediately for
+a non-402 response, a 402 with no non-empty `Payment-Needed`, or an original
+request that already contains `Payment-Proof`. For one eligible challenge, it
+passes the unmodified header value and `{ url, method }` plus the effective
+abort signal to `payer.createPaymentProof()`. It requires a non-empty returned
+header, attaches it to a replayed request, and sends exactly one retry. The
+second response is final, including another 402.
+
+### Outbound credentials and policy
+
+Outbound Machine Pay requires no merchant `appId`, merchant RSA private key,
+Alipay public key, gateway endpoint, or default CLI. Do not try to create a
+buyer proof from the seller credentials used by `AlipayAIPayClient`.
+
+`AlipayAIPayMachinePayer` is mandatory and is the security boundary. Its
+implementation must independently enforce buyer identity, trusted-merchant
+allowlists, challenge validation, amount ceilings, user confirmation, and any
+wallet or authorized buyer-SDK interaction. The SDK forwards protocol values;
+it does not interpret them or provide a permissive fallback.
+
+```ts
+interface AlipayAIPayMachinePayer {
+  createPaymentProof(input: {
+    paymentNeeded: string;
+    request: { url: string; method: string };
+    signal?: AbortSignal;
+  }): Promise<{ paymentProofHeader: string }>;
+}
+```
+
+Never log or persist `paymentNeeded` or `paymentProofHeader`. The client logs
+only method, URL, status, and error type. Request construction, payer, and
+retry failures become a sanitized `AlipayAIPayRequestError`.
 
 ## The runtime path (recommended)
 
@@ -194,7 +263,12 @@ Omitting `replayStore` is allowed for local development: the runtime logs one wa
 
 ## Framework binding
 
-**Alipay requires the wrapper form.** `alphaExpressMiddleware()` and `alphaHonoMiddleware()` throw `AlphaPaymentConfigError` for an alipay runtime, because the plain-middleware shape cannot buffer the response until fulfillment is confirmed.
+**Alipay inbound requires the wrapper form.** `alphaExpressMiddleware()` and
+`alphaHonoMiddleware()` throw `AlphaPaymentConfigError` only for an Alipay
+inbound runtime, because the plain-middleware shape cannot buffer the response
+until fulfillment is confirmed. Alipay outbound uses ordinary context injection
+in Express and Hono, and `withAlphaNext()` receives the outbound client as its
+payment context.
 
 ```ts
 // Next.js — app/api/report/route.ts

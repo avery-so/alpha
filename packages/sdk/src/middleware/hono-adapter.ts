@@ -16,7 +16,7 @@ const alphaHonoContextKey = "alphaPayment";
 export function alphaHonoMiddleware(runtime: AlphaPaymentRuntime): MiddlewareHandler {
   const state = getAlphaRuntimeState(runtime);
 
-  if (state.provider === "alipay") {
+  if (state.provider === "alipay" && state.direction === "inbound") {
     throw new AlphaPaymentConfigError(
       "Alipay inbound routes require withAlphaHono() so fulfillment can precede delivery.",
     );

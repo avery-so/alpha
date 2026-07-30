@@ -8,9 +8,11 @@ import type {
 import type { SchemeNetworkServer } from "@x402/core/types";
 
 import type { AlipayAIPayClient } from "../alipay-ai-pay/client.js";
+import type { AlipayAIPayMachinePayClient } from "../alipay-ai-pay/machine-pay-client.js";
 import type {
   AlipayAIPayClientBillInput,
   AlipayAIPayClientOptions,
+  AlipayAIPayMachinePayClientOptions,
 } from "../alipay-ai-pay/types.js";
 import type { WeiXinAIPayClient } from "../weixin-ai-pay/client.js";
 import type { WeiXinAIPayClientOptions } from "../weixin-ai-pay/types.js";
@@ -107,6 +109,13 @@ export interface AlphaAlipayInboundConfig extends AlphaPaymentBaseConfig {
   network?: never;
 }
 
+export interface AlphaAlipayOutboundConfig extends AlphaPaymentBaseConfig {
+  direction: "outbound";
+  provider: "alipay";
+  client: AlipayAIPayMachinePayClient | AlipayAIPayMachinePayClientOptions;
+  network?: never;
+}
+
 export interface AlphaWeiXinOutboundConfig extends AlphaPaymentBaseConfig {
   direction: "outbound";
   provider: "weixin";
@@ -118,6 +127,7 @@ export type AlphaPaymentConfig =
   | AlphaX402InboundConfig
   | AlphaX402OutboundConfig
   | AlphaAlipayInboundConfig
+  | AlphaAlipayOutboundConfig
   | AlphaWeiXinOutboundConfig;
 
 export interface AlphaX402InboundPaymentContext {
@@ -145,6 +155,12 @@ export interface AlphaAlipayInboundPaymentContext {
   provider: "alipay";
 }
 
+export interface AlphaAlipayOutboundPaymentContext {
+  client: AlipayAIPayMachinePayClient;
+  direction: "outbound";
+  provider: "alipay";
+}
+
 export interface AlphaWeiXinOutboundPaymentContext {
   client: WeiXinAIPayClient;
   direction: "outbound";
@@ -155,6 +171,7 @@ export type AlphaPaymentContext =
   | AlphaX402InboundPaymentContext
   | AlphaX402OutboundPaymentContext
   | AlphaAlipayInboundPaymentContext
+  | AlphaAlipayOutboundPaymentContext
   | AlphaWeiXinOutboundPaymentContext;
 
 export type AlphaWebHandler = (

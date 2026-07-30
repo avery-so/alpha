@@ -25,7 +25,7 @@ type RequestWithAlphaContext = ExpressRequest & {
 export function alphaExpressMiddleware(runtime: AlphaPaymentRuntime): RequestHandler {
   const state = getAlphaRuntimeState(runtime);
 
-  if (state.provider === "alipay") {
+  if (state.provider === "alipay" && state.direction === "inbound") {
     throw new AlphaPaymentConfigError(
       "Alipay inbound routes require withAlphaExpress() so fulfillment can precede delivery.",
     );

@@ -1,4 +1,5 @@
 import { AlipayAIPayClient } from "../alipay-ai-pay/client.js";
+import { AlipayAIPayMachinePayClient } from "../alipay-ai-pay/machine-pay-client.js";
 import { WeiXinAIPayClient } from "../weixin-ai-pay/client.js";
 import { createLogger, type Logger } from "../x402/logger.js";
 import type { AlphaAlipayInboundRuntimeState } from "./alipay-inbound.js";
@@ -6,6 +7,7 @@ import { compileAlipayRoutes } from "./alipay-routes.js";
 import { AlphaPaymentConfigError } from "./errors.js";
 import type {
   AlphaAlipayInboundConfig,
+  AlphaAlipayOutboundConfig,
   AlphaPaymentConfig,
   AlphaPaymentDirection,
   AlphaPaymentProvider,
@@ -42,6 +44,17 @@ export interface AlphaAlipayInboundState
   provider: "alipay";
 }
 
+export interface AlphaAlipayOutboundState extends AlphaRuntimeStateBase {
+  client: AlipayAIPayMachinePayClient;
+  context: {
+    client: AlipayAIPayMachinePayClient;
+    direction: "outbound";
+    provider: "alipay";
+  };
+  direction: "outbound";
+  provider: "alipay";
+}
+
 export interface AlphaWeiXinOutboundState extends AlphaRuntimeStateBase {
   client: WeiXinAIPayClient;
   context: {
@@ -57,6 +70,7 @@ export type AlphaRuntimeState =
   | AlphaX402InboundState
   | AlphaX402OutboundState
   | AlphaAlipayInboundState
+  | AlphaAlipayOutboundState
   | AlphaWeiXinOutboundState;
 
 export function createInboundX402Runtime(
@@ -135,6 +149,29 @@ export function createAlipayRuntime(config: AlphaAlipayInboundConfig): AlphaAlip
   };
 }
 
+export function createAlipayOutboundRuntime(
+  config: AlphaAlipayOutboundConfig,
+): AlphaAlipayOutboundState {
+  const logger = createLogger(config.logLevel ?? "info", config.logger);
+  const client = createAlipayMachinePayClient(config);
+  const context = { client, direction: "outbound", provider: "alipay" } as const;
+
+  return {
+    client,
+    context,
+    direction: "outbound",
+    initialize: () => {
+      logger.info("Alpha payment runtime initialized.", {
+        direction: "outbound",
+        provider: "alipay",
+      });
+      return Promise.resolve();
+    },
+    logger,
+    provider: "alipay",
+  };
+}
+
 export function createWeiXinRuntime(config: AlphaWeiXinOutboundConfig): AlphaWeiXinOutboundState {
   const logger = createLogger(config.logLevel ?? "info", config.logger);
   const client = createWeiXinClient(config);
@@ -173,6 +210,32 @@ function createAlipayClient(config: AlphaAlipayInboundConfig): AlipayAIPayClient
     });
   } catch (error) {
     throw new AlphaPaymentConfigError("Invalid Alipay inbound client configuration.", {
+      cause: error,
+      direction: config.direction,
+      provider: config.provider,
+    });
+  }
+}
+
+function createAlipayMachinePayClient(
+  config: AlphaAlipayOutboundConfig,
+): AlipayAIPayMachinePayClient {
+  try {
+    if (config.client instanceof AlipayAIPayMachinePayClient) {
+      return config.client;
+    }
+
+    return new AlipayAIPayMachinePayClient({
+      ...config.client,
+      ...(config.client.logger === undefined && config.logger !== undefined
+        ? { logger: config.logger }
+        : {}),
+      ...(config.client.logLevel === undefined && config.logLevel !== undefined
+        ? { logLevel: config.logLevel }
+        : {}),
+    });
+  } catch (error) {
+    throw new AlphaPaymentConfigError("Invalid Alipay outbound client configuration.", {
       cause: error,
       direction: config.direction,
       provider: config.provider,

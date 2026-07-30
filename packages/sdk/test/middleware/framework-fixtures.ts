@@ -85,6 +85,26 @@ export function createAlipayInboundRuntime(): AlphaPaymentRuntime {
   });
 }
 
+export function createAlipayOutboundRuntime(): {
+  payer: ReturnType<typeof vi.fn>;
+  runtime: AlphaPaymentRuntime;
+} {
+  const payer = vi.fn(async () => ({ paymentProofHeader: "payment-proof" }));
+
+  return {
+    payer,
+    runtime: createAlphaPayment({
+      client: {
+        fetch: vi.fn<typeof fetch>(async () => new Response("ready")),
+        payer: { createPaymentProof: payer },
+      },
+      direction: "outbound",
+      logLevel: "silent",
+      provider: "alipay",
+    }),
+  };
+}
+
 export function createWeiXinOutboundRuntime(): {
   fetchMock: ReturnType<typeof vi.fn>;
   runtime: AlphaPaymentRuntime;

@@ -125,6 +125,7 @@ const rootSidebar = [
     text: "Tutorial",
     items: [
       { text: "Build an Agent Payment Tool", link: "/tutorial/x402-ai-tool" },
+      { text: "Build Alipay AI Pay", link: "/tutorial/alipay-ai-pay" },
       { text: "Base Sepolia Payment Test", link: "/tutorial/base-sepolia-nextjs-payment-test" },
     ],
   },
@@ -174,6 +175,7 @@ const zhSidebar = [
     text: "教程",
     items: [
       { text: "构建 Agent 支付工具", link: "/zh/tutorial/x402-ai-tool" },
+      { text: "使用 Avery SDK 集成支付宝 AI 支付", link: "/zh/tutorial/alipay-ai-pay" },
       { text: "Base Sepolia 支付测试", link: "/zh/tutorial/base-sepolia-nextjs-payment-test" },
     ],
   },

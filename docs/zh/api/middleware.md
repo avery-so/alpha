@@ -8,6 +8,7 @@ import {
   AlphaPaymentConfigError,
   AlphaPaymentRuntime,
   createAlphaPayment,
+  type AlphaAlipayOutboundConfig,
   type AlphaPaymentConfig,
   type AlphaPaymentContext,
   type AlphaPaymentDirection,
@@ -35,7 +36,7 @@ type AlphaPaymentDirection = "inbound" | "outbound";
 | `x402` + `outbound`   | 有效                      |
 | `alipay` + `inbound`  | 有效                      |
 | `weixin` + `outbound` | 有效                      |
-| `alipay` + `outbound` | `AlphaPaymentConfigError` |
+| `alipay` + `outbound` | 有效                      |
 | `weixin` + `inbound`  | `AlphaPaymentConfigError` |
 
 JavaScript 调用或绕过 public union 的 TypeScript 调用也会得到相同运行时校验。
@@ -146,6 +147,23 @@ Route key 使用 `METHOD /path`，method 或 path 可包含 `*`。默认
 
 Alipay 和 WeiXin 配置中出现已定义的 `network` 字段会在创建时抛错。
 
+## Alipay Outbound 配置
+
+```ts
+interface AlphaAlipayOutboundConfig {
+  provider: "alipay";
+  direction: "outbound";
+  client: AlipayAIPayMachinePayClient | AlipayAIPayMachinePayClientOptions;
+  logLevel?: LogLevel;
+  logger?: Logger;
+}
+```
+
+传入已有的 `AlipayAIPayMachinePayClient` 或其 options。注入的 context 包含同一
+个可复用 client，其 `fetch(input, init?)` 会返回原始 `Response`。两种形式都必须
+提供 payer；它负责买方授权、商户可信校验、用户确认和额度限制。此出站配置不需要
+商户 `appId` 或 RSA 私钥。
+
 ## WeiXin Outbound 配置
 
 ```ts
@@ -179,6 +197,11 @@ type AlphaPaymentContext =
       provider: "alipay";
       direction: "inbound";
       payment: AlphaAlipayPaymentVerification | null;
+    }
+  | {
+      provider: "alipay";
+      direction: "outbound";
+      client: AlipayAIPayMachinePayClient;
     }
   | {
       provider: "weixin";
@@ -224,8 +247,8 @@ import {
 ### `alphaExpressMiddleware(runtime)`
 
 - x402 inbound 委托 `@x402/express`。
-- x402 或 WeiXin outbound context 注入 request。
-- Alipay inbound 立即抛错，因为普通 `res.send()`/`res.json()` 无法保证
+- 向 request 注入 x402、Alipay 或 WeiXin outbound context。
+- 仅 Alipay inbound 立即抛错，因为普通 `res.send()`/`res.json()` 无法保证
   fulfillment-before-delivery。
 
 ### `withAlphaExpress(runtime, handler)`
@@ -267,7 +290,8 @@ type AlphaNextHandler<RouteContext = unknown> = (
 ```
 
 x402 inbound 使用官方 `withX402FromHTTPServer` 语义。原生 Web response 会在交给
-官方 settlement wrapper 前完整缓存。Alipay 使用相同的履约后交付 contract。
+官方 settlement wrapper 前完整缓存。Alipay inbound 使用相同的履约后交付 contract；
+Alipay outbound 仅注入其 Machine Pay client。
 
 ### `alphaNextProxy(runtime)`
 

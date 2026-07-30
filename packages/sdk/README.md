@@ -16,6 +16,7 @@ Product pillars:
 - Pay-per-request x402 HTTP access with `X402Client`.
 - WeiXinAI Pay preorder request signing with `WeiXinAIPayClient`.
 - Alipay AI pay-per-use (AI按量付费) merchant flows with `AlipayAIPayClient`.
+- Alipay AI pay-per-use buyer calls with `AlipayAIPayMachinePayClient`.
 - Express, Hono, and Next.js route protection through one provider/direction
   runtime.
 - Payment exposure control with `maxAmount`.
@@ -118,6 +119,35 @@ response signatures. `verifyPayment` marks the result `verified` only when the
 credential is `active` and every `expect` field matches. Pass `appAuthToken`
 to call on behalf of a merchant as a third-party application.
 
+## Alipay Machine Pay Outbound
+
+`AlipayAIPayMachinePayClient` is the buyer-side HTTP client for an endpoint
+that returns Alipay AI Pay `402 Payment Required`. Its `fetch(input, init?)`
+method accepts standard fetch input and returns the raw `Response`.
+
+```ts
+import { AlipayAIPayMachinePayClient } from "@averyso/alpha";
+
+const client = new AlipayAIPayMachinePayClient({
+  payer: {
+    createPaymentProof: ({ paymentNeeded, request, signal }) =>
+      buyerPaymentPolicy.authorize({ paymentNeeded, request, signal }),
+  },
+});
+
+const response = await client.fetch("https://merchant.example.test/report");
+```
+
+On a non-402 response, or a 402 without a non-empty `Payment-Needed` header,
+the response is returned unchanged. For one valid challenge, the client asks
+the payer for a proof and retries exactly once with `Payment-Proof`. It never
+overwrites a caller-provided proof and never makes a second automatic payment
+attempt after another 402.
+
+The client does not parse bills, generate a proof, use merchant `appId` or RSA
+keys, or run an Alipay CLI. The required payer implementation owns buyer
+authorization, approval, merchant allowlists, and amount limits.
+
 ## Payment Middleware
 
 Create one reusable runtime for one provider and direction. This x402 inbound
@@ -181,7 +211,9 @@ export const GET = withAlphaNext(payment, async () => Response.json({ data: "pro
 
 Alipay inbound handlers must use `withAlphaExpress()`, `withAlphaHono()`, or
 `withAlphaNext()` so the response remains buffered until fulfillment succeeds.
-Production Alipay deployments also require a persistent, atomic replay store.
+Alipay outbound clients can use ordinary Express/Hono context injection or any
+`withAlpha*()` handler. Production Alipay inbound deployments also require a
+persistent, atomic replay store.
 See the [Payment Middleware guide](https://alpha.avery.so/guide/payment-middleware)
 and [Middleware API reference](https://alpha.avery.so/api/middleware).
 

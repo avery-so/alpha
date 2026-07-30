@@ -7,6 +7,7 @@ export {
   signAlipayAIPayBill,
 } from "./bill.js";
 export { AlipayAIPayClient } from "./client.js";
+export { AlipayAIPayMachinePayClient } from "./machine-pay-client.js";
 export {
   AlipayAIPayConfigError,
   AlipayAIPayError,
@@ -40,6 +41,8 @@ export type {
   AlipayAIPayGatewayRequestInput,
   AlipayAIPayGatewayResponseNode,
   AlipayAIPayKeyInput,
+  AlipayAIPayMachinePayClientOptions,
+  AlipayAIPayMachinePayer,
   AlipayAIPayPaymentNeeded,
   AlipayAIPayPaymentNeededMethod,
   AlipayAIPayPaymentNeededProtocol,

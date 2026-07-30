@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { alphaNextProxy, withAlphaNext } from "../../src/next.js";
 import {
   createAlipayInboundRuntime,
+  createAlipayOutboundRuntime,
   createX402InboundRuntime,
   createX402OutboundRuntime,
 } from "./framework-fixtures.js";
@@ -53,6 +54,23 @@ describe("withAlphaNext", () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it("injects the Alipay outbound client into an App Router handler", async () => {
+    const wrapped = withAlphaNext(
+      createAlipayOutboundRuntime().runtime,
+      async (_request, payment) =>
+        Response.json({
+          hasFetch:
+            payment.provider === "alipay" &&
+            payment.direction === "outbound" &&
+            typeof payment.client.fetch === "function",
+          provider: payment.provider,
+        }),
+    );
+    const response = await wrapped(new NextRequest("https://api.example.test/outbound"), {});
+
+    await expect(response.json()).resolves.toEqual({ hasFetch: true, provider: "alipay" });
+  });
+
   it("rejects invalid handlers at wrapper creation", () => {
     expect(() => withAlphaNext(createX402OutboundRuntime(), null as never)).toThrow(
       "requires a handler",
@@ -73,6 +91,9 @@ describe("alphaNextProxy", () => {
   it("rejects non-x402-inbound runtimes", () => {
     expect(() => alphaNextProxy(createX402OutboundRuntime())).toThrow("only supports x402 inbound");
     expect(() => alphaNextProxy(createAlipayInboundRuntime())).toThrow(
+      "only supports x402 inbound",
+    );
+    expect(() => alphaNextProxy(createAlipayOutboundRuntime().runtime)).toThrow(
       "only supports x402 inbound",
     );
   });

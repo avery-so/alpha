@@ -2,6 +2,7 @@ import { handleAlipayInboundRequest, type AlphaAlipayHandler } from "./alipay-in
 import { AlphaPaymentConfigError } from "./errors.js";
 import {
   createAlipayRuntime,
+  createAlipayOutboundRuntime,
   createInboundX402Runtime,
   createOutboundX402Runtime,
   createWeiXinRuntime,
@@ -107,6 +108,10 @@ function createRuntimeState(config: AlphaPaymentConfig): AlphaRuntimeState {
 
   if (config.provider === "alipay" && config.direction === "inbound") {
     return createAlipayRuntime(config);
+  }
+
+  if (config.provider === "alipay" && config.direction === "outbound") {
+    return createAlipayOutboundRuntime(config);
   }
 
   if (config.provider === "weixin" && config.direction === "outbound") {

@@ -11,6 +11,7 @@ import {
 } from "../../src/express.js";
 import {
   createAlipayInboundRuntime,
+  createAlipayOutboundRuntime,
   createX402InboundRuntime,
   createX402OutboundRuntime,
 } from "./framework-fixtures.js";
@@ -60,7 +61,32 @@ describe("alphaExpressMiddleware", () => {
     });
   });
 
-  it("rejects direct Alipay middleware and missing request context", () => {
+  it("injects an Alipay outbound client through ordinary middleware", async () => {
+    const { runtime } = createAlipayOutboundRuntime();
+    const app = express();
+    app.use(alphaExpressMiddleware(runtime));
+    app.get("/context", (request, response) => {
+      const context = getAlphaPaymentContext(request);
+      response.json({
+        hasFetch:
+          context.provider === "alipay" &&
+          context.direction === "outbound" &&
+          typeof context.client.fetch === "function",
+        provider: context.provider,
+      });
+    });
+
+    await withServer(app, async (origin) => {
+      await expect(fetch(`${origin}/context`).then((response) => response.json())).resolves.toEqual(
+        {
+          hasFetch: true,
+          provider: "alipay",
+        },
+      );
+    });
+  });
+
+  it("rejects direct Alipay inbound middleware and missing request context", () => {
     expect(() => alphaExpressMiddleware(createAlipayInboundRuntime())).toThrow(
       "require withAlphaExpress",
     );

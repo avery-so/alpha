@@ -6,11 +6,11 @@
 
 首版能力矩阵如下：
 
-| Provider | `inbound`        | `outbound`       |
-| -------- | ---------------- | ---------------- |
-| `x402`   | 支持             | 支持             |
-| `alipay` | 支持             | 创建时抛配置错误 |
-| `weixin` | 创建时抛配置错误 | 支持             |
+| Provider | `inbound`        | `outbound` |
+| -------- | ---------------- | ---------- |
+| `x402`   | 支持             | 支持       |
+| `alipay` | 支持             | 支持       |
+| `weixin` | 创建时抛配置错误 | 支持       |
 
 Alpha 将 x402 验证、结算、facilitator 通信及 wire headers 委托给官方
 `@x402/express`、`@x402/hono` 和 `@x402/next`，不会重新实现另一套 x402
@@ -24,6 +24,9 @@ gateway 凭据和微信签名凭据必须保留在服务端。Next.js 必须显�
 ```ts
 export const runtime = "nodejs";
 ```
+
+Alipay inbound 需要商家 gateway 凭据。Alipay outbound 则需要宿主提供的 payer，
+不需要商户 `appId` 或 RSA 私钥。
 
 只安装应用实际使用的 framework peer：
 
@@ -97,7 +100,7 @@ export const payment = createAlphaPayment({
 
 ## Express
 
-x402 inbound 或 outbound context 可配合普通 Express handler 使用：
+x402 inbound 或任意 outbound context 都可配合普通 Express handler 使用：
 
 ```ts
 import express from "express";
@@ -226,11 +229,42 @@ const weixinOutbound = createAlphaPayment({
     privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
   },
 });
+
+const alipayOutbound = createAlphaPayment({
+  provider: "alipay",
+  direction: "outbound",
+  client: {
+    payer: {
+      createPaymentProof: ({ paymentNeeded, request, signal }) =>
+        buyerPaymentPolicy.authorize({ paymentNeeded, request, signal }),
+    },
+  },
+});
 ```
 
 x402 outbound context 暴露 `context.client.call()`；WeiXin outbound context 暴露
-`context.client.preorder()`。context 不包含私钥、生成的签名、支付 headers 或 raw
-gateway response。
+`context.client.preorder()`；Alipay outbound context 暴露 `context.client.fetch()`，
+接收标准 Fetch API input 并返回原始 `Response`。context 不包含私钥、生成的签名、
+支付 headers 或 raw gateway response。
+
+## Alipay Machine Pay Outbound
+
+`AlipayAIPayMachinePayClient` 处理一次买方 challenge/retry sequence：
+
+1. 发送原始 request。
+2. 非 402、缺少非空 `Payment-Needed` 的 402，或原始 request 已带
+   `Payment-Proof` 的 402 都会直接返回。
+3. 对一个可支付的 402，将未修改 challenge 与有效 request URL、method、abort signal
+   传给注入的 payer。
+4. 用 payer 返回的非空 `Payment-Proof` 仅重试一次；第二个 response 即使仍是 402
+   也直接返回。
+
+client 不解析 bill、不根据商户凭据生成 proof，也不运行支付宝 CLI。payer 实现必须
+执行可信商户、额度和确认 policy。request 构造、payer 和 replay failure 会抛出
+`AlipayAIPayRequestError`，diagnostics 不会包含 payment header 值。
+
+完整的商家和买方 walkthrough 见
+[使用 Avery SDK 集成支付宝 AI 支付](/zh/tutorial/alipay-ai-pay)。
 
 ## Alipay Inbound 与 Replay Protection
 

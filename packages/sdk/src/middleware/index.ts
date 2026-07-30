@@ -6,6 +6,8 @@ export type {
   AlipayRoutesConfig,
   AlphaAlipayInboundConfig,
   AlphaAlipayInboundPaymentContext,
+  AlphaAlipayOutboundConfig,
+  AlphaAlipayOutboundPaymentContext,
   AlphaAlipayPaymentVerification,
   AlphaPaymentConfig,
   AlphaPaymentContext,

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { alphaHonoMiddleware, getAlphaPaymentContext, withAlphaHono } from "../../src/hono.js";
 import {
   createAlipayInboundRuntime,
+  createAlipayOutboundRuntime,
   createWeiXinOutboundRuntime,
   createX402InboundRuntime,
   createX402OutboundRuntime,
@@ -37,7 +38,25 @@ describe("alphaHonoMiddleware", () => {
     await expect(response.json()).resolves.toEqual({ direction: "outbound", provider: "x402" });
   });
 
-  it("rejects direct Alipay middleware and missing context", () => {
+  it("writes an Alipay outbound client into the Hono context", async () => {
+    const app = new Hono();
+    app.use(alphaHonoMiddleware(createAlipayOutboundRuntime().runtime));
+    app.get("/context", (context) => {
+      const payment = getAlphaPaymentContext(context);
+      return context.json({
+        hasFetch:
+          payment.provider === "alipay" &&
+          payment.direction === "outbound" &&
+          typeof payment.client.fetch === "function",
+        provider: payment.provider,
+      });
+    });
+
+    const response = await app.request("https://api.example.test/context");
+    await expect(response.json()).resolves.toEqual({ hasFetch: true, provider: "alipay" });
+  });
+
+  it("rejects direct Alipay inbound middleware and missing context", () => {
     expect(() => alphaHonoMiddleware(createAlipayInboundRuntime())).toThrow(
       "require withAlphaHono",
     );

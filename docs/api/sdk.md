@@ -21,6 +21,7 @@ Avery account, Avery API key, Avery-hosted service, or registration.
 import {
   AlipayAIPayClient,
   AlipayAIPayConfigError,
+  AlipayAIPayMachinePayClient,
   X402Client,
   X402ConfigError,
   X402Error,
@@ -340,6 +341,80 @@ Errors follow the same family layout as the other clients:
 configuration and keys, `AlipayAIPayRequestError` covers request building and
 transport failures, and `AlipayAIPayResponseError` carries the HTTP `status`
 plus gateway `code`/`sub_code` details.
+
+## `AlipayAIPayMachinePayClient`
+
+Implements the buyer-side outbound retry for the Alipay AI Pay 402 protocol.
+It is intentionally separate from `AlipayAIPayClient`: it does not build or
+parse an Alipay bill, call the merchant gateway APIs, or return an x402
+`EndpointResult`.
+
+```ts
+const client = new AlipayAIPayMachinePayClient({
+  payer: {
+    createPaymentProof: ({ paymentNeeded, request, signal }) =>
+      buyerPaymentPolicy.authorize({ paymentNeeded, request, signal }),
+  },
+});
+
+const response = await client.fetch("https://merchant.example.test/report", {
+  method: "POST",
+  body: JSON.stringify({ topic: "payments" }),
+});
+```
+
+### `AlipayAIPayMachinePayClientOptions`
+
+```ts
+interface AlipayAIPayMachinePayer {
+  createPaymentProof(input: {
+    paymentNeeded: string;
+    request: { url: string; method: string };
+    signal?: AbortSignal;
+  }): Promise<{ paymentProofHeader: string }>;
+}
+
+interface AlipayAIPayMachinePayClientOptions {
+  payer: AlipayAIPayMachinePayer;
+  fetch?: typeof fetch;
+  logLevel?: LogLevel;
+  logger?: Logger;
+}
+```
+
+`payer` is mandatory. It is the host application's policy boundary: validate
+the merchant and amount represented by `paymentNeeded`, obtain user approval
+when appropriate, and return the exact `Payment-Proof` header value authorized
+for that request. The SDK does not provide a default payer, invoke the Alipay
+CLI, or derive a buyer proof from merchant credentials. This outbound client
+does not require merchant `appId` or RSA private keys.
+
+`fetch` defaults to `globalThis.fetch`. `logger` and `logLevel` use the shared
+diagnostic contract. Logs contain request method, URL, status, and error type;
+they do not contain `Payment-Needed` or `Payment-Proof` values.
+
+### `fetch(input, init?)`
+
+```ts
+fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>
+```
+
+Accepts standard Fetch API request input and returns the raw response. The
+request is made once before any payment decision:
+
+1. Non-402 responses return unchanged.
+2. A 402 with no non-empty `Payment-Needed` header returns unchanged.
+3. A 402 for an original request that already has `Payment-Proof` returns
+   unchanged; the client does not overwrite it.
+4. Otherwise, the exact challenge header plus the effective request URL,
+   method, and abort signal are passed to `payer.createPaymentProof()`.
+5. A non-empty `paymentProofHeader` is set on a replayed request and sent once.
+   The second response, including a second 402, is returned unchanged.
+
+Request construction, proof creation, and replay failures throw
+`AlipayAIPayRequestError` without including payment-header values in the error
+message or logs. A `Request` body is replayed for the one retry; ordinary
+headers and the HTTP method are preserved.
 
 ## `X402Client`
 
@@ -915,5 +990,10 @@ results include a `paymentResponse: SettleResponse`.
 The package also supports CommonJS consumers:
 
 ```js
-const { AlipayAIPayClient, X402Client, x402tool } = require("@averyso/alpha");
+const {
+  AlipayAIPayClient,
+  AlipayAIPayMachinePayClient,
+  X402Client,
+  x402tool,
+} = require("@averyso/alpha");
 ```

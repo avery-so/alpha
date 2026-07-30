@@ -7,11 +7,11 @@ be reused across requests.
 
 The initial capability matrix is intentionally explicit:
 
-| Provider | `inbound`           | `outbound`          |
-| -------- | ------------------- | ------------------- |
-| `x402`   | Supported           | Supported           |
-| `alipay` | Supported           | Configuration error |
-| `weixin` | Configuration error | Supported           |
+| Provider | `inbound`           | `outbound` |
+| -------- | ------------------- | ---------- |
+| `x402`   | Supported           | Supported  |
+| `alipay` | Supported           | Supported  |
+| `weixin` | Configuration error | Supported  |
 
 Alpha delegates x402 verification, settlement, facilitator communication, and
 wire headers to the official `@x402/express`, `@x402/hono`, and `@x402/next`
@@ -26,6 +26,9 @@ server. For Next.js, explicitly select the Node runtime:
 ```ts
 export const runtime = "nodejs";
 ```
+
+Alipay inbound needs merchant gateway credentials. Alipay outbound instead
+requires a host-provided payer and does not need merchant `appId` or RSA keys.
 
 Install only the framework peer used by the application:
 
@@ -103,7 +106,7 @@ safely call it again.
 ## Express
 
 Use `alphaExpressMiddleware()` with ordinary Express handlers for x402 inbound
-or outbound contexts:
+or any outbound context:
 
 ```ts
 import express from "express";
@@ -235,11 +238,45 @@ const weixinOutbound = createAlphaPayment({
     privateKey: process.env.WEIXIN_AI_SM2_PRIVATE_KEY!,
   },
 });
+
+const alipayOutbound = createAlphaPayment({
+  provider: "alipay",
+  direction: "outbound",
+  client: {
+    payer: {
+      createPaymentProof: ({ paymentNeeded, request, signal }) =>
+        buyerPaymentPolicy.authorize({ paymentNeeded, request, signal }),
+    },
+  },
+});
 ```
 
 An x402 outbound context exposes `context.client.call()`. A WeiXin outbound
-context exposes `context.client.preorder()`. Context objects do not expose raw
-private keys, generated signatures, payment headers, or raw gateway responses.
+context exposes `context.client.preorder()`. An Alipay outbound context exposes
+`context.client.fetch()`, which accepts standard Fetch API input and returns a
+raw `Response`. Context objects do not expose raw private keys, generated
+signatures, payment headers, or raw gateway responses.
+
+## Alipay Machine Pay Outbound
+
+`AlipayAIPayMachinePayClient` handles one buyer-side challenge/retry sequence:
+
+1. Send the original request.
+2. Return any non-402 response, a 402 without a non-empty `Payment-Needed`, or
+   a 402 for a request that already has `Payment-Proof`.
+3. For one eligible 402, pass the unmodified challenge and effective request
+   URL, method, and abort signal to the injected payer.
+4. Retry once with the payer's non-empty `Payment-Proof`; return the second
+   response even when it is another 402.
+
+The client does not parse a bill, generate a proof from merchant credentials,
+or run an Alipay CLI. Payer implementations must enforce trusted-merchant,
+amount-limit, and approval policy. Request construction, payer, and replay
+failures throw `AlipayAIPayRequestError`; payment header values are excluded
+from diagnostics.
+
+For a complete merchant and buyer walkthrough, see
+[Build Alipay AI Pay with Avery SDK](/tutorial/alipay-ai-pay).
 
 ## Alipay Inbound and Replay Protection
 

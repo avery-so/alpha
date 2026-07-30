@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   AlphaPaymentConfigError,
   AlipayAIPayClient,
+  AlipayAIPayMachinePayClient,
   WeiXinAIPayClient,
   X402Client,
   createAlphaPayment,
@@ -70,6 +71,12 @@ describe("createAlphaPayment", () => {
       privateKey: weiXinPrivateKey,
       publicKeyId: "public-key-id",
     });
+    const alipayMachinePay = new AlipayAIPayMachinePayClient({
+      logLevel: "silent",
+      payer: {
+        createPaymentProof: async () => ({ paymentProofHeader: "payment-proof" }),
+      },
+    });
 
     expect(
       createAlphaPayment({
@@ -104,16 +111,23 @@ describe("createAlphaPayment", () => {
       }),
     ).toMatchObject({ direction: "inbound", provider: "alipay" });
     expect(
+      createAlphaPayment({
+        client: alipayMachinePay,
+        direction: "outbound",
+        provider: "alipay",
+      }),
+    ).toMatchObject({ direction: "outbound", provider: "alipay" });
+    expect(
       createAlphaPayment({ client: weixin, direction: "outbound", provider: "weixin" }),
     ).toMatchObject({ direction: "outbound", provider: "weixin" });
   });
 
-  it.each([
-    { direction: "outbound", provider: "alipay" },
-    { direction: "inbound", provider: "weixin" },
-  ])("rejects unsupported $provider $direction runtimes", (config) => {
-    expect(() => createAlphaPayment(config as never)).toThrow(AlphaPaymentConfigError);
-  });
+  it.each([{ direction: "inbound", provider: "weixin" }])(
+    "rejects unsupported $provider $direction runtimes",
+    (config) => {
+      expect(() => createAlphaPayment(config as never)).toThrow(AlphaPaymentConfigError);
+    },
+  );
 
   it("validates JavaScript calls that bypass the public types", () => {
     expect(() => createAlphaPayment(null as never)).toThrow("config must be an object");
@@ -269,11 +283,39 @@ describe("createAlphaPayment", () => {
     ).toThrow("Invalid Alipay inbound client configuration");
     expect(() =>
       createAlphaPayment({
+        client: { payer: {} },
+        direction: "outbound",
+        provider: "alipay",
+      } as never),
+    ).toThrow("Invalid Alipay outbound client configuration");
+    expect(() =>
+      createAlphaPayment({
         client: { developerId: "", privateKey: weiXinPrivateKey, publicKeyId: "key" },
         direction: "outbound",
         provider: "weixin",
       }),
     ).toThrow("Invalid WeiXin outbound client configuration");
+  });
+
+  it("creates and exposes an Alipay machine payment client for outbound requests", () => {
+    const runtime = createAlphaPayment({
+      client: {
+        fetch: vi.fn<typeof fetch>(async () => new Response("ready")),
+        payer: {
+          createPaymentProof: async () => ({ paymentProofHeader: "payment-proof" }),
+        },
+      },
+      direction: "outbound",
+      provider: "alipay",
+    });
+    const state = getAlphaRuntimeState(runtime);
+
+    if (state.provider !== "alipay" || state.direction !== "outbound") {
+      throw new Error("Expected Alipay outbound state.");
+    }
+
+    expect(state.context.client).toBeInstanceOf(AlipayAIPayMachinePayClient);
+    expect(typeof state.context.client.fetch).toBe("function");
   });
 });
 

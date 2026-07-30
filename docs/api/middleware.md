@@ -8,6 +8,7 @@ import {
   AlphaPaymentConfigError,
   AlphaPaymentRuntime,
   createAlphaPayment,
+  type AlphaAlipayOutboundConfig,
   type AlphaPaymentConfig,
   type AlphaPaymentContext,
   type AlphaPaymentDirection,
@@ -36,7 +37,7 @@ type AlphaPaymentDirection = "inbound" | "outbound";
 | `x402` + `outbound`   | Valid                     |
 | `alipay` + `inbound`  | Valid                     |
 | `weixin` + `outbound` | Valid                     |
-| `alipay` + `outbound` | `AlphaPaymentConfigError` |
+| `alipay` + `outbound` | Valid                     |
 | `weixin` + `inbound`  | `AlphaPaymentConfigError` |
 
 Runtime validation also applies to JavaScript callers and TypeScript callers
@@ -152,6 +153,24 @@ integers.
 
 Alipay and WeiXin configurations reject a defined `network` field at runtime.
 
+## Alipay Outbound Configuration
+
+```ts
+interface AlphaAlipayOutboundConfig {
+  provider: "alipay";
+  direction: "outbound";
+  client: AlipayAIPayMachinePayClient | AlipayAIPayMachinePayClientOptions;
+  logLevel?: LogLevel;
+  logger?: Logger;
+}
+```
+
+Pass an existing `AlipayAIPayMachinePayClient` or its options. The injected
+context contains that reusable client, whose `fetch(input, init?)` method
+returns a raw `Response`. A payer is required in either form; it owns buyer
+authorization, merchant trust, user confirmation, and spending limits. This
+outbound configuration needs neither a merchant `appId` nor an RSA private key.
+
 ## WeiXin Outbound Configuration
 
 ```ts
@@ -185,6 +204,11 @@ type AlphaPaymentContext =
       provider: "alipay";
       direction: "inbound";
       payment: AlphaAlipayPaymentVerification | null;
+    }
+  | {
+      provider: "alipay";
+      direction: "outbound";
+      client: AlipayAIPayMachinePayClient;
     }
   | {
       provider: "weixin";
@@ -233,8 +257,8 @@ import {
 ### `alphaExpressMiddleware(runtime)`
 
 - Delegates x402 inbound processing to `@x402/express`.
-- Injects x402 or WeiXin outbound context on the request.
-- Throws for Alipay inbound because ordinary `res.send()`/`res.json()` cannot
+- Injects x402, Alipay, or WeiXin outbound context on the request.
+- Throws only for Alipay inbound because ordinary `res.send()`/`res.json()` cannot
   guarantee fulfillment-before-delivery ordering.
 
 ### `withAlphaExpress(runtime, handler)`
@@ -279,7 +303,8 @@ type AlphaNextHandler<RouteContext = unknown> = (
 
 x402 inbound uses the official `withX402FromHTTPServer` semantics. Native Web
 responses are fully buffered before being returned to the official settlement
-wrapper. Alipay uses the same fulfillment-before-delivery contract.
+wrapper. Alipay inbound uses the same fulfillment-before-delivery contract;
+Alipay outbound simply injects its Machine Pay client.
 
 ### `alphaNextProxy(runtime)`
 

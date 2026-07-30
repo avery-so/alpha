@@ -26,6 +26,28 @@ export interface AlipayAIPayClientOptions {
   logger?: Logger | undefined;
 }
 
+/**
+ * Provides buyer-side authorization for one Alipay AI Pay payment challenge.
+ * Implementations own merchant trust, approval, and spending-limit policy.
+ */
+export interface AlipayAIPayMachinePayer {
+  createPaymentProof(input: {
+    paymentNeeded: string;
+    request: {
+      method: string;
+      url: string;
+    };
+    signal?: AbortSignal | undefined;
+  }): Promise<{ paymentProofHeader: string }>;
+}
+
+export interface AlipayAIPayMachinePayClientOptions {
+  payer: AlipayAIPayMachinePayer;
+  fetch?: typeof fetch | undefined;
+  logger?: Logger | undefined;
+  logLevel?: LogLevel | undefined;
+}
+
 export interface AlipayAIPayBillInput {
   outTradeNo: string;
   amount: string;

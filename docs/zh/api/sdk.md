@@ -17,6 +17,7 @@ Next.js adapter 使用独立 subpath，详见 [Middleware API 参考](/zh/api/mi
 import {
   AlipayAIPayClient,
   AlipayAIPayConfigError,
+  AlipayAIPayMachinePayClient,
   X402Client,
   X402ConfigError,
   X402Error,
@@ -333,6 +334,74 @@ await client.confirmFulfillment(result.tradeNo);
 `AlipayAIPayConfigError` 覆盖配置和密钥错误，`AlipayAIPayRequestError` 覆盖
 请求构建和传输失败，`AlipayAIPayResponseError` 携带 HTTP `status` 以及网关
 `code`/`sub_code` 详情。
+
+## `AlipayAIPayMachinePayClient`
+
+实现支付宝 AI Pay 402 协议的买方出站重试。它与 `AlipayAIPayClient` 有意保持
+独立：不会构建或解析支付宝账单、不会调用商家网关 API，也不会返回 x402 的
+`EndpointResult`。
+
+```ts
+const client = new AlipayAIPayMachinePayClient({
+  payer: {
+    createPaymentProof: ({ paymentNeeded, request, signal }) =>
+      buyerPaymentPolicy.authorize({ paymentNeeded, request, signal }),
+  },
+});
+
+const response = await client.fetch("https://merchant.example.test/report", {
+  method: "POST",
+  body: JSON.stringify({ topic: "payments" }),
+});
+```
+
+### `AlipayAIPayMachinePayClientOptions`
+
+```ts
+interface AlipayAIPayMachinePayer {
+  createPaymentProof(input: {
+    paymentNeeded: string;
+    request: { url: string; method: string };
+    signal?: AbortSignal;
+  }): Promise<{ paymentProofHeader: string }>;
+}
+
+interface AlipayAIPayMachinePayClientOptions {
+  payer: AlipayAIPayMachinePayer;
+  fetch?: typeof fetch;
+  logLevel?: LogLevel;
+  logger?: Logger;
+}
+```
+
+`payer` 为必填项，也是宿主应用的 policy boundary：应校验 `paymentNeeded` 中
+代表的商户和金额、按需取得用户确认，并返回这个请求已获授权的原始
+`Payment-Proof` header 值。SDK 不提供默认 payer、不调用支付宝 CLI，也不会根据
+商户凭据推导买方凭证。此出站 client 不需要商户 `appId` 或 RSA 私钥。
+
+`fetch` 默认使用 `globalThis.fetch`。`logger` 和 `logLevel` 使用共享诊断契约。
+日志仅包含 request method、URL、status 和 error type，不包含 `Payment-Needed`
+或 `Payment-Proof` 值。
+
+### `fetch(input, init?)`
+
+```ts
+fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>
+```
+
+接受标准 Fetch API request input，返回原始 response。付款决策前请求会先执行一次：
+
+1. 非 402 response 原样返回。
+2. 402 缺少非空 `Payment-Needed` header 时原样返回。
+3. 原始 request 已携带 `Payment-Proof` 时，402 原样返回，client 不会覆盖它。
+4. 其他情况下，原始 challenge header 和有效 request URL、method、abort signal
+   会传给 `payer.createPaymentProof()`。
+5. 非空 `paymentProofHeader` 会写入可重放 request 并仅发送一次。第二个 response
+   即使仍为 402 也会原样返回。
+
+request 构造、proof 创建和重放失败会抛出 `AlipayAIPayRequestError`，error message
+和日志都不会包含 payment header 值。`Request` body 会为这一次重试重放，普通
+headers 与 HTTP method 会保持不变。
 
 ## `X402Client`
 
@@ -878,5 +947,10 @@ friendly name 和不支持的原始 Solana CAIP-2 值会抛出 `X402ConfigError`
 包也支持 CommonJS 使用方式：
 
 ```js
-const { AlipayAIPayClient, X402Client, x402tool } = require("@averyso/alpha");
+const {
+  AlipayAIPayClient,
+  AlipayAIPayMachinePayClient,
+  X402Client,
+  x402tool,
+} = require("@averyso/alpha");
 ```

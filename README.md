@@ -24,6 +24,8 @@ Use it to:
 - run the Alipay AI pay-per-use (AI按量付费) merchant flow with
   `AlipayAIPayClient` — signed 402 `Payment-Needed` bills, `Payment-Proof`
   verification, and fulfillment confirmation;
+- call Alipay AI pay-per-use endpoints as a buyer with
+  `AlipayAIPayMachinePayClient` and a host-provided payment policy;
 - protect Express, Hono, and Next.js routes with one provider/direction payment
   runtime;
 - cap payment exposure per client, call, or tool with `maxAmount`;
@@ -117,6 +119,41 @@ Bills and gateway requests are signed locally with your application RSA
 private key (RSA2 / SHA256withRSA); when `alipayPublicKey` is set, gateway
 response signatures are verified too. Keys must stay server-side.
 
+## Alipay Machine Pay Outbound
+
+Use `AlipayAIPayMachinePayClient` when an application calls a remote Alipay AI
+Pay endpoint and receives `402 Payment Required`. It returns the raw `Response`
+from standard `fetch` input, rather than an x402 `EndpointResult`.
+
+```ts
+import { AlipayAIPayMachinePayClient } from "@averyso/alpha";
+
+const client = new AlipayAIPayMachinePayClient({
+  payer: {
+    async createPaymentProof({ paymentNeeded, request, signal }) {
+      return buyerPaymentPolicy.authorize({ paymentNeeded, request, signal });
+    },
+  },
+});
+
+const response = await client.fetch("https://merchant.example.test/report", {
+  headers: { "X-Request-Id": "request-1" },
+  method: "POST",
+  body: JSON.stringify({ topic: "payments" }),
+});
+```
+
+The client makes the original request once. It only calls `payer` when the
+response is `402` with a non-empty `Payment-Needed` header and the original
+request did not already contain `Payment-Proof`; it then retries once with the
+returned proof. A second `402` is returned unchanged and never triggers a
+second payment attempt.
+
+The SDK does not parse the bill, derive a proof from merchant credentials, or
+run an Alipay CLI. Outbound Machine Pay requires no merchant `appId` or RSA
+private key. The injected payer is the required boundary for buyer identity,
+user approval, trusted-merchant checks, and spending limits.
+
 ## Payment Middleware
 
 Create one reusable runtime for one provider and direction. This x402 inbound
@@ -180,7 +217,9 @@ export const GET = withAlphaNext(payment, async () => Response.json({ data: "pro
 
 Alipay inbound handlers must use `withAlphaExpress()`, `withAlphaHono()`, or
 `withAlphaNext()` so the response remains buffered until fulfillment succeeds.
-Production Alipay deployments also require a persistent, atomic replay store.
+Alipay outbound clients can use ordinary Express/Hono context injection or any
+`withAlpha*()` handler. Production Alipay inbound deployments also require a
+persistent, atomic replay store.
 See the [Payment Middleware guide](./docs/guide/payment-middleware.md) and
 [Middleware API reference](./docs/api/middleware.md).
 
@@ -273,7 +312,13 @@ details.
 ## CommonJS
 
 ```js
-const { AlipayAIPayClient, WeiXinAIPayClient, X402Client, x402tool } = require("@averyso/alpha");
+const {
+  AlipayAIPayClient,
+  AlipayAIPayMachinePayClient,
+  WeiXinAIPayClient,
+  X402Client,
+  x402tool,
+} = require("@averyso/alpha");
 ```
 
 ## Development

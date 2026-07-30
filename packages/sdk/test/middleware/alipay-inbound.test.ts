@@ -255,7 +255,7 @@ describe("Alipay inbound challenge and verification", () => {
     const harness = createHarness({ replay: replayStore(), route: "GET /reports/*" });
     const state = harness.state;
 
-    if (state.provider !== "alipay") {
+    if (state.provider !== "alipay" || state.direction !== "inbound") {
       throw new Error("Expected Alipay state.");
     }
 
