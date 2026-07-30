@@ -17,9 +17,9 @@
     "@ai-sdk/react": "^3.0.201",
     "@averyso/alpha": "workspace:*",
     "ai": "^6.0.199",
-    "next": "^16.2.9",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
+    "next": "^16.2.12",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "zod": "^4.4.3"
   },
   "devDependencies": {
